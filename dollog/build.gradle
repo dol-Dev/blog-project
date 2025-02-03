@@ -1,0 +1,56 @@
+plugins {
+    id 'java' // Java plugin for building Java projects
+    id 'org.springframework.boot' version '3.4.2' // Replaced with a stable version
+    id 'io.spring.dependency-management' version '1.1.7' // Dependency management for Spring
+}
+
+group = 'com.doldev' // Project group ID
+version = '0.0.1-SNAPSHOT' // Project version
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21) // Set Java version (Java 21)
+    }
+}
+
+repositories {
+    mavenCentral() // Maven Central Repository for dependencies
+    maven { url 'https://repo.spring.io/milestone' } // Spring Milestone Repository
+    maven { url 'https://repo.spring.io/snapshot' } // Spring Snapshot Repository
+}
+
+dependencies {
+   // Spring Boot Core Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter' // Basic Spring Boot starter
+    
+    // Spring Web Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Spring Web (REST APIs, Server)
+
+    // Data and Persistence Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA and database integration
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis integration
+    
+    // Security Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security (security-related)
+    
+    // Monitoring and Metrics Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' // Spring Boot Actuator (monitoring and metrics)
+
+    // Development tools (hot reload, etc.)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // Hot reload during development
+
+    // Database connector
+    runtimeOnly 'com.mysql:mysql-connector-j' // MySQL connector for database connection
+
+    // Testing dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot test support
+    testImplementation 'org.springframework.security:spring-security-test' // Spring Security test support
+
+    // Lombok (code generation for getters, setters, etc.)
+    compileOnly 'org.projectlombok:lombok' // Lombok to reduce boilerplate code
+    annotationProcessor 'org.projectlombok:lombok' // Annotation processor for Lombok
+}
+
+tasks.named('test') {
+    useJUnitPlatform() // Use JUnit5 for testing
+}
