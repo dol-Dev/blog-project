@@ -49,6 +49,10 @@ dependencies {
     // Lombok (code generation for getters, setters, etc.)
     compileOnly 'org.projectlombok:lombok' // Lombok to reduce boilerplate code
     annotationProcessor 'org.projectlombok:lombok' // Annotation processor for Lombok
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.6'
+
 }
 
 tasks.named('test') {
