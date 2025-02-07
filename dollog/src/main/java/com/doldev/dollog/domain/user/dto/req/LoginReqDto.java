@@ -1,4 +1,4 @@
-package com.doldev.dollog.dto.auth;
+package com.doldev.dollog.domain.user.dto.req;
 
 import lombok.Getter;
 

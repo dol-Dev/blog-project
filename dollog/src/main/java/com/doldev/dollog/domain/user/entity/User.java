@@ -1,8 +1,10 @@
-package com.doldev.dollog.entity;
+package com.doldev.dollog.domain.user.entity;
 
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.doldev.dollog.domain.roletype.entity.RoleType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,8 +22,8 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class User {
 
@@ -35,14 +37,14 @@ public class User {
     @Column(nullable = false, length = 200)
     private String password;
 
-    @Column(nullable = false, unique = true, length = 30)
-    private String nickname;
-
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 100)
     private String email;
 
     @Enumerated(EnumType.STRING)
     private RoleType role;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String nickname;
 
     @CreationTimestamp
     private LocalDateTime createDate;
