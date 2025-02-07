@@ -1,15 +1,11 @@
-package com.doldev.dollog.dto.auth;
+package com.doldev.dollog.domain.user.dto.req;
 
 import lombok.Data;
 
 @Data
 public class SignupReqDto {
-    
     private String username;
-
     private String password;
-
     private String email;
-
     private String nickname;
 }

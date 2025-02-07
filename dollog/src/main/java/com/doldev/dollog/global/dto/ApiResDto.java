@@ -1,4 +1,4 @@
-package com.doldev.dollog.dto.api;
+package com.doldev.dollog.global.dto;
 
 import java.util.Map;
 

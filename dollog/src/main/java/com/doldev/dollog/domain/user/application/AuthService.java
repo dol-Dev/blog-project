@@ -1,13 +1,13 @@
-package com.doldev.dollog.service.auth;
+package com.doldev.dollog.domain.user.application;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.doldev.dollog.dto.auth.SignupReqDto;
-import com.doldev.dollog.entity.RoleType;
-import com.doldev.dollog.entity.User;
-import com.doldev.dollog.repository.user.UserRepository;
+import com.doldev.dollog.domain.roletype.entity.RoleType;
+import com.doldev.dollog.domain.user.dto.req.SignupReqDto;
+import com.doldev.dollog.domain.user.entity.User;
+import com.doldev.dollog.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

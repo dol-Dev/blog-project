@@ -1,4 +1,4 @@
-package com.doldev.dollog.config;
+package com.doldev.dollog.global.config.infra;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
