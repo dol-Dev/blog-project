@@ -1,5 +1,6 @@
 HELP.md
 .gradle
+*.class
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -11,5 +12,5 @@ build/
 .vscode/
 
 # Ignore specific files
-src/main/resources/application-dev.properties
+application-dev.properties
 gitmessage.txt
