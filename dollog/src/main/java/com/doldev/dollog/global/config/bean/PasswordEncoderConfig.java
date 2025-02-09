@@ -1,4 +1,4 @@
-package com.doldev.dollog.global.config.security;
+package com.doldev.dollog.global.config.bean;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
