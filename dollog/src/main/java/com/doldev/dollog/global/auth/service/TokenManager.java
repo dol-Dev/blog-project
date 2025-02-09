@@ -5,17 +5,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class TokenManager {
     private final JwtTokenProvider jwtProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Value("${jwt.token.refresh-expiration-time}")
+    @Value("${jwt.refresh.expiration}")
     private long refreshExpirationTime;
 
     // 새로운 액세스 토큰과 리프레시 토큰을 생성하고, 리프레시 토큰을 Redis에 저장한 후 반환해
