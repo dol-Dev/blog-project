@@ -5,8 +5,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.doldev.dollog.domain.user.entity.User;
-import com.doldev.dollog.domain.user.repository.UserRepository;
+import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
+import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
+import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,35 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final SnsUserRepository snsUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User principal = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다. " + username));
-        return new CustomUserDetails(principal); // SecurityContextHolder에 User가 관리됨
+        log.debug("일반 회원 조회: {}", username);
+
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    log.info("일반 회원 로그인 성공: {}", username);
+                    return new CustomUserDetails(user);
+                })
+                .orElseThrow(() -> {
+                    log.warn("일반 회원 없음: {}", username);
+                    return new UsernameNotFoundException("일반 회원을 찾을 수 없습니다: " + username);
+                });
+    }
+
+    public UserDetails loadSnsUserBySnsIdentifier(String snsIdentifier, SnsProvider provider) {
+        log.debug("SNS 회원 조회: provider={}, snsId={}", provider, snsIdentifier);
+
+        return snsUserRepository.findBySnsIdentifierAndProvider(snsIdentifier, provider)
+                .map(snsUser -> {
+                    log.info("SNS 회원 로그인 성공: {} - {}", provider, snsIdentifier);
+                    return new CustomUserDetails(snsUser);
+                })
+                .orElseThrow(() -> {
+                    log.warn("SNS 회원 없음: {} - {}", provider, snsIdentifier);
+                    return new UsernameNotFoundException(
+                            String.format("%s 계정을 찾을 수 없습니다: %s", provider, snsIdentifier));
+                });
     }
 }
