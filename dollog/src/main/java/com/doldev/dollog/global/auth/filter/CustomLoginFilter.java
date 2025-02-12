@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.doldev.dollog.domain.user.dto.req.LoginReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.LoginReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.auth.service.TokenManager;
 import com.doldev.dollog.global.dto.ApiResDto;
