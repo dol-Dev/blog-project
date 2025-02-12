@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
+import com.doldev.dollog.domain.account.snsUser.application.CustomOAuth2UserService;
 import com.doldev.dollog.global.auth.filter.CustomAuthenticationFilter;
 import com.doldev.dollog.global.auth.filter.CustomLoginFilter;
 import com.doldev.dollog.global.auth.service.CustomUserDetailsService;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final TokenManager tokenManager;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsFilter corsFilter;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -50,6 +52,11 @@ public class SecurityConfig {
 
         // 인가 설정
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests.anyRequest().permitAll());
+
+        // OAuth2 설정
+        http.oauth2Login(oauth2Login -> oauth2Login
+                .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService))
+                .successHandler((request, response, authentication) -> response.sendRedirect("http://localhost:3000"))); // 추후 리액트 주소로 변경 
 
         return http.build();
     }
