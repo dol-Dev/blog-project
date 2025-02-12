@@ -3,8 +3,9 @@ package com.doldev.dollog.global.validator;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
-import com.doldev.dollog.domain.user.dto.req.SignupReqDto;
-import com.doldev.dollog.domain.user.repository.UserRepository;
+import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
+import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
+import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
 
     private static final String USERNAME_PATTERN = "[a-zA-Z0-9]{5,13}";
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{1,}$";
@@ -82,7 +84,7 @@ public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
         }
 
         // 닉네임 중복 체크
-        if (userRepository.existsByNickname(req.getNickname())) {
+        if (profileRepository.existsByNickname(req.getNickname())) {
             addError(errors, "nickname", "중복 오류", "이미 사용 중인 닉네임입니다.");
         }
     }
