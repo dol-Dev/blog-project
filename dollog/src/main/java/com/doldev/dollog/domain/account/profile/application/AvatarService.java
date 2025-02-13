@@ -1,4 +1,4 @@
-package com.doldev.dollog.domain.account.profile.service;
+package com.doldev.dollog.domain.account.profile.application;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

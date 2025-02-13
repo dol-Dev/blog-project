@@ -37,18 +37,27 @@ public class Profile {
     @OneToOne(mappedBy = "profile")
     private SnsUser snsUser;
 
+    /* 필드 업데이트 메서드들 */
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
-    /* 연관관계 설정 메서드들 */ 
+    public void chatAvatarImageUrl(String avatarImageUrl) {
+        this.avatarImageUrl = avatarImageUrl;
+    }
+
+
+    /* 연관관계 설정 메서드들 */
     public void assignUser(User user) {
         this.user = user;
-        if (user.getProfile() != this) {  
+        if (user.getProfile() != this) {
             user.assignProfile(this);
         }
     }
 
     public void assignSnsUser(SnsUser snsUser) {
         this.snsUser = snsUser;
-        if (snsUser.getProfile() != this) { 
+        if (snsUser.getProfile() != this) {
             snsUser.assignProfile(this);
         }
     }
