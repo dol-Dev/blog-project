@@ -8,6 +8,8 @@ import com.doldev.dollog.domain.account.snsUser.application.SnsService;
 import com.doldev.dollog.domain.account.snsUser.enums.SnsType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -17,16 +19,16 @@ public class SnsController {
     private final SnsService snsService;
 
     @GetMapping("/api/oauth2/kakao/callback")
-    public String kakaoLogin(@RequestParam("code") String code)
+    public String kakaoLogin(@RequestParam("code") String code, HttpServletRequest req, HttpServletResponse res)
             throws JsonProcessingException {
-        snsService.process(SnsType.KAKAO, code);
+        snsService.process(SnsType.KAKAO, code, req, res);
         return "redirect:http://localhost:3000";
     }
 
     @GetMapping("/api/oauth2/naver/callback")
-    public String naverLogin(@RequestParam("code") String code)
+    public String naverLogin(@RequestParam("code") String code, HttpServletRequest req, HttpServletResponse res)
             throws JsonProcessingException {
-        snsService.process(SnsType.NAVER, code);
+        snsService.process(SnsType.NAVER, code, req, res);
         return "redirect:http://localhost:3000";
     }
 }

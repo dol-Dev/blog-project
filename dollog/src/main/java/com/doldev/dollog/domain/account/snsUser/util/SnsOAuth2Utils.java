@@ -17,14 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Component
 @RequiredArgsConstructor
 public class SnsOAuth2Utils {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getAccessToken(String code, SnsType snsType, String clientId, String clientSecret, String redirectUri) {
+    public String getAccessToken(String code, SnsType snsType, String clientId, String clientSecret,
+            String redirectUri) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -34,17 +34,16 @@ public class SnsOAuth2Utils {
         params.add("code", code);
         params.add("redirect_uri", redirectUri);
 
-        if(snsType.getClientSecretKey() != null && clientSecret != null) {
+        if (snsType.getClientSecretKey() != null && clientSecret != null) {
             params.add(snsType.getClientSecretKey(), clientSecret);
         }
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        
+
         ResponseEntity<String> response = restTemplate.postForEntity(
-            snsType.getTokenUrl(), 
-            request, 
-            String.class
-        );
+                snsType.getTokenUrl(),
+                request,
+                String.class);
 
         return parseAccessToken(response.getBody());
     }
@@ -57,25 +56,24 @@ public class SnsOAuth2Utils {
         }
     }
 
-    public String gerSnsIdentifier(String accessToken, SnsType snsType) {
+    public String gerUsername(String accessToken, SnsType snsType) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(
-            snsType.getUserInfoUrl(),
-            HttpMethod.GET,
-            request,
-            String.class
-        );
+                snsType.getUserInfoUrl(),
+                HttpMethod.GET,
+                request,
+                String.class);
 
-        return parseSnsIdentifier(response.getBody(), snsType);
+        return parseUsername(response.getBody(), snsType);
     }
 
-    private String parseSnsIdentifier(String responseBody, SnsType snsType) {
+    private String parseUsername(String responseBody, SnsType snsType) {
         try {
             JsonNode rootNode = objectMapper.readTree(responseBody);
-            if(snsType == SnsType.NAVER) {
+            if (snsType == SnsType.NAVER) {
                 rootNode = rootNode.get("response");
             }
             return rootNode.get("id").asText();

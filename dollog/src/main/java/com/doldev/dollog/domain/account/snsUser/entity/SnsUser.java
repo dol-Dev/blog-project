@@ -46,7 +46,7 @@ public class SnsUser {
 
     // 각 SNS에서 제공하는 사용자 식별자 ID(User엔티티의 username 역할)
     @Column(nullable = false)
-    private String snsIdentifier;
+    private String username;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profile_id")

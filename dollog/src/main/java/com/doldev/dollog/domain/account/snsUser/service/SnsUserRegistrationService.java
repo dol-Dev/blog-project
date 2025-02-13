@@ -1,6 +1,8 @@
-package com.doldev.dollog.domain.account.snsUser.application;
+package com.doldev.dollog.domain.account.snsUser.service;
 
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
@@ -18,27 +20,36 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class SnsUserRegistrationService {
+    private Function<SnsUser, String> nicknameGenerator = this::generateDefaultNickname;
+    private Consumer<Profile> additionalProfileSetup = profile -> {
+    };
     private final SnsUserRepository snsUserRepository;
     private final ProfileSerivce profileSerivce;
 
     public SnsUser registerNewUser(String username, SnsProvider provider) {
-        // SNS 사용자 생성
-        SnsUser snsUser = SnsUser.builder()
-                .username(username)
-                .provider(provider)
-                .role(RoleType.ROLE_USER)
-                .build();
-
-        // 프로필 생성
-        String nickname = generateNickname(snsUser);
-        Profile profile = profileSerivce.createProfile(nickname);
+        SnsUser snsUser = buildSnsUser(username, provider);
+        Profile profile = createProfileWithStrategy(snsUser);
         snsUser.assignProfile(profile);
-
         return snsUserRepository.save(snsUser);
     }
 
-    private String generateNickname(SnsUser snsUser) {
-        return snsUser.getProvider().name().toLowerCase()
+    private SnsUser buildSnsUser(String id, SnsProvider provider) {
+        return SnsUser.builder()
+                .username(id)
+                .provider(provider)
+                .role(RoleType.ROLE_USER)
+                .build();
+    }
+
+    private Profile createProfileWithStrategy(SnsUser user) {
+        String nickname = nicknameGenerator.apply(user);
+        Profile profile = profileSerivce.createProfile(nickname);
+        additionalProfileSetup.accept(profile);
+        return profile;
+    }
+
+    private String generateDefaultNickname(SnsUser user) {
+        return user.getProvider().name().toLowerCase()
                 + "_"
                 + UUID.randomUUID().toString().substring(0, 4);
     }
