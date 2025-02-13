@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.doldev.dollog.domain.account.user.dto.req.LoginReqDto;
+import com.doldev.dollog.global.auth.dto.res.AuthenticatedUserResDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.auth.service.CookieManager;
 import com.doldev.dollog.global.auth.service.TokenAuthenticationManager;
@@ -32,7 +33,8 @@ public class AuthService {
     }
 
     // 로그아웃
-    public void logout(CustomUserDetails userDetails, String accessToken, String refreshToken, HttpServletResponse res) {
+    public void logout(CustomUserDetails userDetails, String accessToken, String refreshToken,
+            HttpServletResponse res) {
         String username = userDetails.getUsername();
         String refreshKey = "refresh_" + username;
         String storedRefreshToken = redisTemplate.opsForValue().get(refreshKey);
@@ -44,5 +46,16 @@ public class AuthService {
 
         redisTemplate.delete(refreshKey);
         cookieManager.clearTokens(res);
+    }
+
+    // 인증된 사용자 정보 반환
+    public AuthenticatedUserResDto getUserInfo(CustomUserDetails userDetails) {
+        return AuthenticatedUserResDto.builder()
+                .id(userDetails.getId())
+                .username(userDetails.getUsername())
+                .nickname(userDetails.getNickname())
+                .provider(userDetails.getProvider())
+                .email(userDetails.getEmail())
+                .build();
     }
 }
