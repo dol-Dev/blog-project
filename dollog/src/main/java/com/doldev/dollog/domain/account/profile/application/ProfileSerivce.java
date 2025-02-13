@@ -45,7 +45,7 @@ public class ProfileSerivce {
 
     public void updateProfile(UpdateProfileReqDto req, MultipartFile avatarFile, CustomUserDetails userDetails) {
         try {
-            if (userDetails.isRegularUser()) {
+            if (userDetails.isUser()) {
                 User user = userRepository.findByUsername(userDetails.getUsername())
                         .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
                 applyProfileUpdate(user::getProfile, user::assignProfile, req, avatarFile);
