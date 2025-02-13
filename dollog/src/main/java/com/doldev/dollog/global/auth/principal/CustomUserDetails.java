@@ -45,7 +45,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.attributes = attributes != null ? attributes : Map.of();
     }
 
-
     // OAuth2User 구현
     @Override
     public Map<String, Object> getAttributes() {
@@ -65,7 +64,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return user != null ? user.getUsername() : snsUser.getSnsIdentifier();
+        return user != null ? user.getUsername() : snsUser.getUsername();
     }
 
     @Override
@@ -76,18 +75,25 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     // 계정 상태 관련 메서드
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 
-    
     // 유틸리티 메서드
     public boolean isRegularUser() {
         return user != null;
