@@ -2,8 +2,10 @@ package com.doldev.dollog.domain.account.user.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,8 @@ import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
 import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
+import com.doldev.dollog.global.validator.CheckSignupValidator;
+import com.doldev.dollog.global.validator.CheckUpdateUserValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,14 +31,23 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/users")
 @RestController
 public class UserController {
-
+        private final CheckUpdateUserValidator checkUpdateUserValidator;
+        private final CheckSignupValidator checkSignupValidator;
         private final UserService userService;
+
+
+        // InitBinder를 사용하여 Validator를 등록
+        @InitBinder
+        public void initBinder(WebDataBinder binder) {
+                binder.addValidators(checkSignupValidator);
+                binder.addValidators(checkUpdateUserValidator);
+        }
 
         @Operation(summary = "회원가입", description = "사용자가 회원가입을 진행함.")
         @PostMapping("/signup")
         public ResponseEntity<ApiResDto<Void>> signup(
-                        @Valid @RequestBody SignupReqDto req) {
-                userService.signup(req);
+                        @Valid @RequestBody SignupReqDto reqDto) {
+                userService.signup(reqDto);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
                                                 .messageCode("SIGNUP_SUCCESS")
@@ -58,8 +71,8 @@ public class UserController {
         @PutMapping
         public ResponseEntity<ApiResDto<Void>> updateUser(
                         @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-                        @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UpdateUserReqDto req) {
-                userService.updateUser(req, userDetails);
+                        @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UpdateUserReqDto reqDto) {
+                userService.updateUser(reqDto, userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
                                                 .messageCode("USER_INFO_UPDATE_SUCCESS")

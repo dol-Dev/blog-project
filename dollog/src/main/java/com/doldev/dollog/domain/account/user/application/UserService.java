@@ -6,8 +6,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.doldev.dollog.domain.account.profile.application.ProfileSerivce;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
-import com.doldev.dollog.domain.account.profile.service.ProfileSerivce;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
 import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
@@ -30,17 +30,17 @@ public class UserService {
 
     // 회원 가입
     @Transactional
-    public void signup(SignupReqDto req) {
+    public void signup(SignupReqDto reqDto) {
 
         // 사용자 생성
         User user = User.builder()
-                .username(req.getUsername())
-                .password(encoder.encode(req.getPassword()))
-                .email(req.getEmail())
+                .username(reqDto.getUsername())
+                .password(encoder.encode(reqDto.getPassword()))
+                .email(reqDto.getEmail())
                 .role(RoleType.ROLE_USER)
                 .build();
 
-        Profile profile = profileSerivce.createProfile(req.getNickname());
+        Profile profile = profileSerivce.createProfile(reqDto.getNickname());
         user.assignProfile(profile);
         userRepository.save(user);
     }
@@ -64,14 +64,14 @@ public class UserService {
 
     // 일반 회원 정보 수정
     @Transactional
-    public void updateUser(UpdateUserReqDto req,
+    public void updateUser(UpdateUserReqDto reqDto,
             CustomUserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
 
-        user.changeEmail(req.getEmail());
-        if (StringUtils.isNotBlank(req.getNewPassword())) {
-            user.changePassword(encoder.encode(req.getNewPassword()));
+        user.changeEmail(reqDto.getEmail());
+        if (StringUtils.isNotBlank(reqDto.getNewPassword())) {
+            user.changePassword(encoder.encode(reqDto.getNewPassword()));
         }
     }
 }
