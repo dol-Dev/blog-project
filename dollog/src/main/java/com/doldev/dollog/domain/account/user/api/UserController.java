@@ -35,7 +35,6 @@ public class UserController {
         private final CheckSignupValidator checkSignupValidator;
         private final UserService userService;
 
-
         // InitBinder를 사용하여 Validator를 등록
         @InitBinder
         public void initBinder(WebDataBinder binder) {
@@ -78,5 +77,4 @@ public class UserController {
                                                 .messageCode("USER_INFO_UPDATE_SUCCESS")
                                                 .build());
         }
-
 }
