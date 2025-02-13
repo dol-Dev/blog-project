@@ -50,7 +50,7 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    // 액세스 토큰 생성
+    // 일반 사용자 액세스 토큰 생성
     public String createAccessToken(String username) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + accessExpireDate);
@@ -71,11 +71,11 @@ public class JwtTokenProvider {
 
         return BEARER_PREFIX +
                 Jwts.builder()
+                        .setSubject(username)
                         .setIssuedAt(now)
                         .setExpiration(expireDate)
                         .signWith(key, SignatureAlgorithm.HS256)
                         .compact();
-
     }
 
     // JWT 토큰 substring
