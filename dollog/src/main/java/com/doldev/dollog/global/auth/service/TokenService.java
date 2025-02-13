@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class TokenManager {
+public class TokenService {
     private final JwtTokenProvider jwtProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -24,19 +24,18 @@ public class TokenManager {
         String refreshToken = jwtProvider.createRefreshToken(username);
 
         redisTemplate.opsForValue().set(
-            "refresh_" + username,
-            refreshToken,
-            refreshExpirationTime,
-            TimeUnit.MILLISECONDS
-        );
+                "refresh_" + username,
+                refreshToken,
+                refreshExpirationTime,
+                TimeUnit.MILLISECONDS);
 
         return Map.of(
-            "accessToken", accessToken,
-            "refreshToken", refreshToken
-        );
+                "accessToken", accessToken,
+                "refreshToken", refreshToken);
     }
 
-    // 기존 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 생성하고, 기존 리프레시 토큰을 삭제한 후 새로 생성된 토큰들을 Redis에 저장하며 반환해
+    // 기존 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 생성하고, 기존 리프레시 토큰을 삭제한 후 새로 생성된 토큰들을
+    // Redis에 저장하며 반환해
     public Map<String, String> generateNewTokens(String username) {
         String refreshTokenKey = "refresh_" + username;
 
@@ -51,15 +50,13 @@ public class TokenManager {
         String newRefreshToken = jwtProvider.createRefreshToken(username);
 
         redisTemplate.opsForValue().set(
-            refreshTokenKey,
-            newRefreshToken,
-            refreshExpirationTime,
-            TimeUnit.MILLISECONDS
-        );
+                refreshTokenKey,
+                newRefreshToken,
+                refreshExpirationTime,
+                TimeUnit.MILLISECONDS);
 
         return Map.of(
-            "accessToken", newAccessToken,
-            "refreshToken", newRefreshToken
-        );
+                "accessToken", newAccessToken,
+                "refreshToken", newRefreshToken);
     }
 }
