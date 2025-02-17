@@ -15,9 +15,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Builder
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Entity
 public class Profile {
 
@@ -28,7 +28,8 @@ public class Profile {
     @Column(nullable = false, unique = true, length = 50)
     private String nickname;
 
-    @Column
+    private String blogName;
+
     private String avatarImageUrl;
 
     @OneToOne(mappedBy = "profile")
@@ -37,15 +38,18 @@ public class Profile {
     @OneToOne(mappedBy = "profile")
     private SnsUser snsUser;
 
-    /* 필드 업데이트 메서드들 */
+    /* 프로필 정보 변경 메서드들 */
     public void changeNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    public void chatAvatarImageUrl(String avatarImageUrl) {
+    public void changeAvatarImageUrl(String avatarImageUrl) {
         this.avatarImageUrl = avatarImageUrl;
     }
 
+    public void changeBlogName(String blogName) {
+        this.blogName = blogName;
+    }
 
     /* 연관관계 설정 메서드들 */
     public void assignUser(User user) {

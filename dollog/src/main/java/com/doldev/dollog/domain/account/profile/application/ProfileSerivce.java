@@ -73,7 +73,7 @@ public class ProfileSerivce {
         Profile profile = profileGetter.get();
         avatarService.deleteAvatar(profile.getAvatarImageUrl());
         String avatarPath = avatarService.saveAvatar(reqDto.getNickname(), avatarFile);
-        profile.chatAvatarImageUrl(avatarPath);
+        profile.changeAvatarImageUrl(avatarPath);
         profile.changeNickname(reqDto.getNickname());
         profileSetter.accept(profile);
     }
