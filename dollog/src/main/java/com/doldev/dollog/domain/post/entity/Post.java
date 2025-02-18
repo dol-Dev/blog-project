@@ -3,17 +3,19 @@ package com.doldev.dollog.domain.post.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.doldev.dollog.domain.account.user.entity.User;
-import com.doldev.dollog.domain.reply.entity.Reply;
+import com.doldev.dollog.domain.category.entity.Category;
+import com.doldev.dollog.domain.comment.entity.Comment;
+import com.doldev.dollog.domain.like.entity.Like;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,10 +23,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity
 public class Post {
@@ -44,18 +50,44 @@ public class Post {
     @ColumnDefault("0")
     private Long likeCnt;
 
-    @ManyToOne(fetch = FetchType.EAGER) 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<Like> likes;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; 
+    private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE) 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     @OrderBy("id DESC")
-    private List<Reply> replyList;
+    private List<Comment> comments;
 
     @CreationTimestamp
     private LocalDateTime createDate;
 
     @UpdateTimestamp
     private LocalDateTime modifyDate;
+
+    /* 포스트 정보 변경 메서드들 */
+    public void updateTitle(String newTitle) {
+        if (StringUtils.isNotBlank(newTitle)) {
+            this.title = newTitle;
+        }
+    }
+
+    public void updateContent(String newContent) {
+        if (StringUtils.isNotBlank(newContent)) {
+            this.content = newContent;
+        }
+    }
+
+    /* 연관관계 설정 메서드들 */
+    public void assignCategory(Category category) {
+        if (category != null) {
+            this.category = category;
+        }
+    }
 }
