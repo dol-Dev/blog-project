@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.post.application.PostService;
-import com.doldev.dollog.domain.post.dto.req.CreatePostReqDto;
-import com.doldev.dollog.domain.post.dto.req.UpdatePostReqDto;
+import com.doldev.dollog.domain.post.dto.req.PostCreateReqDto;
+import com.doldev.dollog.domain.post.dto.req.PostUpdateReqDto;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
@@ -35,7 +35,7 @@ public class PostController {
     // 게시글 생성
     @PostMapping("/")
     public ResponseEntity<ApiResDto<Void>> writePost(
-            @RequestBody CreatePostReqDto postDto,
+            @RequestBody PostCreateReqDto postDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         postService.createPost(postDto, userDetails);
@@ -57,7 +57,7 @@ public class PostController {
     // 게시글 수정
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResDto<Void>> updatePost(@PathVariable("postId") int postId,
-            @RequestBody UpdatePostReqDto updatePostReqDto) {
+            @RequestBody PostUpdateReqDto updatePostReqDto) {
         postService.updatePost(postId, updatePostReqDto);
         return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("게시글 수정 성공!").build());
     }

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.category.application.CategoryService;
-import com.doldev.dollog.domain.category.dto.req.CreateCategoryReqDto;
-import com.doldev.dollog.domain.category.dto.req.UpdateCategoryReqDto;
+import com.doldev.dollog.domain.category.dto.req.CategoryCreateReqDto;
+import com.doldev.dollog.domain.category.dto.req.CategoryUpdateReqDto;
 import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.global.dto.ApiResDto;
 
@@ -34,7 +34,7 @@ public class CategoryController {
 
         // 카테고리 생성
         @PostMapping("/")
-        public ResponseEntity<ApiResDto<Void>> createCategory(@RequestBody CreateCategoryReqDto category) {
+        public ResponseEntity<ApiResDto<Void>> createCategory(@RequestBody CategoryCreateReqDto category) {
                 categoryService.createCategory(category);
                 return ResponseEntity
                                 .ok()
@@ -77,7 +77,7 @@ public class CategoryController {
         // 카테고리 수정
         @PutMapping("/{categoryId}")
         public ResponseEntity<ApiResDto<Void>> updateCategory(@PathVariable("categoryId") int categoryId,
-                        @RequestBody UpdateCategoryReqDto category) {
+                        @RequestBody CategoryUpdateReqDto category) {
                 categoryService.updateCategoryName(categoryId, category);
                 return ResponseEntity
                                 .ok()

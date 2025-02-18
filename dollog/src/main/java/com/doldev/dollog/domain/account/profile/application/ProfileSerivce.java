@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.doldev.dollog.domain.account.profile.dto.req.UpdateProfileReqDto;
+import com.doldev.dollog.domain.account.profile.dto.req.ProfileUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
@@ -43,7 +43,7 @@ public class ProfileSerivce {
                 .build();
     }
 
-    public void updateProfile(UpdateProfileReqDto req, MultipartFile avatarFile, CustomUserDetails userDetails) {
+    public void updateProfile(ProfileUpdateReqDto req, MultipartFile avatarFile, CustomUserDetails userDetails) {
         try {
             if (userDetails.isUser()) {
                 User user = userRepository.findByUsername(userDetails.getUsername())
@@ -68,7 +68,7 @@ public class ProfileSerivce {
     private void applyProfileUpdate(
             Supplier<Profile> profileGetter, 
             Consumer<Profile> profileSetter,
-            UpdateProfileReqDto reqDto,
+            ProfileUpdateReqDto reqDto,
             MultipartFile avatarFile) throws IOException {
         Profile profile = profileGetter.get();
         avatarService.deleteAvatar(profile.getAvatarImageUrl());

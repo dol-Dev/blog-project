@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
-import com.doldev.dollog.domain.account.user.dto.req.LoginReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserLoginReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class TokenAuthenticationManager {
     private final AuthenticationManager authenticationManager;
 
     // 일반사용자 로그인 요청 시 인증객체 설정
-    public void setBeforeLoginAuthenticationUser(LoginReqDto reqDto) {
+    public void setBeforeLoginAuthenticationUser(UserLoginReqDto reqDto) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         reqDto.getUsername(),

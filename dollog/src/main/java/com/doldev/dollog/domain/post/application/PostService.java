@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.doldev.dollog.domain.category.application.CategoryService;
 import com.doldev.dollog.domain.category.entity.Category;
-import com.doldev.dollog.domain.post.dto.req.CreatePostReqDto;
-import com.doldev.dollog.domain.post.dto.req.UpdatePostReqDto;
+import com.doldev.dollog.domain.post.dto.req.PostCreateReqDto;
+import com.doldev.dollog.domain.post.dto.req.PostUpdateReqDto;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.doldev.dollog.domain.post.repository.PostRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -26,7 +26,7 @@ public class PostService {
 
     // 글 작성
     @Transactional
-    public void createPost(CreatePostReqDto reqDto,
+    public void createPost(PostCreateReqDto reqDto,
             CustomUserDetails userDetails) {
 
         // 카테고리 조회
@@ -45,7 +45,7 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public void updatePost(int postId, UpdatePostReqDto reqDto) {
+    public void updatePost(int postId, PostUpdateReqDto reqDto) {
         Post updatePost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패 ID: " + postId));
 

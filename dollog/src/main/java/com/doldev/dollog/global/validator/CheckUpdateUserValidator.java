@@ -6,7 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
-import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class CheckUpdateUserValidator extends AbstractValidator<UpdateUserReqDto> {
+public class CheckUpdateUserValidator extends AbstractValidator<UserUpdateReqDto> {
 
     private final UserRepository userRepository;
     private Optional<User> optionalUser;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    protected void doValidate(UpdateUserReqDto reqDto, Errors errors) {
+    protected void doValidate(UserUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
 
         optionalUser = userRepository.findByUsername(reqDto.getUsername());
@@ -39,7 +39,7 @@ public class CheckUpdateUserValidator extends AbstractValidator<UpdateUserReqDto
     }
 
     // 이메일 검증
-    private void validateEmail(UpdateUserReqDto reqDto, Errors errors) {
+    private void validateEmail(UserUpdateReqDto reqDto, Errors errors) {
 
         if (StringUtils.isBlank(reqDto.getEmail())) {
             addError(errors, "email", "필수 값 오류", "이메일은 필수 입력값입니다.");
@@ -59,7 +59,7 @@ public class CheckUpdateUserValidator extends AbstractValidator<UpdateUserReqDto
     }
 
     // 비밀번호 검증
-    private void validatePassword(UpdateUserReqDto reqDto, Errors errors) {
+    private void validatePassword(UserUpdateReqDto reqDto, Errors errors) {
 
         // 기존 비밀번호 확인
         User currentUser = optionalUser.get();

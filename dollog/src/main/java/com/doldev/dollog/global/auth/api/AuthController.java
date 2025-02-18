@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.doldev.dollog.domain.account.user.dto.req.LoginReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserLoginReqDto;
 import com.doldev.dollog.global.auth.application.AuthService;
 import com.doldev.dollog.global.auth.dto.res.AuthenticatedUserResDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -33,7 +33,7 @@ public class AuthController {
         // 로그인
         @PostMapping("/login")
         public ResponseEntity<ApiResDto<Void>> login(
-                        @RequestBody LoginReqDto reqDto,
+                        @RequestBody UserLoginReqDto reqDto,
                         HttpServletResponse res) {
                 authService.login(reqDto, res);
                 return ResponseEntity.ok(

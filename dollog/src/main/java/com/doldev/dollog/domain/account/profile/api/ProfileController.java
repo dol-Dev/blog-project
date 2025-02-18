@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.doldev.dollog.domain.account.profile.application.ProfileSerivce;
-import com.doldev.dollog.domain.account.profile.dto.req.UpdateProfileReqDto;
+import com.doldev.dollog.domain.account.profile.dto.req.ProfileUpdateReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 import com.doldev.dollog.global.validator.CheckUpdateProfileValidator;
@@ -38,7 +38,7 @@ public class ProfileController {
     // 프로필 수정
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResDto<Void>> updateUser(
-            @Valid @ModelAttribute UpdateProfileReqDto req,
+            @Valid @ModelAttribute ProfileUpdateReqDto req,
             @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 

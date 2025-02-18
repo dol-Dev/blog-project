@@ -7,7 +7,7 @@ import org.springframework.validation.Errors;
 
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
-import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
@@ -18,14 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class CheckUpdateProfileValidator extends AbstractValidator<UpdateUserReqDto> {
+public class CheckUpdateProfileValidator extends AbstractValidator<UserUpdateReqDto> {
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private Optional<User> optionalUser;
 
     @Override
-    protected void doValidate(UpdateUserReqDto reqDto, Errors errors) {
+    protected void doValidate(UserUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
 
         optionalUser = userRepository.findByUsername(reqDto.getUsername());
@@ -39,7 +39,7 @@ public class CheckUpdateProfileValidator extends AbstractValidator<UpdateUserReq
     }
 
     // 닉네임 검증
-    private void validateNickname(UpdateUserReqDto reqDto, Profile profile, Errors errors) {
+    private void validateNickname(UserUpdateReqDto reqDto, Profile profile, Errors errors) {
 
         if (StringUtils.isBlank(reqDto.getNickname())) {
             addError(errors, "nickname", "필수 값 오류", "닉네임을 입력해주세요.");

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
-import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserSignupReqDto;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
 import io.micrometer.common.util.StringUtils;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
+public class CheckSignupValidator extends AbstractValidator<UserSignupReqDto> {
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
@@ -24,7 +24,7 @@ public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
     private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$";
 
     @Override
-    protected void doValidate(SignupReqDto req, Errors errors) {
+    protected void doValidate(UserSignupReqDto req, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", req.getUsername());
 
         validateEmail(req, errors);
@@ -33,7 +33,7 @@ public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
     }
 
     // 이메일 검증
-    private void validateEmail(SignupReqDto req, Errors errors) {
+    private void validateEmail(UserSignupReqDto req, Errors errors) {
         if (StringUtils.isBlank(req.getEmail())) {
             addError(errors, "email", "필수 값 오류", "이메일은 필수 입력값입니다.");
             return;
@@ -52,7 +52,7 @@ public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
     }
 
     // 아이디 검증
-    private void validateUsername(SignupReqDto req, Errors errors) {
+    private void validateUsername(UserSignupReqDto req, Errors errors) {
         if (StringUtils.isBlank(req.getUsername())) {
             addError(errors, "username", "필수 값 오류", "아이디는 필수 입력값입니다.");
             return;
@@ -71,7 +71,7 @@ public class CheckSignupValidator extends AbstractValidator<SignupReqDto> {
     }
 
     // 닉네임 검증
-    private void validateNickname(SignupReqDto req, Errors errors) {
+    private void validateNickname(UserSignupReqDto req, Errors errors) {
         if (StringUtils.isBlank(req.getNickname())) {
             addError(errors, "nickname", "필수 값 오류", "닉네임을 입력해주세요.");
             return;

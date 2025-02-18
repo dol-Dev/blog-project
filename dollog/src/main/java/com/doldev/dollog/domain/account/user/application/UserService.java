@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.doldev.dollog.domain.account.profile.application.ProfileSerivce;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
-import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
-import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserSignupReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -30,7 +30,7 @@ public class UserService {
 
     // 회원 가입
     @Transactional
-    public void signup(SignupReqDto reqDto) {
+    public void signup(UserSignupReqDto reqDto) {
 
         // 사용자 생성
         User user = User.builder()
@@ -64,7 +64,7 @@ public class UserService {
 
     // 일반 회원 정보 수정
     @Transactional
-    public void updateUser(UpdateUserReqDto reqDto,
+    public void updateUser(UserUpdateReqDto reqDto,
             CustomUserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));

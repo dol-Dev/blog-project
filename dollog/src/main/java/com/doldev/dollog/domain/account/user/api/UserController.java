@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.account.user.application.UserService;
-import com.doldev.dollog.domain.account.user.dto.req.SignupReqDto;
-import com.doldev.dollog.domain.account.user.dto.req.UpdateUserReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserSignupReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 import com.doldev.dollog.global.validator.CheckSignupValidator;
@@ -45,7 +45,7 @@ public class UserController {
         @Operation(summary = "회원가입", description = "사용자가 회원가입을 진행함.")
         @PostMapping("/signup")
         public ResponseEntity<ApiResDto<Void>> signup(
-                        @Valid @RequestBody SignupReqDto reqDto) {
+                        @Valid @RequestBody UserSignupReqDto reqDto) {
                 userService.signup(reqDto);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
@@ -70,7 +70,7 @@ public class UserController {
         @PutMapping
         public ResponseEntity<ApiResDto<Void>> updateUser(
                         @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-                        @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UpdateUserReqDto reqDto) {
+                        @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UserUpdateReqDto reqDto) {
                 userService.updateUser(reqDto, userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()

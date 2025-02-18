@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.doldev.dollog.domain.account.user.dto.req.LoginReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.UserLoginReqDto;
 import com.doldev.dollog.global.auth.dto.res.AuthenticatedUserResDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.auth.service.CookieManager;
@@ -26,7 +26,7 @@ public class AuthService {
     private final CookieManager cookieManager;
 
     // 로그인
-    public void login(LoginReqDto reqDto, HttpServletResponse res) {
+    public void login(UserLoginReqDto reqDto, HttpServletResponse res) {
         tokenAuthenticationManager.setBeforeLoginAuthenticationUser(reqDto);
         Map<String, String> tokens = tokenService.generateNewTokens(reqDto.getUsername());
         cookieManager.setTokens(res, tokens);
