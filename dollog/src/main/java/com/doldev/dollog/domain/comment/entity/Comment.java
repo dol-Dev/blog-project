@@ -10,7 +10,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.like.entity.Like;
 import com.doldev.dollog.domain.post.entity.Post;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class Comment {
 
@@ -53,7 +55,6 @@ public class Comment {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
     private List<Like> likes;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
@@ -77,7 +78,7 @@ public class Comment {
     public void incrementLikeCnt() {
         this.likeCnt++;
     }
-    
+
     public void decrementLikeCnt() {
         this.likeCnt = Math.max(0, this.likeCnt - 1);
     }
