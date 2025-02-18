@@ -28,7 +28,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
-
+    
     @Transactional
     public Category createCategory(CategoryCreateReqDto reqDto) {
         User user = userRepository.findById(reqDto.getUserId())
@@ -125,7 +125,10 @@ public class CategoryService {
                 .stream()
                 .collect(Collectors.groupingBy(child -> child.getParent().getId()));
 
-        parentPage.forEach(parent -> parent.setChildren(childrenMap.getOrDefault(parent.getId(), new ArrayList<>())));
+        parentPage.forEach(parent -> {
+            List<Category> children = childrenMap.getOrDefault(parent.getId(), new ArrayList<>());
+            children.forEach(parent::addChild);
+        });
 
         return new PageImpl<>(
                 parentPage.getContent(),
