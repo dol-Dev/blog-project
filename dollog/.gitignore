@@ -14,4 +14,9 @@ build/
 # Ignore specific files
 application-dev.properties
 gitmessage.txt
-.history/
+
+
+# frontend에서 생성되는 폴더 및 파일들이랑 무관하므로 gitignore에 추가
+node_modules/
+/package-lock.json
+/package.json
