@@ -8,5 +8,8 @@ import com.doldev.dollog.domain.like.entity.Like;
 
 public interface LikeRepository extends JpaRepository<Like, Integer> {
     Optional<Like> findByPostIdAndUserId(int postId, int userId);
+
     Optional<Like> findByCommentIdAndUserId(int commentId, int userId);
+
+    Optional<Like> findByChildCommentIdAndUserId(int childCommentId, int userId);
 }

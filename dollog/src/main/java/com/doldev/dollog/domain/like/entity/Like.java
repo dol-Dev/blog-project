@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.comment.entity.Comment;
 import com.doldev.dollog.domain.post.entity.Post;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class Like {
     @Id
@@ -33,11 +36,11 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    private Post post; 
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "comment_id")
-    private Comment comment; 
+    private Comment comment;
 
     @Column
     private boolean liked;

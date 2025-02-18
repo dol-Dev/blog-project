@@ -27,7 +27,7 @@ public class LikeController {
                 .body(ApiResDto.<Void>builder().messageCode("LIKE_TOGGLE_SUCCESS").build());
     }
 
-    // 댓글 좋아요 추가/취소
+    // 댓글 및 답글 좋아요 추가/취소
     @PostMapping("/comments/{commentId}/like")
     public ResponseEntity<ApiResDto<Void>> toggleCommentLike(@PathVariable("commentId") int commentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {

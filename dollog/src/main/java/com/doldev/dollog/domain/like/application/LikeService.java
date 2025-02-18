@@ -28,6 +28,7 @@ public class LikeService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    // 게시물 좋아요 토글
     @Transactional
     public void togglePostLike(int postId, User user) {
         processLikeInteraction(
@@ -41,23 +42,27 @@ public class LikeService {
                 (builder, post) -> builder.post(post));
     }
 
+    // 댓글 및 답글 좋아요 토글
     @Transactional
     public void toggleCommentLike(int commentId, User user) {
+        Comment comment = findEntityById(commentRepository::findById, commentId, "Comment not found");
         processLikeInteraction(
                 commentId,
                 user,
-                () -> findEntityById(commentRepository::findById, commentId, "Comment not found"),
+                () -> comment,
                 likeRepository::findByCommentIdAndUserId,
                 Like::getComment,
                 Comment::incrementLikeCnt,
                 Comment::decrementLikeCnt,
-                (builder, comment) -> builder.comment(comment));
+                (builder, c) -> builder.comment(c));
     }
 
+    // 엔티티 ID로 엔티티 찾기
     private <T> T findEntityById(Function<Integer, Optional<T>> finder, int id, String errorMessage) {
         return finder.apply(id).orElseThrow(() -> new IllegalArgumentException(errorMessage));
     }
 
+    // 좋아요 상호작용 처리
     private <T> void processLikeInteraction(
             int entityId,
             User user,
@@ -77,6 +82,7 @@ public class LikeService {
         }
     }
 
+    // 새로운 좋아요 생성
     private <T> void createNewLike(User user, T entity, Consumer<T> incrementAction,
             BiConsumer<Like.LikeBuilder, T> entitySetter) {
         Like.LikeBuilder newLikeBuilder = Like.builder()
@@ -88,6 +94,7 @@ public class LikeService {
         likeRepository.save(newLike);
     }
 
+    // 기존 좋아요 토글
     private <T> void toggleExistingLike(User user, Like like, T entity, Consumer<T> incrementAction,
             Consumer<T> decrementAction) {
         validateOwnership(like, user);
@@ -100,6 +107,7 @@ public class LikeService {
         like.toggleLiked();
     }
 
+    // 좋아요 소유권 검증
     private void validateOwnership(Like like, User user) {
         if (like.getUser().getId() != user.getId()) {
             throw new IllegalArgumentException("Unauthorized operation");
