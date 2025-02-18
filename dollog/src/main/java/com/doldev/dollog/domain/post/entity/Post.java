@@ -12,6 +12,8 @@ import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.domain.comment.entity.Comment;
 import com.doldev.dollog.domain.like.entity.Like;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,6 +34,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class Post {
 
@@ -56,7 +59,7 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
+    
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

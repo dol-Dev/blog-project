@@ -2,6 +2,8 @@ package com.doldev.dollog.domain.account.profile.entity;
 
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class Profile {
 

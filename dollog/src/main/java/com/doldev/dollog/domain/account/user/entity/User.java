@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.banner.entity.Banner;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,6 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class User {
 
@@ -65,19 +68,18 @@ public class User {
     /* 연관관계 설정 메서드들 */
     public void assignProfile(Profile profile) {
         this.profile = profile;
-        if (profile.getUser() != this) {  // 중복 호출 방지
+        if (profile.getUser() != this) { // 중복 호출 방지
             profile.assignUser(this);
         }
     }
 
     public void assignBanner(Banner banner) {
         this.banner = banner;
-        if (banner.getUser() != this) { 
+        if (banner.getUser() != this) {
             banner.assignUser(this);
         }
     }
-    
-    
+
     /* 필드 업데이트 메서드들 */
     public void changeEmail(String email) {
         this.email = email;

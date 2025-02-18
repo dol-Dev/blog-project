@@ -9,6 +9,8 @@ import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
 import com.doldev.dollog.domain.banner.entity.Banner;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -29,6 +31,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class SnsUser {
     @Id
@@ -61,7 +64,6 @@ public class SnsUser {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
-
     /* 연관관계 설정 메서드들 */
     public void assignProfile(Profile profile) {
         this.profile = profile;
@@ -72,7 +74,7 @@ public class SnsUser {
 
     public void assignBanner(Banner banner) {
         this.banner = banner;
-        if (banner.getSnsUser() != this) { 
+        if (banner.getSnsUser() != this) {
             banner.assignSnsUser(this);
         }
     }

@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,9 +30,11 @@ public class Banner {
 
     private String bannerDescription;
 
+    @JsonBackReference
     @OneToOne(mappedBy = "banner")
     private User user;
 
+    @JsonBackReference
     @OneToOne(mappedBy = "banner")
     private SnsUser snsUser;
 
