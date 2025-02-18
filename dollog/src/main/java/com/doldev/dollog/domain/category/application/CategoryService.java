@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
-import com.doldev.dollog.domain.category.dto.req.CreateCategoryReqDto;
-import com.doldev.dollog.domain.category.dto.req.UpdateCategoryReqDto;
+import com.doldev.dollog.domain.category.dto.req.CategoryCreateReqDto;
+import com.doldev.dollog.domain.category.dto.req.CategoryUpdateReqDto;
 import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.domain.category.repository.CategoryRepository;
 
@@ -30,29 +30,30 @@ public class CategoryService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Category createCategory(CreateCategoryReqDto reqDto) {
-        Category category = new Category();
-        category.setName(reqDto.getName());
-
+    public Category createCategory(CategoryCreateReqDto reqDto) {
         User user = userRepository.findById(reqDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
-        category.setUser(user);
+
+        Category.CategoryBuilder categoryBuilder = Category.builder()
+                .name(reqDto.getName())
+                .user(user);
 
         if (reqDto.getParentId() == null) {
             // 부모 카테고리 생성
-            category.setParent(null);
+            categoryBuilder.parent(null);
             int maxParentOrder = categoryRepository.findMaxParentOrderIndexByUserId(user.getId());
-            category.setParentOrderIndex(maxParentOrder + 1);
+            categoryBuilder.parentOrderIndex(maxParentOrder + 1);
         } else {
             // 자식 카테고리 생성
             Category parent = categoryRepository.findById(reqDto.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "부모 카테고리가 존재하지 않습니다. ID: " + reqDto.getParentId()));
-            category.setParent(parent);
+            categoryBuilder.parent(parent);
             int maxChildOrder = categoryRepository.findMaxChildOrderIndexByParentId(parent.getId());
-            category.setChildOrderIndex(maxChildOrder + 1);
+            categoryBuilder.childOrderIndex(maxChildOrder + 1);
         }
 
+        Category category = categoryBuilder.build();
         return categoryRepository.save(category);
     }
 
@@ -72,9 +73,9 @@ public class CategoryService {
         for (int i = 0; i < categories.size(); i++) {
             Category category = categories.get(i);
             if (isParent) {
-                category.setParentOrderIndex(i);
+                category.changeParentOrderIndex(i);
             } else {
-                category.setChildOrderIndex(i);
+                category.changeChildOrderIndex(i);
             }
         }
 
@@ -82,13 +83,13 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category updateCategoryName(int categoryId, UpdateCategoryReqDto reqDto) {
+    public Category updateCategoryName(int categoryId, CategoryUpdateReqDto reqDto) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다. ID: " + categoryId));
 
         // 이름 업데이트
         if (StringUtils.isNotBlank(reqDto.getName())) {
-            category.setName(reqDto.getName());
+            category.changeName(reqDto.getName());
         }
 
         return categoryRepository.save(category);

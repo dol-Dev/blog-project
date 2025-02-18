@@ -22,10 +22,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -42,14 +44,15 @@ public class Category {
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")                         
+    @JoinColumn(name = "parent_id")
     private Category parent;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)                                                             
-    private List<Category> children = new ArrayList<>(); 
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private List<Category> children = new ArrayList<>();
 
-        // orderIndex -> 부모 카테고리 정렬용 필드
+    // orderIndex -> 부모 카테고리 정렬용 필드
     @Column(name = "parent_order_index")
     private Integer parentOrderIndex;
 
@@ -62,6 +65,7 @@ public class Category {
     private User user;
 
     @JsonBackReference
+    @Builder.Default
     @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
 
@@ -69,5 +73,31 @@ public class Category {
     @JsonGetter("postCount")
     public int getPostCount() {
         return posts.size();
+    }
+
+    // 메서드 추가
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void assignParent(Category parent) {
+        this.parent = parent;
+    }
+
+    public void addChild(Category child) {
+        this.children.add(child);
+        child.assignParent(this);
+    }
+
+    public void changeParentOrderIndex(int index) {
+        this.parentOrderIndex = index;
+    }
+
+    public void changeChildOrderIndex(int index) {
+        this.childOrderIndex = index;
+    }
+
+    public void assignUser(User user) {
+        this.user = user;
     }
 }
