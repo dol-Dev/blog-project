@@ -1,8 +1,8 @@
 package com.doldev.dollog.domain.account.profile.dto.req;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class UpdateProfileReqDto {
+@Getter
+public class ProfileUpdateReqDto {
     private String nickname;
 }

@@ -1,11 +1,9 @@
 package com.doldev.dollog.domain.account.user.dto.req;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class SignupReqDto {
+@Getter
+public class UserLoginReqDto {
     private String username;
     private String password;
-    private String email;
-    private String nickname;
 }

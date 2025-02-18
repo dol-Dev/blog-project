@@ -1,9 +1,9 @@
 package com.doldev.dollog.domain.post.dto.req;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class CreatePostReqDto {
+@Getter
+public class PostUpdateReqDto {
     private String content;
     private String title;
     private int categoryId;

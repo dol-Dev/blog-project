@@ -1,9 +1,9 @@
 package com.doldev.dollog.domain.account.user.dto.req;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class UpdateUserReqDto {
+@Getter
+public class UserUpdateReqDto {
         private String email;
         private String nickname;
         private String username;
