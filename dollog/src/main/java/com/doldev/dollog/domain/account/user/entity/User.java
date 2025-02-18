@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
+import com.doldev.dollog.domain.banner.entity.Banner;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,9 +25,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Builder
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Entity
 public class User {
 
@@ -51,6 +52,10 @@ public class User {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "banner_id")
+    private Banner banner;
+
     @CreationTimestamp
     private LocalDateTime createDate;
 
@@ -64,6 +69,14 @@ public class User {
             profile.assignUser(this);
         }
     }
+
+    public void assignBanner(Banner banner) {
+        this.banner = banner;
+        if (banner.getUser() != this) { 
+            banner.assignUser(this);
+        }
+    }
+    
     
     /* 필드 업데이트 메서드들 */
     public void changeEmail(String email) {

@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
+import com.doldev.dollog.domain.banner.entity.Banner;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -52,17 +53,29 @@ public class SnsUser {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "banner_id")
+    private Banner banner;
+
     @CreationTimestamp
     private LocalDateTime createDate;
 
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+
     /* 연관관계 설정 메서드들 */
     public void assignProfile(Profile profile) {
         this.profile = profile;
         if (profile.getSnsUser() != this) { // 중복 호출 방지
             profile.assignSnsUser(null);
+        }
+    }
+
+    public void assignBanner(Banner banner) {
+        this.banner = banner;
+        if (banner.getSnsUser() != this) { 
+            banner.assignSnsUser(this);
         }
     }
 }
