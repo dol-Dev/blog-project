@@ -1,0 +1,14 @@
+.management-app {
+    display: flex;
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+}
+
+.management-sidebar ul li a:hover {
+    background-color: #16a085;
+}
+
+.management-content {
+    padding: 20px;
+    width: calc(100% - 250px);
+}

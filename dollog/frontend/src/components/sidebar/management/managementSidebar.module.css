@@ -1,0 +1,71 @@
+.management-sidebar {
+    width: 250px;
+    background-color: #ffffff; /* 기본 흰색 배경 */
+    color: #333; /* 다크 그레이 텍스트 색상 */
+    height: 87vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #e6e6e6; /* 연한 회색 경계 */
+    border-radius: 16px; /* 둥근 모서리 */
+    margin: 20px; /* 사이드바와 페이지 사이의 여백 */
+    overflow: hidden; /* 둥근 모서리를 위한 설정 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/*.management-sidebar:hover {*/
+/*    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); !* 호버 시 더 진한 그림자 *!*/
+/*    transform: translateY(-2px); !* 살짝 떠오르는 효과 *!*/
+/*}*/
+
+.management-sidebar-header {
+    padding: 20px;
+    text-align: center;
+    background-color: #f7f7f7; /* 밝은 회색 배경 */
+    width: 100%;
+    border-bottom: 1px solid #e6e6e6; /* 하단에 약한 경계 */
+    border-top-left-radius: 16px; /* 둥근 모서리 */
+    border-top-right-radius: 16px; /* 둥근 모서리 */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.management-home-link {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    color: #333; /* 다크 그레이 텍스트 색상 */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 20px;
+    transition: color 0.3s ease; /* 텍스트 색상 전환 */
+}
+
+.management-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; /* 기본 여백 제거 */
+    width: 100%;
+}
+
+.management-sidebar ul li {
+    width: 100%;
+}
+
+.management-sidebar ul li a {
+    color: #333; /* 다크 그레이 텍스트 색상 */
+    text-decoration: none;
+    display: block;
+    padding: 12px 20px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* 부드러운 색상 전환 */
+    margin: 5px 0; /* 항목 사이의 여백 */
+    border-radius: 8px; /* 둥근 모서리 */
+    font-weight: 500; /* 텍스트 굵기 조정 */
+}
+
+.management-sidebar ul li a:hover {
+    background-color: #f0f0f0; /* 약간 더 진한 회색으로 변경 */
+    color: #000; /* 호버 시 검정색으로 변경 */
+}
