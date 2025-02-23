@@ -3,15 +3,12 @@ package com.doldev.dollog.global.auth.service;
 import java.util.Map;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
-import com.doldev.dollog.domain.account.user.dto.req.UserLoginReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -24,25 +21,6 @@ public class TokenAuthenticationManager {
     private final TokenService tokenService;
     private final CustomUserDetailsService userDetailsService;
     private final RedisTemplate<String, String> redisTemplate;
-    private final AuthenticationManager authenticationManager;
-
-    // 일반사용자 로그인 요청 시 인증객체 설정
-    public void setBeforeLoginAuthenticationUser(UserLoginReqDto reqDto) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        reqDto.getUsername(),
-                        reqDto.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    // sns사용자 로그인 요청 시 인증객체 설정
-    public void setAuthenticationSnsUser(SnsUser snsUser) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        snsUser.getUsername(),
-                        null));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
 
     // 인증필터 컨텍스트 설정
     public void setAuthenticationForFilter(String token) {
