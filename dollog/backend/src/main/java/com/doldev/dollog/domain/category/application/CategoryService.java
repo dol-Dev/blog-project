@@ -21,7 +21,9 @@ import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.domain.category.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CategoryService {

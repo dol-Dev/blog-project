@@ -3,8 +3,6 @@ package com.doldev.dollog.domain.category.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -16,6 +14,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;

@@ -33,7 +33,7 @@ public class CategoryController {
         private final CategoryService categoryService;
 
         // 카테고리 생성
-        @PostMapping("/")
+        @PostMapping
         public ResponseEntity<ApiResDto<Void>> createCategory(@RequestBody CategoryCreateReqDto category) {
                 categoryService.createCategory(category);
                 return ResponseEntity
