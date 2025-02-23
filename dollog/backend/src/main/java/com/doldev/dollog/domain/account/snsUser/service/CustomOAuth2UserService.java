@@ -1,8 +1,15 @@
 package com.doldev.dollog.domain.account.snsUser.service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -15,7 +22,6 @@ import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.auth.service.CookieManager;
-import com.doldev.dollog.global.auth.service.TokenAuthenticationManager;
 import com.doldev.dollog.global.auth.service.TokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +38,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final SnsUserRepository snsUserRepository;
     private final SnsUserRegistrationService snsUserRegistrationService;
     private final TokenService tokenService;
-    private final TokenAuthenticationManager tokenAuthenticationManager;
     private final CookieManager cookieManager;
 
     @Override
@@ -63,7 +68,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     // 등록 및 SNS 사용자 인증 실행
     private SnsUser registerAndAuthenticateUser(Supplier<SnsUser> registrationStrategy) {
         SnsUser newUser = registrationStrategy.get();
-        tokenAuthenticationManager.setAuthenticationSnsUser(newUser);
+
+        setAuthenticationGoogleUser(newUser);
+
         Map<String, String> tokens = tokenService.generateNewTokens(newUser.getUsername());
 
         HttpServletResponse res = getCurrentResponse();
@@ -78,5 +85,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private HttpServletResponse getCurrentResponse() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attrs != null ? attrs.getResponse() : null;
+    }
+
+    public void setAuthenticationGoogleUser(SnsUser snsUser) {
+        Collection<? extends GrantedAuthority> authorities = Collections
+                .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                snsUser.getUsername(),
+                null,
+                authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
