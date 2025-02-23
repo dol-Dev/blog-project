@@ -18,13 +18,15 @@ public class TokenService {
     @Value("${jwt.refresh.expiration}")
     private long refreshExpirationTime;
 
-    // 새로운 액세스 토큰과 리프레시 토큰을 생성하고, 리프레시 토큰을 Redis에 저장한 후 반환해
+    // 로그인 시 토큰 생성
     public Map<String, String> generateTokens(String username) {
+        String refreshTokenKey = "refresh_" + username;
+
         String accessToken = jwtProvider.createAccessToken(username);
         String refreshToken = jwtProvider.createRefreshToken(username);
 
         redisTemplate.opsForValue().set(
-                "refresh_" + username,
+                refreshTokenKey,
                 refreshToken,
                 refreshExpirationTime,
                 TimeUnit.MILLISECONDS);
@@ -34,14 +36,13 @@ public class TokenService {
                 "refreshToken", refreshToken);
     }
 
-    // 기존 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 생성하고, 기존 리프레시 토큰을 삭제한 후 새로 생성된 토큰들을
-    // Redis에 저장하며 반환해
+    // 기존 리프레시 토큰을 기반한 새 토큰들 생성
     public Map<String, String> generateNewTokens(String username) {
         String refreshTokenKey = "refresh_" + username;
 
         String existingRefreshToken = redisTemplate.opsForValue().get(refreshTokenKey);
         if (existingRefreshToken == null) {
-            throw new IllegalStateException("사용 가능한 리프레시 토큰이 없어");
+            throw new IllegalStateException("유효한 리프레시 토큰이 없습니다.");
         }
 
         redisTemplate.delete(refreshTokenKey);
