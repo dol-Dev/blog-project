@@ -60,6 +60,7 @@ public class User {
     private Banner banner;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createDate;
 
     @UpdateTimestamp

@@ -6,19 +6,21 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.account.user.application.UserService;
+import com.doldev.dollog.domain.account.user.dto.req.EmailUpdateReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.PasswordUpdateReqDto;
 import com.doldev.dollog.domain.account.user.dto.req.UserSignupReqDto;
-import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 import com.doldev.dollog.global.validator.CheckSignupValidator;
-import com.doldev.dollog.global.validator.CheckUpdateUserValidator;
+import com.doldev.dollog.global.validator.CheckUpdateUserEmailValidator;
+import com.doldev.dollog.global.validator.CheckUpdateUserPasswordValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +33,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/users")
 @RestController
 public class UserController {
-        private final CheckUpdateUserValidator checkUpdateUserValidator;
+        // private final CheckUpdateUserValidator checkUpdateUserValidator;
+        private final CheckUpdateUserEmailValidator checkUpdateUserEmailValidator;
+        private final CheckUpdateUserPasswordValidator  checkUpdateUserPasswordValidator;
         private final CheckSignupValidator checkSignupValidator;
         private final UserService userService;
 
@@ -39,13 +43,15 @@ public class UserController {
         @InitBinder
         public void initBinder(WebDataBinder binder) {
                 binder.addValidators(checkSignupValidator);
-                binder.addValidators(checkUpdateUserValidator);
+                // binder.addValidators(checkUpdateUserValidator);
+                binder.addValidators(checkUpdateUserEmailValidator);
+                binder.addValidators(checkUpdateUserPasswordValidator);
         }
 
         @Operation(summary = "회원가입", description = "사용자가 회원가입을 진행함.")
         @PostMapping("/signup")
         public ResponseEntity<ApiResDto<Void>> signup(
-                        @Valid @RequestBody UserSignupReqDto reqDto) {
+                        @RequestBody UserSignupReqDto reqDto) {
                 userService.signup(reqDto);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
@@ -66,15 +72,43 @@ public class UserController {
                                                 .build());
         }
 
-        @Operation(summary = "회원 정보 수정", description = "사용자가 정보를 수정함.")
-        @PutMapping
-        public ResponseEntity<ApiResDto<Void>> updateUser(
-                        @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-                        @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UserUpdateReqDto reqDto) {
-                userService.updateUser(reqDto, userDetails);
+        // @Operation(summary = "회원 정보 수정", description = "사용자가 정보를 수정함.")
+        // @PutMapping
+        // public ResponseEntity<ApiResDto<Void>> updateUser(
+        //                 @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+        //                 @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UserUpdateReqDto reqDto) {
+        //         userService.updateUser(reqDto, userDetails);
+        //         return ResponseEntity.ok()
+        //                         .body(ApiResDto.<Void>builder()
+        //                                         .messageCode("USER_INFO_UPDATE_SUCCESS")
+        //                                         .build());
+        // }
+
+        // 이메일 수정 전용 엔드포인트
+        @Operation(summary = "이메일 수정", description = "사용자 이메일을 수정합니다.")
+        @PatchMapping("/email")
+        public ResponseEntity<ApiResDto<Void>> updateEmail(
+                        @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @Valid @RequestBody EmailUpdateReqDto reqDto // 이메일 전용 DTO
+        ) {
+                userService.updateEmail(reqDto, userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
-                                                .messageCode("USER_INFO_UPDATE_SUCCESS")
+                                                .messageCode("EMAIL_UPDATE_SUCCESS")
+                                                .build());
+        }
+
+        // 비밀번호 수정 전용 엔드포인트
+        @Operation(summary = "비밀번호 수정", description = "사용자 비밀번호를 수정합니다.")
+        @PatchMapping("/password")
+        public ResponseEntity<ApiResDto<Void>> updatePassword(
+                        @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @Valid @RequestBody PasswordUpdateReqDto reqDto // 비밀번호 전용 DTO
+        ) {
+                userService.updatePassword(reqDto, userDetails);
+                return ResponseEntity.ok()
+                                .body(ApiResDto.<Void>builder()
+                                                .messageCode("PASSWORD_UPDATE_SUCCESS")
                                                 .build());
         }
 }

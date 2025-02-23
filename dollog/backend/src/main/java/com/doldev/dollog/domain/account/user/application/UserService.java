@@ -6,11 +6,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.doldev.dollog.domain.account.profile.application.ProfileSerivce;
+import com.doldev.dollog.domain.account.profile.application.ProfileService;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
+import com.doldev.dollog.domain.account.user.dto.req.EmailUpdateReqDto;
+import com.doldev.dollog.domain.account.user.dto.req.PasswordUpdateReqDto;
 import com.doldev.dollog.domain.account.user.dto.req.UserSignupReqDto;
-import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -26,22 +27,24 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    private final ProfileSerivce profileSerivce;
+    private final ProfileService profileSerivce;
 
     // 회원 가입
     @Transactional
     public void signup(UserSignupReqDto reqDto) {
 
-        // 사용자 생성
+        // 1. Profile 생성
+        Profile profile = profileSerivce.createProfile(reqDto.getNickname());
+
+        // 2. User 생성
         User user = User.builder()
                 .username(reqDto.getUsername())
                 .password(encoder.encode(reqDto.getPassword()))
                 .email(reqDto.getEmail())
                 .role(RoleType.ROLE_USER)
+                .profile(profile)
                 .build();
 
-        Profile profile = profileSerivce.createProfile(reqDto.getNickname());
-        user.assignProfile(profile);
         userRepository.save(user);
     }
 
@@ -62,16 +65,21 @@ public class UserService {
         userRepository.delete(userDetails.getUser());
     }
 
-    // 일반 회원 정보 수정
+    // 일반 회원 이메일 수정
     @Transactional
-    public void updateUser(UserUpdateReqDto reqDto,
-            CustomUserDetails userDetails) {
+    public void updateEmail(EmailUpdateReqDto reqDto, CustomUserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
 
-        user.changeEmail(reqDto.getEmail());
-        if (StringUtils.isNotBlank(reqDto.getNewPassword())) {
-            user.changePassword(encoder.encode(reqDto.getNewPassword()));
-        }
+        user.changeEmail(reqDto.getNewEmail());
+    }
+
+    // 일바 회원 비밀번호 수정
+    @Transactional
+    public void updatePassword(PasswordUpdateReqDto reqDto, CustomUserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUser().getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
+
+        user.changePassword(encoder.encode(reqDto.getNewPassword()));
     }
 }
