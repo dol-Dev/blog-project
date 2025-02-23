@@ -5,4 +5,5 @@ import lombok.Getter;
 @Getter
 public class ProfileUpdateReqDto {
     private String nickname;
+    private String blogName;
 }

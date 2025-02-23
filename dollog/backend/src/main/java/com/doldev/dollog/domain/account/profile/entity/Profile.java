@@ -33,7 +33,8 @@ public class Profile {
 
     private String blogName;
 
-    private String avatarImageUrl;
+    @Column(length = 255)
+    private String avatarImageName;
 
     @OneToOne(mappedBy = "profile")
     private User user;
@@ -46,8 +47,8 @@ public class Profile {
         this.nickname = nickname;
     }
 
-    public void changeAvatarImageUrl(String avatarImageUrl) {
-        this.avatarImageUrl = avatarImageUrl;
+    public void changeAvatarImageName(String avatarImageName) {
+        this.avatarImageName = avatarImageName;
     }
 
     public void changeBlogName(String blogName) {

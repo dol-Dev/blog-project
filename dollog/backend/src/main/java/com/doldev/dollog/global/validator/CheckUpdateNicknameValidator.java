@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
+import com.doldev.dollog.domain.account.profile.dto.req.NicknameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
-import com.doldev.dollog.domain.account.user.dto.req.UserUpdateReqDto;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
@@ -18,31 +18,31 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class CheckUpdateProfileValidator extends AbstractValidator<UserUpdateReqDto> {
+public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpdateReqDto> {
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private Optional<User> optionalUser;
 
     @Override
-    protected void doValidate(UserUpdateReqDto reqDto, Errors errors) {
+    protected void doValidate(NicknameUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
 
         optionalUser = userRepository.findByUsername(reqDto.getUsername());
-        Profile profile = optionalUser.get().getProfile();
-
         if (!optionalUser.isPresent()) {
-            errors.reject("user.notFound", "사용자를 찾을 수 없습니다.");
+            addError(errors, "username", "user.notFound", "사용자를 찾을 수 없습니다.");
             return;
         }
+
+        Profile profile = optionalUser.get().getProfile();
         validateNickname(reqDto, profile, errors);
     }
 
     // 닉네임 검증
-    private void validateNickname(UserUpdateReqDto reqDto, Profile profile, Errors errors) {
+    private void validateNickname(NicknameUpdateReqDto reqDto, Profile profile, Errors errors) {
 
         if (StringUtils.isBlank(reqDto.getNickname())) {
-            addError(errors, "nickname", "필수 값 오류", "닉네임을 입력해주세요.");
+            addError(errors, "nickname", "nickname.empty", "닉네임을 입력해주세요.");
             return;
         }
 
@@ -54,13 +54,13 @@ public class CheckUpdateProfileValidator extends AbstractValidator<UserUpdateReq
 
         // 형식 검증
         if (!reqDto.getNickname().matches("^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$")) {
-            addError(errors, "nickname", "형식 오류", "2~8자의 영문/한글/숫자/특수문자만 가능합니다.");
+            addError(errors, "nickname", "nickname.format", "2~8자의 영문/한글/숫자/특수문자만 가능합니다.");
             return;
         }
 
         // 중복 검증
         if (profileRepository.existsByNickname(reqDto.getNickname())) {
-            addError(errors, "nickname", "중복 오류", "이미 사용 중인 닉네임입니다.");
+            addError(errors, "nickname", "nickname.duplicate", "이미 사용 중인 닉네임입니다.");
         }
     }
 
