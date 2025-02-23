@@ -1,0 +1,169 @@
+.container {
+    position: relative; /* 자식 요소 기준 위치를 설정하기 위해 필수 */
+    padding-bottom: 200px; /* 페이지네이션 포함 영역 확보 */
+    overflow: visible; 
+}
+.title {
+    margin-bottom: 24px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #555;
+}
+
+.addButton {
+    margin-bottom: 24px;
+    padding: 12px 20px;
+    background-color: #f7f7f7;
+    color: #333;
+    border: 1px solid #e2e2e2;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.addButton:hover {
+    background-color: #ededed;
+    transform: translateY(-1px);
+}
+
+.categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.categoryItem {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px;
+    background-color: #fcfcfc;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    cursor: move;
+    transition: box-shadow 0.3s ease, transform 0.2s;
+}
+
+.categoryItem:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.categoryContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actionButton {
+    padding: 8px 14px;
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    color: #555;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.2s;
+}
+
+.actionButton:hover {
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.childCategoryList {
+    list-style: none;
+    padding: 12px 0 12px 18px;
+    margin: 10px 0;
+}
+
+.childCategoryItem {
+    background-color: #fafafa;
+    padding: 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.childCategoryItem:hover {
+    background-color: #f6f6f6;
+    transform: translateY(-1px);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(245, 245, 245, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 10px;
+    width: 380px;
+    max-width: 90%;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.textInput {
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.cancelButton, .saveButton {
+    padding: 12px 18px;
+    margin: 0 6px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.cancelButton {
+    background-color: #f7f7f7;
+    color: #333;
+}
+
+.cancelButton:hover {
+    background-color: #ededed;
+    transform: translateY(-1px);
+}
+
+.saveButton {
+    background-color: #f7f7f7;
+    color: #333;
+}
+
+.saveButton:hover {
+    background-color: #ededed;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.paginationContainer {
+    position: fixed; /* 부모 컨테이너를 기준으로 위치 */
+    bottom: 50px; /* 부모 컨테이너 하단에서 50px 아래 */
+    left: 50%; /* 가로 중앙 정렬 */
+    z-index: 999; /* 다른 콘텐츠 위로 표시 */
+    text-align: center;
+    transform: translateX(-40%); /* 중앙 정렬 보정 */
+}
