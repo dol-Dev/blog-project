@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+.custom-navbar {
+    background-color: transparent !important;
+    font-weight: bold !important;
+    color: black !important;
+    height: 75px; /* 헤더의 세로 크기 조정 */
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    color: black;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.nav-link {
+    position: relative;
+    display: inline-block;
+    color: black;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center; /* 텍스트를 세로로 중앙에 정렬 */
+    height: 100%; /* 부모 요소의 높이를 채우도록 설정 */
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 50%;
+    background-color: #f7e600;
+    transition: width 0.3s ease-out, left 0.3s ease-out;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover {
+    color: #f7e600; 
+}
+
+.nav-link:hover::after {
+    width: 100%;
+    left: 0;
+    transform: translateX(0);
+}
+
+.no-underline {
+    position: static; /* 위치 속성을 기본으로 설정하여 ::after 가 영향을 받지 않도록 함 */
+}
+
+.no-underline::after {
+    content: none;
+}
+
+.transparent-button {
+    background-color: transparent !important;
+}
+
+.transparent-button .icon {
+    color: black;
+}
