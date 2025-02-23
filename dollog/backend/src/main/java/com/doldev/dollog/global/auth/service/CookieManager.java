@@ -31,11 +31,13 @@ public class CookieManager {
     }
 
     private Optional<String> extractToken(HttpServletRequest req, String name) {
-        return Arrays.stream(req.getCookies())
-            .filter(c -> name.equals(c.getName()))
-            .findFirst()
-            .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8));
-    }
+        return Optional.ofNullable(req.getCookies())
+            .flatMap(cookies -> Arrays.stream(cookies)
+                .filter(c -> name.equals(c.getName()))
+                .findFirst()
+                .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8))
+                .map(value -> value.startsWith("Bearer ") ? value.substring(7) : value));
+    } 
 
     public void setTokens(HttpServletResponse res, Map<String, String> tokens) {
         res.addHeader("Set-Cookie", buildCookie("accessToken", tokens.get("accessToken"), 1800));
