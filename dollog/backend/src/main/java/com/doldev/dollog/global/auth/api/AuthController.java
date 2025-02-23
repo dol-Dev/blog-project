@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +19,7 @@ import com.doldev.dollog.global.dto.ApiResDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -43,10 +43,9 @@ public class AuthController {
         // 로그아웃
         @PostMapping("/logout")
         public ResponseEntity<ApiResDto<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
-                        @CookieValue("accessToken") String accessToken,
-                        @CookieValue("refreshToken") String refreshToken,
+                        HttpServletRequest req,
                         HttpServletResponse res) {
-                authService.logout(userDetails, accessToken, refreshToken, res);
+                authService.logout(userDetails, req, res);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<Void>builder()
                                                 .messageCode("LOGOUT_SUCCESS")
@@ -57,9 +56,7 @@ public class AuthController {
         @GetMapping("/info")
         public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(
                         @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
-
                 AuthenticatedUserResDto userInfo = authService.getUserInfo(userDetails);
-
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<AuthenticatedUserResDto>builder()
                                                 .messageCode("USER_INFO_FETCH_SUCCESS")
