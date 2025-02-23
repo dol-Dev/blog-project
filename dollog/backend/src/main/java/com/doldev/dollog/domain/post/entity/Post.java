@@ -59,7 +59,7 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
@@ -69,10 +69,12 @@ public class Post {
     private List<Comment> comments;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createDate;
 
     @UpdateTimestamp
-    private LocalDateTime modifyDate;
+    private LocalDateTime updateDate;
+
 
     /* 포스트 정보 변경 메서드들 */
     public void updateTitle(String newTitle) {

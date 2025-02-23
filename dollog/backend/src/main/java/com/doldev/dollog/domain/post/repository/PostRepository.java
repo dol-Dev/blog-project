@@ -22,8 +22,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     Page<Post> findAllByUserId(Pageable pageable, int userId);
 
-    @Query("SELECT p FROM Post p JOIN p.user u JOIN u.profile pr WHERE pr.blogName = ?1")
-    Page<Post> findAllByBlogName(String blogName, Pageable pageable);
+    @Query("SELECT p FROM Post p JOIN p.user u JOIN u.profile pr WHERE pr.nickname = ?1")
+    Page<Post> findAllByNickname(Pageable pageable, String nickname);
     
     @Query("SELECT p FROM Post p WHERE p.title LIKE %:keyword% AND p.user.id = :userId")
     Page<Post> findByTitleContainingAndUserId(String keyword, int userId,

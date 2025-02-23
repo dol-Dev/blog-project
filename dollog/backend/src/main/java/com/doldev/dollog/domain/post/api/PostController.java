@@ -33,7 +33,7 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 생성
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ApiResDto<Void>> writePost(
             @RequestBody PostCreateReqDto postDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -43,7 +43,7 @@ public class PostController {
         return ResponseEntity
                 .ok()
                 .body(ApiResDto.<Void>builder()
-                        .messageCode("게시글 작성 성공!")
+                        .messageCode("POST_CREATE_SUCCESS")
                         .build());
     }
 
@@ -51,7 +51,7 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResDto<Void>> deletePost(@PathVariable("postId") int postId) {
         postService.deletePost(postId);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("게시글 삭제 성공!").build());
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("POST_DELETE_SUCCESS").build());
     }
 
     // 게시글 수정
@@ -59,7 +59,57 @@ public class PostController {
     public ResponseEntity<ApiResDto<Void>> updatePost(@PathVariable("postId") int postId,
             @RequestBody PostUpdateReqDto updatePostReqDto) {
         postService.updatePost(postId, updatePostReqDto);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("게시글 수정 성공!").build());
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("POST_UPDATE_SUCCESS").build());
+    }
+
+    // 모든 유저 게시글 조회
+    @GetMapping
+    public ResponseEntity<ApiResDto<Page<Post>>> index(
+            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<Post> posts = postService.findAllPagedPosts(pageable);
+        return ResponseEntity
+                .ok()
+                .body(ApiResDto.<Page<Post>>builder()
+                        .messageCode("POSTS_GET_SUCCESS")
+                        .data(posts)
+                        .build());
+    }
+
+    // 상세 게시글 조회
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResDto<Post>> getPostById(
+            @PathVariable("postId") int postId) {
+        Post post = postService.showPostDetail(postId);
+        return ResponseEntity
+                .ok()
+                .body(ApiResDto.<Post>builder().messageCode("POST_GET_SUCCESS").data(post).build());
+    }
+
+    // 유저들의 닉네임별 게시글 조회
+    @GetMapping("/nickname/{nickname}")
+    public ResponseEntity<ApiResDto<Page<Post>>> getPostByNickname(
+            @PathVariable(name = "nickname") String nickname,
+            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<Post> posts = postService.findAllPagedPostsByNickname(pageable, nickname);
+        return ResponseEntity.ok()
+                .body(ApiResDto.<Page<Post>>builder()
+                        .messageCode("NICKNAME_POSTS_GET_SUCCESS")
+                        .data(posts)
+                        .build());
+    }
+
+    // 카테고리별 게시글 조회
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ApiResDto<Page<Post>>> getPostsByCategoryId(
+            @PathVariable("categoryId") int categoryId,
+            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<Post> posts = postService.getPostsByCategoryId(categoryId, pageable);
+        return ResponseEntity.ok()
+                .body(ApiResDto.<Page<Post>>builder()
+                        .messageCode("CATEGORY_POSTS_GET_SUCCESS")
+                        .data(posts)
+                        .build());
     }
 
     // 게시글 검색
@@ -84,60 +134,10 @@ public class PostController {
                 // 잘못된 검색 타입일 경우 빈 페이지 반환
                 posts = Page.empty(pageable);
                 return ResponseEntity.badRequest()
-                        .body(ApiResDto.<Page<Post>>builder().messageCode("잘못된 검색 타입입니다.").data(posts).build());
+                        .body(ApiResDto.<Page<Post>>builder().messageCode("INVALID_SEARCH_TYPE").data(posts).build());
         }
 
-        return ResponseEntity.ok().body(ApiResDto.<Page<Post>>builder().messageCode("검색 성공!").data(posts).build());
-    }
-
-    // 모든 유저 게시글 조회
-    @GetMapping("/")
-    public ResponseEntity<ApiResDto<Page<Post>>> index(
-            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Post> posts = postService.findAllPagedPosts(pageable);
-        return ResponseEntity
-                .ok()
-                .body(ApiResDto.<Page<Post>>builder()
-                        .messageCode("게시글 조회 성공!")
-                        .data(posts)
-                        .build());
-    }
-
-    // 블로그별 게시글 조회
-    @GetMapping("/{blogName}")
-    public ResponseEntity<ApiResDto<Page<Post>>> getPostByBlogName(
-            @PathVariable(name = "blogName") String blogName,
-            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        // log.info("blogName : {}", blogName);
-        Page<Post> posts = postService.findAllPagedPostsByBlogName(pageable, blogName);
         return ResponseEntity.ok()
-                .body(ApiResDto.<Page<Post>>builder()
-                        .messageCode("블로그 게시글 조회 성공!")
-                        .data(posts)
-                        .build());
-    }
-
-    // 상세 게시글 조회
-    @GetMapping("/{postId}")
-    public ResponseEntity<ApiResDto<Post>> getPostById(
-            @PathVariable("postId") int postId) {
-        Post post = postService.showPostDetail(postId);
-        return ResponseEntity
-        .ok()
-        .body(ApiResDto.<Post>builder().messageCode("게시글 조회 성공!").data(post).build());
-    }
-
-    // 카테고리별 게시글 조회
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<ApiResDto<Page<Post>>> getPostsByCategoryId(
-            @PathVariable("categoryId") int categoryId,
-            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Post> posts = postService.getPostsByCategoryId(categoryId, pageable);
-        return ResponseEntity.ok()
-                .body(ApiResDto.<Page<Post>>builder()
-                        .messageCode("CATEGORY_GET_POSTS_SUCCESS")
-                        .data(posts)
-                        .build());
+                .body(ApiResDto.<Page<Post>>builder().messageCode("SEARCH_SUCCESS").data(posts).build());
     }
 }

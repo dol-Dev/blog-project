@@ -74,8 +74,8 @@ public class PostService {
 
     // 블로그이름에 따른 전체 글 조회
     @Transactional(readOnly = true)
-    public Page<Post> findAllPagedPostsByBlogName(Pageable pageable, String blogName) {
-        return postRepository.findAllByBlogName(blogName, pageable);
+    public Page<Post> findAllPagedPostsByNickname(Pageable pageable, String nickname) {
+        return postRepository.findAllByNickname(pageable, nickname);
     }
 
     // 상세 게시글 조회
