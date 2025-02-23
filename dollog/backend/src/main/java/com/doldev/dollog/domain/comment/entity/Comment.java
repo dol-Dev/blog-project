@@ -64,15 +64,17 @@ public class Comment {
     private User user;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createDate;
 
     @UpdateTimestamp
-    private LocalDateTime modifyDate;
+    private LocalDateTime updateDate;
+
 
     // 댓/답글 업데이트
     public void updateContent(String content) {
         this.content = content;
-        this.modifyDate = LocalDateTime.now(); // 수정 시간 갱신
+        this.updateDate = LocalDateTime.now(); // 수정 시간 갱신
     }
 
     public void incrementLikeCnt() {
