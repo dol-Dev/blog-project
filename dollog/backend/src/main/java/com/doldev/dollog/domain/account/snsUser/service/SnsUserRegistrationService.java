@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
-import com.doldev.dollog.domain.account.profile.application.ProfileSerivce;
+import com.doldev.dollog.domain.account.profile.application.ProfileService;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
@@ -24,7 +24,7 @@ public class SnsUserRegistrationService {
     private Consumer<Profile> additionalProfileSetup = profile -> {
     };
     private final SnsUserRepository snsUserRepository;
-    private final ProfileSerivce profileSerivce;
+    private final ProfileService profileSerivce;
 
     public SnsUser registerNewUser(String username, SnsProvider provider) {
         SnsUser snsUser = buildSnsUser(username, provider);
