@@ -11,4 +11,6 @@ public class AuthenticatedUserResDto {
     private String nickname;
     private String provider;
     private String email;
+    private String avatarImageName;
+    private String blogName;
 }
