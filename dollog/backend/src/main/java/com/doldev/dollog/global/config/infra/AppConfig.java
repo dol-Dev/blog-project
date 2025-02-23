@@ -1,16 +1,23 @@
 package com.doldev.dollog.global.config.infra;
 
+import java.io.File;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import reactor.util.annotation.NonNull;
+
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
+
+    @Value("${avatar.upload-dir}")
+    private String uploadDir;
 
     @Bean
     CorsFilter corsFilter() {
@@ -29,7 +36,11 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:./uploads/");
+        // uploads/avatars 디렉토리의 절대 경로 추출
+        String absolutePath = new File(uploadDir).getAbsolutePath() + File.separator;
+
+        // "/uploads/avatars/**" URL 패턴으로 온 요청을 addResourceLocations에 설정한 디렉토리에서 가져와줌
+        registry.addResourceHandler("/uploads/avatars/**")
+                .addResourceLocations("file:" + absolutePath);
     }
 }
