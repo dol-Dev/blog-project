@@ -1,7 +1,5 @@
 package com.doldev.dollog.domain.banner.entity;
 
-import org.springframework.data.annotation.Id;
-
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -9,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
