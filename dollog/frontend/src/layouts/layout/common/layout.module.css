@@ -1,0 +1,123 @@
+/* Layout styles */
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2em;
+    /* overflow: auto; */
+}
+
+footer {
+    flex-shrink: 0; /* Ensure footer stays at the bottom */
+    text-align: center;
+    /* padding: 1em 0; */
+    background-color: #f0f0f0; /* Footer background color */
+}
+
+/* Banner styles */
+.banner {
+    position: relative;
+    height: 300px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 1;
+    background: linear-gradient(135deg, #c0e0ff, #e0f7ff); /* Gradient background */
+    color: #333; /* Default text color */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow */
+    transition: background 0.5s ease; /* Background transition */
+}
+
+.banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)); /* Animated gradient overlay */
+    z-index: -1;
+    animation: gradientMove 6s ease infinite; /* Animation for gradient movement */
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.banner h1, .banner p {
+    margin: 0;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.banner h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #5a5a5a; /* Default text color */
+    text-transform: uppercase; /* Uppercase text */
+    letter-spacing: 2px; /* Letter spacing */
+    transform-origin: center bottom; /* Transform origin */
+    cursor: pointer; /* Cursor pointer */
+    overflow: hidden; /* Hide overflow */
+    position: relative; /* Relative position */
+    text-shadow: 0 1px 0 rgba(255,255,255,.3); /* Shadow */
+}
+
+.banner img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 이미지가 배너를 꽉 채우도록 */
+    z-index: 1; /* 텍스트가 이미지 위에 오도록 */
+}
+
+.banner h1, .banner p {
+    z-index: 2; /* 텍스트가 이미지 위에 오도록 */
+}
+
+.banner p {
+    margin-top: 15px;
+    font-size: 1.3em;
+    font-weight: 300;
+    color: #7a7a7a; /* Default text color */
+    max-width: 70%; /* Limit max width */
+    line-height: 1.6; /* Line height */
+    opacity: 0.8; /* Reduced opacity */
+}
+
+.banner:hover {
+    background: linear-gradient(135deg, #92ddea, #fff); /* Change background gradient on hover */
+}
+
+
+@media (max-width: 768px) {
+    .banner {
+        height: 200px;
+    }
+
+    .banner h1 {
+        font-size: 2em;
+    }
+
+    .banner p {
+        font-size: 1.1em;
+    }
+}
