@@ -2,6 +2,8 @@ package com.doldev.dollog.global.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,9 +25,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final ObjectMapper objectMapper;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsFilter corsFilter;
-    private final ObjectMapper objectMapper;
     private final TokenAuthenticationManager tokenAuthenticationManager;
     private final CookieManager cookieManager;
 
@@ -46,11 +48,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private CustomAuthenticationFilter customAuthenticationFilter() {
+    @Bean
+    CustomAuthenticationFilter customAuthenticationFilter() {
         return CustomAuthenticationFilter.builder()
                 .tokenAuthenticationManager(tokenAuthenticationManager)
                 .cookieManager(cookieManager)
                 .objectMapper(objectMapper)
                 .build();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
