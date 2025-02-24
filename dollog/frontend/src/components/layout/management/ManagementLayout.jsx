@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import styles from './managementLayout.module.css';
-import ManagementSidebar from '../../../components/sidebar/management/ManagementSidebar';
+import ManagementSidebar from '../../sidebar/management/ManagementSidebar';
 
 const ManagementLayout = () => {
     return (

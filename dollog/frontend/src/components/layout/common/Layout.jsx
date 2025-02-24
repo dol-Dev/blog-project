@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { Sidebar as SemanticSidebar } from 'semantic-ui-react';
 import { useBlog } from '../../../contexts/BlogContext';
@@ -7,7 +6,7 @@ import Footer from '../../footer/Footer';
 import Header from '../../header/Header';
 import styles from './layout.module.css';
 
-import Sidebar from '../../../components/sidebar/common/Sidebar';
+import Sidebar from '../../sidebar/common/Sidebar';
 import axiosInstance from '../../../utils/axiosInstance';
 
 const Layout = ({ children }) => {
@@ -15,7 +14,6 @@ const Layout = ({ children }) => {
     const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', username: '' });
     const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', username: '', userId: '' });
     const { nickname, blogName } = useBlog();
-    const location = useLocation();
 
     useEffect(() => {
         if (blogName) {
@@ -63,8 +61,6 @@ const Layout = ({ children }) => {
         setBlogSidebarVisible(!blogSidebarVisible);
     };
 
-    const isAdminRoute = location.pathname.startsWith('/admin'); // 현재 경로가 /admin 하위인지 확인
-
     return (
         <div className={styles.layout}>
             <Header onBlogSidebarToggle={handleBlogSidebarToggle} isBlogSidebarVisible={blogSidebarVisible} />
@@ -90,8 +86,6 @@ const Layout = ({ children }) => {
                         </div>
                     )}
                     <main className={styles.mainContent}>
-                        {/* /admin 경로가 아닐 때만 ChatApp 렌더링 */}
-                        {/* {user && !isAdminRoute && <ChatApp />} */}
                         {children}
                     </main>
                 </SemanticSidebar.Pusher>
