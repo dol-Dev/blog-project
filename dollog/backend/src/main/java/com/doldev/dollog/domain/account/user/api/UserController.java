@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/users")
 @RestController
 public class UserController {
-        // private final CheckUpdateUserValidator checkUpdateUserValidator;
         private final CheckUpdateUserEmailValidator checkUpdateUserEmailValidator;
         private final CheckUpdateUserPasswordValidator  checkUpdateUserPasswordValidator;
         private final CheckSignupValidator checkSignupValidator;
@@ -43,7 +42,6 @@ public class UserController {
         @InitBinder
         public void initBinder(WebDataBinder binder) {
                 binder.addValidators(checkSignupValidator);
-                // binder.addValidators(checkUpdateUserValidator);
                 binder.addValidators(checkUpdateUserEmailValidator);
                 binder.addValidators(checkUpdateUserPasswordValidator);
         }
@@ -72,20 +70,8 @@ public class UserController {
                                                 .build());
         }
 
-        // @Operation(summary = "회원 정보 수정", description = "사용자가 정보를 수정함.")
-        // @PutMapping
-        // public ResponseEntity<ApiResDto<Void>> updateUser(
-        //                 @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-        //                 @Parameter(description = "수정할 사용자 정보") @Valid @RequestBody UserUpdateReqDto reqDto) {
-        //         userService.updateUser(reqDto, userDetails);
-        //         return ResponseEntity.ok()
-        //                         .body(ApiResDto.<Void>builder()
-        //                                         .messageCode("USER_INFO_UPDATE_SUCCESS")
-        //                                         .build());
-        // }
-
         // 이메일 수정 전용 엔드포인트
-        @Operation(summary = "이메일 수정", description = "사용자 이메일을 수정합니다.")
+        @Operation(summary = "이메일 수정", description = "사용자 이메일을 수정함.")
         @PatchMapping("/email")
         public ResponseEntity<ApiResDto<Void>> updateEmail(
                         @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -99,7 +85,7 @@ public class UserController {
         }
 
         // 비밀번호 수정 전용 엔드포인트
-        @Operation(summary = "비밀번호 수정", description = "사용자 비밀번호를 수정합니다.")
+        @Operation(summary = "비밀번호 수정", description = "사용자 비밀번호를 수정함.")
         @PatchMapping("/password")
         public ResponseEntity<ApiResDto<Void>> updatePassword(
                         @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
