@@ -1,0 +1,44 @@
+.user-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info {
+    margin-right: auto;
+}
+
+.kebob-dropdown {
+    position: relative;
+    right: 0;
+    margin-left: 10px; 
+}
+
+.container {
+    padding-top: 50px;
+    min-height: 87vh;
+}
+
+.avatar {
+    margin-right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.title {
+    margin-right: 50px;
+}
+
+.category-label {
+    margin-bottom: 10px;
+}
+
+.content {
+    margin-top: 50px;
+}
+
+.like-button {
+    margin-bottom: 10px;
+}

@@ -1,0 +1,16 @@
+.dropdown {
+    width: 30%;
+    border: 1px solid #bbb;
+    padding: 5px;
+    padding-left: 10px;
+    border-radius: 4px;
+    color: black;
+}
+
+.quill-editor {
+    height: 700px;
+}
+
+.button-group {
+    text-align: center;
+}

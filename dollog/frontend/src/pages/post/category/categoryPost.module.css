@@ -1,0 +1,28 @@
+.pagination-container {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.item-group {
+    padding-top: 110px;
+    min-height: 87vh;
+}
+
+.thumbnail {
+    margin-right: 20px;
+    width: 130px;
+    height: 90px;
+}
+
+.author {
+    font-size: 0.9em;
+    margin-right: 7px;
+}
+
+.divider {
+    margin: 10px 0;
+}
+
+.meta-separator {
+    color: #ccc;
+}
