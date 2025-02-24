@@ -29,6 +29,5 @@ public abstract class AbstractValidator<T> implements Validator {
         return Validator.super.validateObject(target);
     }
 
-    // for CheckSignupValidator,(CheckUserUpdateValidator는 곧 구현할 예정)
     protected abstract void doValidate(final T dto, final Errors errors);
 }

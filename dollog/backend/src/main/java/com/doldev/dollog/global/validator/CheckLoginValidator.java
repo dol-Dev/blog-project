@@ -23,6 +23,7 @@ public class CheckLoginValidator extends AbstractValidator<UserLoginReqDto> {
     }
 
     private void validateUsername(UserLoginReqDto req, Errors errors) {
+        log.info("validateUsername - username: '{}'", req.getUsername());
         if (StringUtils.isBlank(req.getUsername())) {
             addError(errors, "username", "username.empty", "아이디는 필수 입력값입니다.");
         }
