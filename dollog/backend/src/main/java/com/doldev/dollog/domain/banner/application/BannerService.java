@@ -41,13 +41,13 @@ public class BannerService {
 
     public LayoutRelatedInfoResDto findLayoutInfoByPrincipal(CustomUserDetails userDetails) {
         return userRepository.findById(userDetails.getUser().getId())
-                .map(LayoutRelatedInfoResDto::from)
+                .map(LayoutRelatedInfoResDto::fromEntity)
                 .orElse(null);
     }
 
     public LayoutRelatedInfoResDto findLayoutInfoByNickname(String nickname) {
         return profileRepository.findByNickname(nickname)
-                .map(profile -> LayoutRelatedInfoResDto.from(profile.getUser()))
+                .map(profile -> LayoutRelatedInfoResDto.fromEntity(profile.getUser()))
                 .orElse(null);
     }
 }
