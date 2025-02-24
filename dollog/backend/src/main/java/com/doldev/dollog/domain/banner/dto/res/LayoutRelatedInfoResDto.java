@@ -14,7 +14,7 @@ public class LayoutRelatedInfoResDto {
     private String blogName;
     private int userId;
 
-    public static LayoutRelatedInfoResDto from(User user) {
+    public static LayoutRelatedInfoResDto fromEntity(User user) {
         Banner banner = user.getBanner();
         return LayoutRelatedInfoResDto.builder()
                 .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
