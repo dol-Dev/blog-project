@@ -1,6 +1,7 @@
 package com.doldev.dollog.global.validator;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -24,6 +25,10 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
     private final ProfileRepository profileRepository;
     private Optional<User> optionalUser;
 
+    // 정규식 패턴 정의
+    private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$"; // 2~8자, 특수문자 포함 가능
+    private static final String SPACE_PATTERN = "\\s"; // 공백 포함 여부
+
     @Override
     protected void doValidate(NicknameUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
@@ -46,14 +51,11 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
             return;
         }
 
-        // 기존 닉네임과 동일할 경우 검증 생략
-        if (reqDto.getNickname().equals(profile.getNickname())) {
-            log.debug("닉네임 변경 없음 - 검증 생략");
-            return;
-        }
-
         // 형식 검증
-        if (!reqDto.getNickname().matches("^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$")) {
+        if (Pattern.matches(SPACE_PATTERN, reqDto.getNickname())) {
+            addError(errors, "nickname", "nickname.space", "닉네임은 공백을 포함할 수 없습니다.");
+        }
+        if (!reqDto.getNickname().matches(NICKNAME_PATTERN)) {
             addError(errors, "nickname", "nickname.format", "2~8자의 영문/한글/숫자/특수문자만 가능합니다.");
             return;
         }

@@ -1,6 +1,7 @@
 package com.doldev.dollog.global.validator;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,10 @@ public class CheckUpdateUserPasswordValidator extends AbstractValidator<Password
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private Optional<User> optionalUser;
+
+    // 정규식 패턴 정의
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!-/:-@\\[-`{-~])[A-Za-z\\d!-/:-@\\[-`{-~]{8,16}$"; // 영문+숫자+특수문자 조합 8~16자
+    private static final String SPACE_PATTERN = "\\s"; // 공백 포함 여부
 
     @Override
     protected void doValidate(PasswordUpdateReqDto reqDto, Errors errors) {
@@ -48,10 +53,11 @@ public class CheckUpdateUserPasswordValidator extends AbstractValidator<Password
 
         // 새 비밀번호 유효성 검사
         if (StringUtils.isNotBlank(reqDto.getNewPassword())) {
-            if (!reqDto.getNewPassword()
-                    .matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!-/:-@\\[-`{-~])[A-Za-z\\d!-/:-@\\[-`{-~]{8,16}$")) {
+            if (Pattern.matches(SPACE_PATTERN, reqDto.getNewPassword())) {
+                addError(errors, "newPassword", "password.space", "비밀번호는 공백을 포함할 수 없습니다.");
+            }
+            if (!reqDto.getNewPassword().matches(PASSWORD_PATTERN)) {
                 addError(errors, "newPassword", "password.format", "영문+숫자+특수문자 조합 8~16자로 입력해주세요.");
-                return;
             }
         }
     }

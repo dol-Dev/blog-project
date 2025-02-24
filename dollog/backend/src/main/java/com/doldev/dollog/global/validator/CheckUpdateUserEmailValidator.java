@@ -1,6 +1,7 @@
 package com.doldev.dollog.global.validator;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -21,6 +22,10 @@ public class CheckUpdateUserEmailValidator extends AbstractValidator<EmailUpdate
     private final UserRepository userRepository;
     private Optional<User> optionalUser;
 
+    // 정규식 패턴 정의
+    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"; // 이메일 형식
+    private static final String SPACE_PATTERN = "\\s"; // 공백 포함 여부
+
     @Override
     protected void doValidate(EmailUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 이메일 업데이트 사용자 {}", reqDto.getUsername());
@@ -39,11 +44,15 @@ public class CheckUpdateUserEmailValidator extends AbstractValidator<EmailUpdate
     private void validateEmail(EmailUpdateReqDto reqDto, Errors errors) {
 
         if (StringUtils.isBlank(reqDto.getNewEmail())) {
-            addError(errors, "email", "email.empty", "이메일은 필수 입력값입니다.");
+            addError(errors, "email", "email.empty", "이메일을 입력해주세요.");
             return;
         }
 
-        if (!reqDto.getNewEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{1,}$")) {
+        if (Pattern.matches(SPACE_PATTERN, reqDto.getNewEmail())) {
+            addError(errors, "email", "email.space", "이메일은 공백을 포함할 수 없습니다.");
+        }
+
+        if (!reqDto.getNewEmail().matches(EMAIL_PATTERN)) {
             addError(errors, "email", "email.format", "유효하지 않은 이메일 형식입니다.");
             return;
         }

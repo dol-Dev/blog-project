@@ -10,6 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CheckUpdateAvatarValidator extends AbstractValidator<MultipartFile> {
 
+    // 정규식 패턴 정의
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB 이하
+    private static final String IMAGE_PATTERN = "image/.*"; // 이미지 파일 형식
+
     @Override
     protected void doValidate(MultipartFile avatarFile, Errors errors) {
         log.info("doValidate 실행: 아바타 파일 검증");
@@ -19,14 +23,14 @@ public class CheckUpdateAvatarValidator extends AbstractValidator<MultipartFile>
             return;
         }
 
-        // 파일 크기 검증 (예: 5MB 이하)
-        if (avatarFile.getSize() > 5 * 1024 * 1024) {
+        // 파일 크기 검증
+        if (avatarFile.getSize() > MAX_FILE_SIZE) {
             addError(errors, "avatarFile", "avatarFile.size", "아바타 파일 크기는 5MB 이하이어야 합니다.");
         }
 
-        // 파일 형식 검증 (예: 이미지 파일만 허용)
+        // 파일 형식 검증
         String contentType = avatarFile.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
+        if (contentType == null || !contentType.matches(IMAGE_PATTERN)) {
             addError(errors, "avatarFile", "avatarFile.type", "아바타 파일은 이미지 파일이어야 합니다.");
         }
     }

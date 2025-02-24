@@ -4,8 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +18,8 @@ import com.doldev.dollog.global.auth.application.AuthService;
 import com.doldev.dollog.global.auth.dto.res.AuthenticatedUserResDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
+import com.doldev.dollog.global.validator.CheckLoginValidator;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,14 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
         private final AuthService authService;
+        private final CheckLoginValidator checkLoginValidator;
+
+        // InitBinder를 사용하여 Validator를 등록
+        @InitBinder
+        public void initBinder(WebDataBinder binder) {
+                binder.addValidators(checkLoginValidator);
+
+        }
 
         // 로그인
         @PostMapping("/login")
@@ -52,10 +61,9 @@ public class AuthController {
                                                 .build());
         }
 
-        @Operation(summary = "회원 정보 반환", description = "현재 로그인된 사용자의 정보를 반환함.")
+        // 인증된 사용자의 여러 정보 조회
         @GetMapping("/info")
-        public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(
-                        @Parameter(description = "현재 로그인된 사용자 정보", hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+        public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
                 AuthenticatedUserResDto userInfo = authService.getUserInfo(userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<AuthenticatedUserResDto>builder()
