@@ -8,6 +8,7 @@ import AVATAR_URL from '../../utils/avatarUrl';
 import axiosInstance from '../../utils/axiosInstance';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './header.module.css';
+import {toast} from 'react-toastify';
 
 const Header = ({ onBlogSidebarToggle }) => {
     const { authInfo } = useAuth();
@@ -28,22 +29,20 @@ const Header = ({ onBlogSidebarToggle }) => {
             setAvatar(AVATAR_URL + avatarImageName);
             setNickname(nickname);
             setBlogNameByAuthInfo(blogName);
-            console.log("blogNameByAuthInfo : " + blogNameByAuthInfo);
         }
     }
 
     const handleLogout = async () => {
         if (!authInfo) return;
         try {
-            const response = await axiosInstance.post('/api/auth/logout');
+            const response = await axiosInstance.post('/api/autah/logout');
 
             if (response.status === 200) {
                 navigate('/');
                 window.location.reload();
             }
         } catch (error) {
-            console.error('Error logging out:', error);
-            alert('로그아웃 중 오류가 발생했습니다.');
+            toast.error('로그아웃에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
