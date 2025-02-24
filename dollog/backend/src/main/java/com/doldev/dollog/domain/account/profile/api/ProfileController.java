@@ -5,8 +5,9 @@ import java.io.IOException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,19 +18,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.doldev.dollog.domain.account.profile.application.ProfileService;
 import com.doldev.dollog.domain.account.profile.dto.req.BlogNameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.dto.req.NicknameUpdateReqDto;
-import com.doldev.dollog.domain.account.profile.dto.req.ProfileUpdateReqDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 import com.doldev.dollog.global.validator.CheckUpdateAvatarValidator;
 import com.doldev.dollog.global.validator.CheckUpdateBlogNameValidator;
 import com.doldev.dollog.global.validator.CheckUpdateNicknameValidator;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/profiles")
 public class ProfileController {
 
     private final CheckUpdateNicknameValidator checkUpdateNicknameValidator;
@@ -37,53 +36,51 @@ public class ProfileController {
     private final CheckUpdateBlogNameValidator checkUpdateBlogNameValidator;
     private final ProfileService profileService;
 
-    // InitBinder를 사용하여 Validator를 등록
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.addValidators(checkUpdateNicknameValidator);
-        binder.addValidators(checkUpdateAvatarValidator);
-        binder.addValidators(checkUpdateBlogNameValidator);
-    }
-
-
-    // 프로필 수정
-    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResDto<Void>> updateUser(
-            @Valid @ModelAttribute ProfileUpdateReqDto req,
-            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        profileService.updateProfile(req, avatarFile, userDetails);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("PROFILE_UPDATE_SUCCESS").build());
-    }
-
     // 닉네임 수정
-    @PutMapping(value = "/nickname")
+    @PutMapping("/nickname")
     public ResponseEntity<ApiResDto<Void>> updateNickname(
-            @Valid @ModelAttribute NicknameUpdateReqDto req,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        profileService.updateNickname(req, userDetails);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("NICKNAME_UPDATE_SUCCESS").build());
+            @ModelAttribute NicknameUpdateReqDto reqDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws BindException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(reqDto, "nicknameUpdateReqDto");
+        checkUpdateNicknameValidator.validate(reqDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+        profileService.updateNickname(reqDto, userDetails);
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder()
+                .messageCode("NICKNAME_UPDATE_SUCCESS")
+                .build());
     }
 
     // 아바타 수정
     @PutMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResDto<Void>> updateAvatar(
             @RequestPart(value = "avatarFile") MultipartFile avatarFile,
-            @AuthenticationPrincipal CustomUserDetails userDetails) throws IOException {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws BindException, IOException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(avatarFile, "avatarFile");
+        checkUpdateAvatarValidator.validate(avatarFile, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
         profileService.updateAvatar(avatarFile, userDetails);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("AVATAR_UPDATE_SUCCESS").build());
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder()
+                .messageCode("AVATAR_UPDATE_SUCCESS")
+                .build());
     }
 
     // 블로그 이름 수정
-    @PutMapping(value = "/blogName")
+    @PutMapping("/blogName")
     public ResponseEntity<ApiResDto<Void>> updateBlogName(
-            @Valid @ModelAttribute BlogNameUpdateReqDto req,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        profileService.updateBlogName(req, userDetails);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("BLOG_NAME_UPDATE_SUCCESS").build());
+            @ModelAttribute BlogNameUpdateReqDto reqDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws BindException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(reqDto, "blogNameUpdateReqDto");
+        checkUpdateBlogNameValidator.validate(reqDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+        profileService.updateBlogName(reqDto, userDetails);
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder()
+                .messageCode("BLOG_NAME_UPDATE_SUCCESS")
+                .build());
     }
 }

@@ -4,10 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.WebDataBinder;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,18 +33,16 @@ public class AuthController {
         private final AuthService authService;
         private final CheckLoginValidator checkLoginValidator;
 
-        // InitBinder를 사용하여 Validator를 등록
-        @InitBinder
-        public void initBinder(WebDataBinder binder) {
-                binder.addValidators(checkLoginValidator);
-
-        }
-
         // 로그인
         @PostMapping("/login")
         public ResponseEntity<ApiResDto<Void>> login(
                         @RequestBody UserLoginReqDto reqDto,
-                        HttpServletResponse res) {
+                        HttpServletResponse res) throws BindException {
+                BindingResult bindingResult = new BeanPropertyBindingResult(reqDto, "userLoginReqDto");
+                checkLoginValidator.validate(reqDto, bindingResult);
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
                 authService.login(reqDto, res);
                 return ResponseEntity.ok(
                                 ApiResDto.<Void>builder().messageCode("SUCCESS_LOGIN").build());
@@ -63,7 +62,8 @@ public class AuthController {
 
         // 인증된 사용자의 여러 정보 조회
         @GetMapping("/info")
-        public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
                 AuthenticatedUserResDto userInfo = authService.getUserInfo(userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<AuthenticatedUserResDto>builder()
