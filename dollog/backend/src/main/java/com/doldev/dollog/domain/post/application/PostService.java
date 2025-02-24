@@ -9,6 +9,7 @@ import com.doldev.dollog.domain.category.application.CategoryService;
 import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.domain.post.dto.req.PostCreateReqDto;
 import com.doldev.dollog.domain.post.dto.req.PostUpdateReqDto;
+import com.doldev.dollog.domain.post.dto.res.PostResDto;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.doldev.dollog.domain.post.repository.PostRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -24,7 +25,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CategoryService categoryService;
 
-    // 글 작성
+     // 게시글 생성
     @Transactional
     public void createPost(PostCreateReqDto reqDto,
             CustomUserDetails userDetails) {
@@ -60,36 +61,42 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    // 페이징된 글 전체 조회
+    // 특정 게시글 조회
     @Transactional(readOnly = true)
-    public Page<Post> findAllPagedPosts(Pageable pageable) {
-        return postRepository.findAll(pageable);
+    public PostResDto getPostByPostId(int postId) {
+        return postRepository.findById(postId)
+                .map(PostResDto::fromEntity)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패 ID: " + postId));
     }
 
-    // 페이징된 유저에 따른 글 조회
+    // 페이징된 게시글 전체 조회
     @Transactional(readOnly = true)
-    public Page<Post> findAllPagedPostsByUser(Pageable pageable, int userId) {
-        return postRepository.findAllByUserId(pageable, userId);
+    public Page<PostResDto> getAllPosts(Pageable pageable) {
+        return postRepository.findAll(pageable)
+                .map(PostResDto::fromEntity);
     }
 
-    // 블로그이름에 따른 전체 글 조회
+    // 페이징된 닉네임에 따른 게시글 조회
     @Transactional(readOnly = true)
-    public Page<Post> findAllPagedPostsByNickname(Pageable pageable, String nickname) {
-        return postRepository.findAllByNickname(pageable, nickname);
+    public Page<PostResDto> getPostsByNickname(Pageable pageable, String nickname) {
+        return postRepository.findAllByNickname(pageable, nickname)
+                .map(PostResDto::fromEntity);
     }
 
-    // 상세 게시글 조회
+    // 페이징된 카테고리에 따른 게시글 조회
     @Transactional(readOnly = true)
-    public Post showPostDetail(int postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패"));
+    public Page<PostResDto> getPostsByCategoryId(int categoryId, Pageable pageable) {
+        return postRepository.findByCategoryId(categoryId, pageable)
+                .map(PostResDto::fromEntity);
     }
 
-    // 카테고리별 게시글 조회
-    @Transactional
-    public Page<Post> getPostsByCategoryId(int categoryId, Pageable pageable) {
-        return postRepository.findByCategoryId(categoryId, pageable);
-    }
-
+    // // 페이징된 유저에 따른 게시글 조회
+    // @Transactional(readOnly = true)
+    // public Page<PostResDto> findAllPagedPostsByUser(Pageable pageable, int
+    // userId) {
+    // return postRepository.findAllByUserId(pageable, userId)
+    // .map(PostResDto::fromEntity);
+    // }
 
     // 제목 또는 내용으로 검색
     public Page<Post> searchPostsByTitleOrContent(String keyword, Pageable pageable) {

@@ -19,12 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.doldev.dollog.domain.post.application.PostService;
 import com.doldev.dollog.domain.post.dto.req.PostCreateReqDto;
 import com.doldev.dollog.domain.post.dto.req.PostUpdateReqDto;
+import com.doldev.dollog.domain.post.dto.res.PostResDto;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
@@ -34,7 +37,7 @@ public class PostController {
 
     // 게시글 생성
     @PostMapping
-    public ResponseEntity<ApiResDto<Void>> writePost(
+    public ResponseEntity<ApiResDto<Void>> createPost(
             @RequestBody PostCreateReqDto postDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -47,13 +50,6 @@ public class PostController {
                         .build());
     }
 
-    // 게시글 삭제
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResDto<Void>> deletePost(@PathVariable("postId") int postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("POST_DELETE_SUCCESS").build());
-    }
-
     // 게시글 수정
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResDto<Void>> updatePost(@PathVariable("postId") int postId,
@@ -62,51 +58,63 @@ public class PostController {
         return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("POST_UPDATE_SUCCESS").build());
     }
 
-    // 모든 유저 게시글 조회
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResDto<Void>> deletePost(@PathVariable("postId") int postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.ok().body(ApiResDto.<Void>builder().messageCode("POST_DELETE_SUCCESS").build());
+    }
+
+    // 특정 게시글 조회
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResDto<PostResDto>> getPostByPostId(
+            @PathVariable("postId") int postId) {
+
+        PostResDto post = postService.getPostByPostId(postId);
+        return ResponseEntity.ok()
+                .body(ApiResDto.<PostResDto>builder()
+                        .messageCode("POST_GET_SUCCESS")
+                        .data(post)
+                        .build());
+    }
+
+    // 페이징된 게시글 전체 조회
     @GetMapping
-    public ResponseEntity<ApiResDto<Page<Post>>> index(
+    public ResponseEntity<ApiResDto<Page<PostResDto>>> getAllPosts(
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Post> posts = postService.findAllPagedPosts(pageable);
-        return ResponseEntity
-                .ok()
-                .body(ApiResDto.<Page<Post>>builder()
+
+        Page<PostResDto> posts = postService.getAllPosts(pageable);
+
+        return ResponseEntity.ok()
+                .body(ApiResDto.<Page<PostResDto>>builder()
                         .messageCode("POSTS_GET_SUCCESS")
                         .data(posts)
                         .build());
     }
 
-    // 상세 게시글 조회
-    @GetMapping("/{postId}")
-    public ResponseEntity<ApiResDto<Post>> getPostById(
-            @PathVariable("postId") int postId) {
-        Post post = postService.showPostDetail(postId);
-        return ResponseEntity
-                .ok()
-                .body(ApiResDto.<Post>builder().messageCode("POST_GET_SUCCESS").data(post).build());
-    }
-
-    // 유저들의 닉네임별 게시글 조회
+    // 페이징된 닉네임에 따른 게시글 조회
     @GetMapping("/nickname/{nickname}")
-    public ResponseEntity<ApiResDto<Page<Post>>> getPostByNickname(
-            @PathVariable(name = "nickname") String nickname,
+    public ResponseEntity<ApiResDto<Page<PostResDto>>> getPostsByNickname(
+            @PathVariable("nickname") String nickname,
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<Post> posts = postService.findAllPagedPostsByNickname(pageable, nickname);
+        Page<PostResDto> posts = postService.getPostsByNickname(pageable, nickname);
         return ResponseEntity.ok()
-                .body(ApiResDto.<Page<Post>>builder()
+                .body(ApiResDto.<Page<PostResDto>>builder()
                         .messageCode("NICKNAME_POSTS_GET_SUCCESS")
                         .data(posts)
                         .build());
     }
 
-    // 카테고리별 게시글 조회
+    // 페이징된 카테고리에 따른 게시글 조회
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResDto<Page<Post>>> getPostsByCategoryId(
+    public ResponseEntity<ApiResDto<Page<PostResDto>>> getPostsByCategoryId(
             @PathVariable("categoryId") int categoryId,
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Post> posts = postService.getPostsByCategoryId(categoryId, pageable);
+
+        Page<PostResDto> posts = postService.getPostsByCategoryId(categoryId, pageable);
         return ResponseEntity.ok()
-                .body(ApiResDto.<Page<Post>>builder()
+                .body(ApiResDto.<Page<PostResDto>>builder()
                         .messageCode("CATEGORY_POSTS_GET_SUCCESS")
                         .data(posts)
                         .build());
