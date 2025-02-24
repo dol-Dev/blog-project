@@ -1,23 +1,34 @@
 plugins {
-    id 'java' // Java plugin for building Java projects
-    id 'org.springframework.boot' version '3.4.2' // Replaced with a stable version
-    id 'io.spring.dependency-management' version '1.1.7' // Dependency management for Spring
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.doldev' // Project group ID
-version = '0.0.1-SNAPSHOT' // Project version
+group = 'com.doldev'
+version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21) // Set Java version (Java 21)
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            // ✅ 백엔드 소스 경로 추가
+            srcDirs = ['backend/src/main/java']
+        }
+        resources {
+            srcDirs = ['backend/src/main/resources']
+        }
     }
 }
 
 repositories {
-    mavenCentral() // Maven Central Repository for dependencies
-    maven { url 'https://repo.spring.io/milestone' } // Spring Milestone Repository
-    maven { url 'https://repo.spring.io/snapshot' } // Spring Snapshot Repository
+    mavenCentral()
 }
+
 
 dependencies {
    // Spring Boot Core Dependencies
@@ -36,7 +47,10 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
     // Security Dependencies
-    implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security (security-related)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-config' 
+    implementation 'org.springframework.security:spring-security-core'
+    implementation 'org.springframework.security:spring-security-web'
     
     // Monitoring and Metrics Dependencies
     implementation 'org.springframework.boot:spring-boot-starter-actuator' // Spring Boot Actuator (monitoring and metrics)
