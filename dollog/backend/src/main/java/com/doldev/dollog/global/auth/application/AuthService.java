@@ -60,15 +60,7 @@ public class AuthService {
 
     // 인증된 사용자 정보 반환
     public AuthenticatedUserResDto getUserInfo(CustomUserDetails userDetails) {
-        return AuthenticatedUserResDto.builder()
-                .id(userDetails.getId())
-                .username(userDetails.getUsername())
-                .nickname(userDetails.getNickname())
-                .provider(userDetails.getProvider())
-                .email(userDetails.getEmail())
-                .avatarImageName(userDetails.getUser().getProfile().getAvatarImageName())
-                .blogName(userDetails.getUser().getProfile().getBlogName())
-                .build();
+        return AuthenticatedUserResDto.from(userDetails);
     }
 
     // 일반사용자 로그인 요청 시 인증객체 설정
