@@ -20,7 +20,9 @@ import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -39,14 +41,20 @@ public class CommentService {
         // 댓글/답글 생성
         @Transactional
         public CommentResDto createComment(CommentCreateReqDto reqDto, CustomUserDetails userDetails) {
-
                 // Post 조회
                 Post post = postRepository.findById(reqDto.getPostId())
                                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
+                User user = null;
+                SnsUser snsUser = null;
+
                 // 둘중에 하나 존재하는거 꺼내기
-                User user = userDetails.getUser();
-                SnsUser snsUser = userDetails.getSnsUser();
+                if (userDetails.isUser()) {
+                        user = userDetails.getUser();
+                } else if (userDetails.isSnsUser()) {
+                        snsUser = userDetails.getSnsUser();
+                        log.info("scuccess find snsUser : " + snsUser);
+                }
 
                 // 부모 댓글
                 Comment parent = Optional.ofNullable(reqDto.getParentId())
