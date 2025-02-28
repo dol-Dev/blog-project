@@ -6,8 +6,9 @@ import { Button, Container, Divider, Dropdown, Icon, Label } from "semantic-ui-r
 import Swal from "sweetalert2";
 import { useAuth } from "../../../contexts/AuthContext";
 import AVATAR_URL from "../../../utils/avatarUrl";
-import axiosInstance from "../../../utils/axiosInstance";
 import styles from "./detailPost.module.css";
+import CommentList from "../../comment/Comment";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const DetailPost = () => {
     const [detailPost, setDetailPost] = useState({});
@@ -15,15 +16,15 @@ const DetailPost = () => {
     const navigate = useNavigate();
     const [userId, setUserId] = useState('');
     const [nickname, setNickname] = useState('');
-    const [avatar, setAvatar] = useState('');
+    const [blogName, setBlogName] = useState('');
     const { authInfo } = useAuth();
 
     useEffect(() => {
         if (authInfo) {
-            const { avatarImageName, nickname, id } = authInfo;
-            setAvatar(AVATAR_URL + avatarImageName);
+            const { nickname, blogName, id } = authInfo;
             setUserId(id);
             setNickname(nickname)
+            setBlogName(blogName);
         }
         fetchPost();
     }, [authInfo]);
@@ -56,7 +57,7 @@ const DetailPost = () => {
         if (result.isConfirmed) {
             try {
                 await axiosInstance.delete(`/api/posts/${id}`);
-                navigate("/");
+                navigate(`/blog/${nickname}`, { state: { blogName } });
             } catch (error) {
                 toast.error("삭제 실패. 다시 시도해주세요.");
             }
@@ -97,7 +98,9 @@ const DetailPost = () => {
                         <div className={styles['user-info-container']}>
                             <Dropdown
                                 trigger={
-                                    <img src={avatar} alt="Avatar"
+                                    <img
+                                        src={`${AVATAR_URL}${detailPost.avatarImageName}`}
+                                        alt="Avatar"
                                         className={styles['avatar']}
                                     />
                                 }
@@ -112,19 +115,19 @@ const DetailPost = () => {
                             <div className={styles['user-info']}>
                                 {detailPost.nickname}
                             </div>
-                            <Dropdown
-                                icon="ellipsis vertical"
-                                className={styles['kebob-dropdown']}
-                                pointing="left">
-                                <Dropdown.Menu>
-                                    {nickname && nickname === detailPost.nickname && (
+                            {nickname && nickname === detailPost.nickname && (
+                                <Dropdown
+                                    icon="ellipsis vertical"
+                                    className={styles['kebob-dropdown']}
+                                    pointing="left">
+                                    <Dropdown.Menu>
                                         <>
                                             <Dropdown.Item text="수정" icon="edit" onClick={() => navigate(`/update-post/${id}`)} />
                                             <Dropdown.Item text="삭제" icon="trash alternate" onClick={handleDeletePost} />
                                         </>
-                                    )}
-                                </Dropdown.Menu>
-                            </Dropdown>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            )}
                         </div>
                     </>
                 )}
@@ -168,8 +171,9 @@ const DetailPost = () => {
                     )}
                 </div>
                 <Divider />
+                <CommentList postId={id} currentUserId={userId} />
             </div>
-        </Container>
+        </Container >
     );
 }
 
