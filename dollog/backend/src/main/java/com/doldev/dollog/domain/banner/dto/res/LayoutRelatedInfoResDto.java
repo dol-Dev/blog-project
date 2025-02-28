@@ -1,5 +1,6 @@
 package com.doldev.dollog.domain.banner.dto.res;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.banner.entity.Banner;
 
@@ -21,6 +22,16 @@ public class LayoutRelatedInfoResDto {
                 .bannerDescription(banner != null ? banner.getBannerDescription() : null)
                 .blogName(user.getProfile().getBlogName())
                 .userId(user.getId())
+                .build();
+    }
+
+    public static LayoutRelatedInfoResDto fromEntity(SnsUser snsUser) {
+        Banner banner = snsUser.getBanner();
+        return LayoutRelatedInfoResDto.builder()
+                .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
+                .bannerDescription(banner != null ? banner.getBannerDescription() : null)
+                .blogName(snsUser.getProfile().getBlogName())
+                .userId(snsUser.getId())
                 .build();
     }
 }

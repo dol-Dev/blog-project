@@ -1,5 +1,6 @@
 package com.doldev.dollog.domain.like.entity;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.comment.entity.Comment;
 import com.doldev.dollog.domain.post.entity.Post;
@@ -34,6 +35,10 @@ public class Like {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "sns_user_id")
+    private SnsUser snsUser;
 
     @ManyToOne
     @JoinColumn(name = "post_id")

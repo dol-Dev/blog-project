@@ -1,12 +1,14 @@
 package com.doldev.dollog.domain.comment.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.like.entity.Like;
 import com.doldev.dollog.domain.post.entity.Post;
@@ -46,14 +48,16 @@ public class Comment {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
-    private List<Comment> child;
+    private List<Comment> child = new ArrayList<>();
 
     @ColumnDefault("0")
     private Long likeCnt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
-    private List<Like> likes;
+    private List<Like> likes = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -62,7 +66,11 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
+    
+    @ManyToOne
+    @JoinColumn(name = "sns_user_id")
+    private SnsUser snsUser;
+    
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createDate;

@@ -14,6 +14,7 @@ public class CommentResDto {
     private String content;
     private WriterInfo writer;
     private LocalDateTime createdAt;
+    private Integer parentId; 
     private List<CommentResDto> replies; // 자식 댓글
 
     public CommentResDto(Comment comment) {
@@ -21,6 +22,7 @@ public class CommentResDto {
         this.content = comment.getContent();
         this.writer = new WriterInfo(comment.getUser());
         this.createdAt = comment.getCreateDate();
+        this.parentId = comment.getParent() != null ? comment.getParent().getId() : null;
         this.replies = comment.getChild().stream()
                 .map(CommentResDto::new)
                 .toList();
@@ -29,11 +31,13 @@ public class CommentResDto {
     @Getter
     private static class WriterInfo {
         private final int userId;
-        private final String username;
+        private final String nickname;
+        private final String avatarImageName;
 
         public WriterInfo(User user) {
             this.userId = user.getId();
-            this.username = user.getUsername();
+            this.nickname = user.getProfile().getNickname();
+            this.avatarImageName = user.getProfile().getAvatarImageName();
         }
     }
 }

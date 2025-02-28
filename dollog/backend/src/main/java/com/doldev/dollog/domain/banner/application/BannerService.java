@@ -4,7 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
+import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.domain.banner.dto.req.BannerReqDto;
@@ -19,35 +22,51 @@ import lombok.RequiredArgsConstructor;
 public class BannerService {
 
     private final UserRepository userRepository;
+    private final SnsUserRepository snsUserRepository;
     private final ProfileRepository profileRepository;
 
-    public User createBanner(CustomUserDetails userDetails, BannerReqDto reqDto) {
-        Optional<User> userOptional = userRepository.findById(userDetails.getUser().getId());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            Banner banner = userOptional.get().getBanner();
-            Banner.builder()
-                    .bannerDescription(reqDto.getBannerDescription())
-                    .bannerImageUrl(reqDto.getBannerImageUrl())
-                    .build();
+    public void createBanner(CustomUserDetails userDetails, BannerReqDto reqDto) {
+        Banner banner = Banner.builder()
+                .bannerDescription(reqDto.getBannerDescription())
+                .bannerImageUrl(reqDto.getBannerImageUrl())
+                .build();
 
-            user.assignBanner(banner);
+        Optional<Profile> profileOpt = profileRepository.findByNickname(userDetails.getNickname());
+        if (profileOpt.isPresent()) {
+            if (userDetails.getUser() != null) {
+                User user = userDetails.getUser();
+                user.assignBanner(banner);
+                userRepository.save(user);
+            } else if (userDetails.isSnsUser()) {
+                SnsUser snsUser = userDetails.getSnsUser();
+                snsUser.assignBanner(banner);
+                snsUserRepository.save(snsUser);
+            }
+        }
+    }
 
-            userRepository.save(user);
-            return user;
+    public LayoutRelatedInfoResDto findLayoutInfoByPrincipal(CustomUserDetails userDetails) {
+        if (userDetails.isUser()) {
+            return userRepository.findById(userDetails.getId())
+                    .map(LayoutRelatedInfoResDto::fromEntity)
+                    .orElse(null);
+        } else if (userDetails.isSnsUser()) {
+            return snsUserRepository.findById(userDetails.getId())
+                    .map(LayoutRelatedInfoResDto::fromEntity)
+                    .orElse(null);
         }
         return null;
     }
 
-    public LayoutRelatedInfoResDto findLayoutInfoByPrincipal(CustomUserDetails userDetails) {
-        return userRepository.findById(userDetails.getUser().getId())
-                .map(LayoutRelatedInfoResDto::fromEntity)
-                .orElse(null);
-    }
-
     public LayoutRelatedInfoResDto findLayoutInfoByNickname(String nickname) {
-        return profileRepository.findByNickname(nickname)
-                .map(profile -> LayoutRelatedInfoResDto.fromEntity(profile.getUser()))
-                .orElse(null);
+        Optional<Profile> profile = profileRepository.findByNickname(nickname);
+        if (profile.isPresent()) {
+            if (profile.get().getUser() != null) {
+                return LayoutRelatedInfoResDto.fromEntity(profile.get().getUser());
+            } else if (profile.get().getSnsUser() != null) {
+                return LayoutRelatedInfoResDto.fromEntity(profile.get().getSnsUser());
+            }
+        }
+        return null;
     }
 }

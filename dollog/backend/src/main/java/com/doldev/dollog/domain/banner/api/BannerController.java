@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.banner.application.BannerService;
 import com.doldev.dollog.domain.banner.dto.req.BannerReqDto;
 import com.doldev.dollog.domain.banner.dto.res.LayoutRelatedInfoResDto;
@@ -27,19 +26,17 @@ public class BannerController {
 
     private final BannerService bannerService;
 
+    // 배너 생성
     @PostMapping
     public ResponseEntity<ApiResDto<?>> createBanner(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BannerReqDto bannerRequest) {
-        User user = bannerService.createBanner(userDetails, bannerRequest);
-        if (user == null) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResDto.builder().messageCode("BANNER_CREATION_FAILED").build());
-        }
+        bannerService.createBanner(userDetails, bannerRequest);
         return ResponseEntity.ok()
-                .body(ApiResDto.builder().messageCode("BANNER_CREATION_SUCCESS").data(user).build());
+                .body(ApiResDto.builder().messageCode("BANNER_CREATION_SUCCESS").build());
     }
 
+    // 인증된 사용자의 배너 조회(로그인o)
     @GetMapping
     public ResponseEntity<ApiResDto<?>> getLayoutInfoByPrincipal(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -52,6 +49,7 @@ public class BannerController {
                 .body(ApiResDto.builder().messageCode("LAYOUT_INFO_FETCH_SUCCESS").data(resDto).build());
     }
 
+    // 해당 닉네임에 해당하는 사용자의 배너 조회(로그인 유무x)
     @GetMapping("/{nickname}")
     public ResponseEntity<ApiResDto<?>> getLayoutInfoByNickname(@PathVariable("nickname") String nickname) {
         LayoutRelatedInfoResDto resDto = bannerService.findLayoutInfoByNickname(nickname);

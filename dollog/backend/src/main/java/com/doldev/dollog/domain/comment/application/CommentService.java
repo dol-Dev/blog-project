@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
-import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.domain.comment.dto.req.CommentCreateReqDto;
 import com.doldev.dollog.domain.comment.dto.req.CommentUpdateReqDto;
 import com.doldev.dollog.domain.comment.dto.res.CommentResDto;
@@ -16,6 +16,7 @@ import com.doldev.dollog.domain.comment.entity.Comment;
 import com.doldev.dollog.domain.comment.repository.CommentRepository;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.doldev.dollog.domain.post.repository.PostRepository;
+import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,6 @@ public class CommentService {
 
         private final CommentRepository commentRepository;
         private final PostRepository postRepository;
-        private final UserRepository userRepository;
 
         // 게시글에 대한 최상위 댓글 조회
         @Transactional(readOnly = true)
@@ -38,19 +38,27 @@ public class CommentService {
 
         // 댓글/답글 생성
         @Transactional
-        public CommentResDto createComment(CommentCreateReqDto reqDto) {
+        public CommentResDto createComment(CommentCreateReqDto reqDto, CustomUserDetails userDetails) {
+
+                // Post 조회
                 Post post = postRepository.findById(reqDto.getPostId())
                                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-                User user = userRepository.findById(reqDto.getUserId())
-                                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+                // 둘중에 하나 존재하는거 꺼내기
+                User user = userDetails.getUser();
+                SnsUser snsUser = userDetails.getSnsUser();
+
+                // 부모 댓글
                 Comment parent = Optional.ofNullable(reqDto.getParentId())
                                 .flatMap(commentRepository::findById)
                                 .orElse(null);
 
+                // 자식 댓글
                 Comment comment = Comment.builder()
                                 .content(reqDto.getContent())
                                 .post(post)
                                 .user(user)
+                                .snsUser(snsUser)
                                 .parent(parent)
                                 .build();
 
@@ -69,6 +77,6 @@ public class CommentService {
         // 댓글/답글 삭제
         @Transactional
         public void deleteComment(int commentId) {
-                commentRepository.deleteById(commentId); // 댓글 삭제 시 대댓글도 cascade로 삭제 가능
+                commentRepository.deleteById(commentId);
         }
 }

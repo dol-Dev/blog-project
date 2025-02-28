@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.doldev.dollog.domain.category.application.CategoryService;
 import com.doldev.dollog.domain.category.dto.req.CategoryCreateReqDto;
 import com.doldev.dollog.domain.category.dto.req.CategoryUpdateReqDto;
 import com.doldev.dollog.domain.category.entity.Category;
+import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 
 import lombok.RequiredArgsConstructor;
@@ -34,8 +36,10 @@ public class CategoryController {
 
         // 카테고리 생성
         @PostMapping
-        public ResponseEntity<ApiResDto<Void>> createCategory(@RequestBody CategoryCreateReqDto category) {
-                categoryService.createCategory(category);
+        public ResponseEntity<ApiResDto<Void>> createCategory(
+                        @RequestBody CategoryCreateReqDto category,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+                categoryService.createCategory(category, userDetails);
                 return ResponseEntity
                                 .ok()
                                 .body(ApiResDto.<Void>builder()
@@ -44,12 +48,12 @@ public class CategoryController {
         }
 
         // 해당 유저의 페이징된 카테고리 조회
-        @GetMapping("/{userId}")
+        @GetMapping
         public ResponseEntity<ApiResDto<Page<Category>>> getCategoriesByUserId(
-                        @PathVariable("userId") int userId,
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
                         @PageableDefault(size = 4) Pageable pageable) {
 
-                Page<Category> categories = categoryService.getPagingCategoriesByUserId(userId, pageable);
+                Page<Category> categories = categoryService.getPagingCategories(userDetails, pageable);
 
                 return ResponseEntity
                                 .ok()
@@ -59,7 +63,7 @@ public class CategoryController {
                                                 .build());
         }
 
-        // 해당 유저의 모든 카테고리 조회
+        // 해당 유저의 모든 카테고리 조회(로그인 유무x)
         @GetMapping("/{userId}/all")
         public ResponseEntity<ApiResDto<List<Category>>> getAllCategoriesByUserId(
                         @PathVariable("userId") int userId) {

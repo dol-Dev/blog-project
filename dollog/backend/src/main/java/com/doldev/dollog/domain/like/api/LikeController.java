@@ -24,7 +24,7 @@ public class LikeController {
     @PostMapping("/posts/{postId}")
     public ResponseEntity<ApiResDto<Void>> togglePostLike(@PathVariable("postId") int postId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        likeService.togglePostLike(postId, userDetails.getUser());
+        likeService.togglePostLike(postId, userDetails);
         return ResponseEntity.ok()
                 .body(ApiResDto.<Void>builder().messageCode("LIKE_TOGGLE_SUCCESS").build());
     }
@@ -33,7 +33,7 @@ public class LikeController {
     @PostMapping("/comments/{commentId}")
     public ResponseEntity<ApiResDto<Void>> toggleCommentLike(@PathVariable("commentId") int commentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        likeService.toggleCommentLike(commentId, userDetails.getUser());
+        likeService.toggleCommentLike(commentId, userDetails);
         return ResponseEntity.ok()
                 .body(ApiResDto.<Void>builder().messageCode("LIKE_TOGGLE_SUCCESS").build());
     }

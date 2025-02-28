@@ -3,6 +3,7 @@ package com.doldev.dollog.domain.comment.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import com.doldev.dollog.domain.comment.application.CommentService;
 import com.doldev.dollog.domain.comment.dto.req.CommentCreateReqDto;
 import com.doldev.dollog.domain.comment.dto.req.CommentUpdateReqDto;
 import com.doldev.dollog.domain.comment.dto.res.CommentResDto;
+import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 import com.doldev.dollog.global.dto.ApiResDto;
 
 import lombok.RequiredArgsConstructor;
@@ -40,8 +42,10 @@ public class CommentController {
 
         // 댓글/답글 생성
         @PostMapping
-        public ResponseEntity<ApiResDto<CommentResDto>> createComment(@RequestBody CommentCreateReqDto request) {
-                CommentResDto response = commentService.createComment(request);
+        public ResponseEntity<ApiResDto<CommentResDto>> createComment(
+                @RequestBody CommentCreateReqDto reqDto,
+                @AuthenticationPrincipal CustomUserDetails userDetails) {
+                CommentResDto response = commentService.createComment(reqDto, userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<CommentResDto>builder()
                                                 .messageCode("COMMENT_CREATE_SUCCESS")
@@ -53,8 +57,8 @@ public class CommentController {
         @PutMapping("/{commentId}")
         public ResponseEntity<ApiResDto<CommentResDto>> updateComment(
                         @PathVariable int commentId,
-                        @RequestBody CommentUpdateReqDto request) {
-                CommentResDto response = commentService.updateComment(commentId, request);
+                        @RequestBody CommentUpdateReqDto reqDto) {
+                CommentResDto response = commentService.updateComment(commentId, reqDto);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<CommentResDto>builder()
                                                 .messageCode("COMMENT_UPDATE_SUCCESS")

@@ -3,6 +3,7 @@ package com.doldev.dollog.domain.category.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -57,6 +58,10 @@ public class Category {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "sns_user_id")
+    private SnsUser snsUser;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
     @Builder.Default
     private List<Post> posts = new ArrayList<>();
@@ -87,9 +92,5 @@ public class Category {
 
     public void changeChildOrderIndex(int index) {
         this.childOrderIndex = index;
-    }
-
-    public void assignUser(User user) {
-        this.user = user;
     }
 }
