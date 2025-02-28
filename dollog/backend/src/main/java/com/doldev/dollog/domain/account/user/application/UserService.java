@@ -74,7 +74,7 @@ public class UserService {
         user.changeEmail(reqDto.getNewEmail());
     }
 
-    // 일바 회원 비밀번호 수정
+    // 일반 회원 비밀번호 수정
     @Transactional
     public void updatePassword(PasswordUpdateReqDto reqDto, CustomUserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUser().getUsername())
