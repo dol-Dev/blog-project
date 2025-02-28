@@ -1,5 +1,6 @@
 package com.doldev.dollog.domain.like.application;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -25,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class LikeService {
-
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -33,11 +33,15 @@ public class LikeService {
     // 게시물 좋아요 토글
     @Transactional
     public void togglePostLike(int postId, CustomUserDetails userDetails) {
+        BiFunction<Integer, Integer, Optional<Like>> likeFinder = userDetails.isUser()
+                ? likeRepository::findByPostIdAndUserId      // 일반 사용자
+                : likeRepository::findByPostIdAndSnsUserId; // SNS 사용자
+
         processLikeInteraction(
                 postId,
                 userDetails,
                 () -> findEntityById(postRepository::findById, postId, "Post not found"),
-                likeRepository::findByPostIdAndUserId,
+                likeFinder,
                 Like::getPost,
                 Post::incrementLikeCnt,
                 Post::decrementLikeCnt,
@@ -47,11 +51,15 @@ public class LikeService {
     // 댓글 및 답글 좋아요 토글
     @Transactional
     public void toggleCommentLike(int commentId, CustomUserDetails userDetails) {
+        BiFunction<Integer, Integer, Optional<Like>> likeFinder = userDetails.isUser()
+                ? likeRepository::findByCommentIdAndUserId
+                : likeRepository::findByCommentIdAndSnsUserId;
+
         processLikeInteraction(
                 commentId,
                 userDetails,
                 () -> findEntityById(commentRepository::findById, commentId, "Comment not found"),
-                likeRepository::findByCommentIdAndUserId,
+                likeFinder,
                 Like::getComment,
                 Comment::incrementLikeCnt,
                 Comment::decrementLikeCnt,
@@ -74,16 +82,16 @@ public class LikeService {
             Consumer<T> decrementAction,
             BiConsumer<Like.LikeBuilder, T> entitySetter) {
 
-        Optional<Like> likeOpt = Optional.empty();
+        // 실제 userId 혹은 snsUserId를 꺼내는 헬퍼
+        int realUserId = getRealUserId(userDetails);
 
-        if (userDetails.isUser()) {
-            likeOpt = likeFinder.apply(entityId, userDetails.getUser().getId());
-        } else if (userDetails.isSnsUser()) {
-            likeOpt = likeFinder.apply(entityId, userDetails.getSnsUser().getId());
-        }
+        // LikeRepository에서 get
+        Optional<Like> likeOpt = likeFinder.apply(entityId, realUserId);
 
+        // 엔티티(게시글/댓글) 조회
         T entity = entitySupplier.get();
 
+        // 좋아요가 없으면 새로 생성, 이미 있으면 토글
         if (likeOpt.isEmpty()) {
             createNewLike(userDetails, entity, incrementAction, entitySetter);
         } else {
@@ -91,24 +99,50 @@ public class LikeService {
         }
     }
 
+    // ID(User or SnsUser) 꺼내기
+    private int getRealUserId(CustomUserDetails userDetails) {
+        if (userDetails.isUser()) {
+            return userDetails.getUser().getId();
+        } else if (userDetails.isSnsUser()) {
+            return userDetails.getSnsUser().getId();
+        } else {
+            throw new IllegalArgumentException("No valid user found in userDetails.");
+        }
+    }
+
     // 새로운 좋아요 생성
-    private <T> void createNewLike(CustomUserDetails userDetails, T entity, Consumer<T> incrementAction,
+    private <T> void createNewLike(
+            CustomUserDetails userDetails,
+            T entity,
+            Consumer<T> incrementAction,
             BiConsumer<Like.LikeBuilder, T> entitySetter) {
-                User user = userDetails.getUser();
-                SnsUser snsUser = userDetails.getSnsUser();
+
+        User user = userDetails.getUser();
+        SnsUser snsUser = userDetails.getSnsUser();
+
         Like.LikeBuilder newLikeBuilder = Like.builder()
                 .user(user)
                 .snsUser(snsUser)
                 .liked(true);
-        entitySetter.accept(newLikeBuilder, entity);
+
+        entitySetter.accept(newLikeBuilder, entity); // post or comment
         Like newLike = newLikeBuilder.build();
+
+        // 좋아요 수 +1
         incrementAction.accept(entity);
+
+        // DB에 저장
         likeRepository.save(newLike);
     }
 
     // 기존 좋아요 토글
-    private <T> void toggleExistingLike(CustomUserDetails userDetails, Like like, T entity, Consumer<T> incrementAction,
+    private <T> void toggleExistingLike(
+            CustomUserDetails userDetails,
+            Like like,
+            T entity,
+            Consumer<T> incrementAction,
             Consumer<T> decrementAction) {
+
         validateOwnership(like, userDetails);
 
         if (like.isLiked()) {
@@ -120,9 +154,17 @@ public class LikeService {
     }
 
     // 좋아요 소유권 검증
-    private void validateOwnership(Like like, CustomUserDetails userDetails) { 
-        if (like.getUser().getId() != userDetails.getId()) {
-            throw new IllegalArgumentException("Unauthorized operation");
+    private void validateOwnership(Like like, CustomUserDetails userDetails) {
+        if (like.getUser() != null) {
+            if (!Objects.equals(like.getUser().getId(), userDetails.getUser().getId())) {
+                throw new IllegalArgumentException("Unauthorized operation for normal User");
+            }
+        } else if (like.getSnsUser() != null) {
+            if (!Objects.equals(like.getSnsUser().getId(), userDetails.getSnsUser().getId())) {
+                throw new IllegalArgumentException("Unauthorized operation for normal User");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Like entity");
         }
     }
 }
