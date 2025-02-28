@@ -54,7 +54,6 @@ public class SnsService {
             signupOrLogin(username, snsType, req, res);
 
         } catch (Exception e) {
-            log.error("SNS 처리 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -82,9 +81,7 @@ public class SnsService {
                     // 신규 사용자 등록 후 반환
                     return snsUserRegistrationService.registerNewUser(username, provider);
                 });
-
-        log.info("SNS {} 사용자: {}", snsType, snsUser.getUsername());
-
+                
         // 인증 처리
         setAuthenticationSnsUser(snsUser);
         Map<String, String> tokens = tokenService.generateNewTokens(username);

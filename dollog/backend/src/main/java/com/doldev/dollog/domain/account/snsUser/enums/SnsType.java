@@ -7,13 +7,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SnsType {
         KAKAO(
-                        "kakao",
+                        "KAKAO",
                         "https://kauth.kakao.com/oauth/token",
                         "https://kapi.kakao.com/v2/user/me",
                         "authorization_code",
                         null),
         NAVER(
-                        "naver",
+                        "NAVER",
                         "https://nid.naver.com/oauth2.0/token",
                         "https://openapi.naver.com/v1/nid/me",
                         "authorization_code",
