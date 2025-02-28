@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.category.application.CategoryService;
@@ -52,9 +53,7 @@ public class CategoryController {
         public ResponseEntity<ApiResDto<Page<Category>>> getCategoriesByUserId(
                         @AuthenticationPrincipal CustomUserDetails userDetails,
                         @PageableDefault(size = 4) Pageable pageable) {
-
                 Page<Category> categories = categoryService.getPagingCategories(userDetails, pageable);
-
                 return ResponseEntity
                                 .ok()
                                 .body(ApiResDto.<Page<Category>>builder()
@@ -63,13 +62,11 @@ public class CategoryController {
                                                 .build());
         }
 
-        // 해당 유저의 모든 카테고리 조회(로그인 유무x)
-        @GetMapping("/{userId}/all")
-        public ResponseEntity<ApiResDto<List<Category>>> getAllCategoriesByUserId(
-                        @PathVariable("userId") int userId) {
-
-                List<Category> categories = categoryService.getCategoriesByUserId(userId);
-
+        // 해당 블로그의 모든 카테고리 조회(로그인 유무x)
+        @GetMapping("/nickname")
+        public ResponseEntity<ApiResDto<List<Category>>> getAllCategoriesByNickname(
+                        @RequestParam("nickname") String nickname) {
+                List<Category> categories = categoryService.getCategoriesByNickname(nickname);
                 return ResponseEntity
                                 .ok()
                                 .body(ApiResDto.<List<Category>>builder()

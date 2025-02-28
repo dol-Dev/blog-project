@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.doldev.dollog.domain.account.profile.entity.Profile;
+import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.domain.account.user.entity.User;
@@ -33,6 +35,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final SnsUserRepository snsUserRepository;
+    private final ProfileRepository profileRepository;
 
     // 카테고리 생성
     @Transactional
@@ -183,25 +186,26 @@ public class CategoryService {
 
     // 카테고리 조회(로그인 유무x)
     @Transactional
-    public List<Category> getCategoriesByUserId(int userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<SnsUser> snsUserOpt = snsUserRepository.findById(userId);
+    public List<Category> getCategoriesByNickname(String nickname) {
+        Optional<Profile> profileOpt = profileRepository.findByNickname(nickname);
+        if(profileOpt.isPresent()) {
+            User user = profileOpt.get().getUser();
+            SnsUser snsUser = profileOpt.get().getSnsUser();
 
-        if (userOpt.isPresent()) {
-            // 일반 유저
-            return categoryRepository.findAllParentsWithChildrenByUserId(userId);
-        } else if (snsUserOpt.isPresent()) {
-            // SNS 유저
-            return categoryRepository.findAllParentsWithChildrenBySnsUserId(userId);
-        } else {
-            // 둘 다 없으면 빈 리스트
-            return Collections.emptyList();
+            if (user != null) {
+                // 일반 유저
+                return categoryRepository.findAllParentsWithChildrenByUserId(user.getId());
+            } else if (snsUser != null) {
+                // SNS 유저
+                return categoryRepository.findAllParentsWithChildrenBySnsUserId(snsUser.getId());
+            } 
         }
+        // 프로필이 없는 경우 빈 리스트 반환
+        return Collections.emptyList();
     }
 
     // 내부 메서드
     public Optional<Category> getCategoryById(int categoryId) {
         return categoryRepository.findById(categoryId);
     }
-
 }
