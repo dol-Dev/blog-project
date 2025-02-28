@@ -35,7 +35,7 @@ public class AuthService {
     // 로그인
     public void login(UserLoginReqDto reqDto, HttpServletResponse res) {
         setBeforeLoginAuthenticationUser(reqDto);
-        Map<String, String> tokens = tokenService.generateTokens(reqDto.getUsername());
+        Map<String, String> tokens = tokenService.generateNewTokens(reqDto.getUsername());
         cookieManager.setTokens(res, tokens);
     }
 
@@ -43,11 +43,11 @@ public class AuthService {
     public void logout(CustomUserDetails userDetails, HttpServletRequest req, HttpServletResponse res) {
         String refreshKey = "refresh_" + userDetails.getUsername();
         String storedRefreshToken = Optional.ofNullable(redisTemplate.opsForValue().get(refreshKey))
-                                            .map(token -> token.substring(7))
-                                            .orElseThrow(() -> new IllegalArgumentException("Refresh token not found in Redis."));
+                .map(token -> token.substring(7))
+                .orElseThrow(() -> new IllegalArgumentException("Refresh token not found in Redis."));
 
         Optional<String> refreshTokenOpt = cookieManager.extractRefreshToken(req);
-        
+
         refreshTokenOpt.ifPresent(r -> {
             if (!StringUtils.equals(r, storedRefreshToken)) {
                 throw new IllegalArgumentException("Invalid refresh token.");

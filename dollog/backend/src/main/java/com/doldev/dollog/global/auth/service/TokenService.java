@@ -19,7 +19,7 @@ public class TokenService {
     private long refreshExpirationTime;
 
     // 로그인 시 토큰 생성
-    public Map<String, String> generateTokens(String username) {
+    public Map<String, String> generateNewTokens(String username) {
         String refreshTokenKey = "refresh_" + username;
 
         String accessToken = jwtProvider.createAccessToken(username);
@@ -37,7 +37,7 @@ public class TokenService {
     }
 
     // 기존 리프레시 토큰을 기반한 새 토큰들 생성
-    public Map<String, String> generateNewTokens(String username) {
+    public Map<String, String> rotateTokens(String username) {
         String refreshTokenKey = "refresh_" + username;
 
         String existingRefreshToken = redisTemplate.opsForValue().get(refreshTokenKey);

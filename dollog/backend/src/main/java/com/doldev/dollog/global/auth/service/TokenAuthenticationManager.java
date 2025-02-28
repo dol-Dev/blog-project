@@ -56,7 +56,7 @@ public class TokenAuthenticationManager {
     public Map<String, String> refreshTokens(String refreshToken) {
         validateRefreshToken(refreshToken);
         String username = extractUsername(refreshToken);
-        return tokenService.generateNewTokens(username);
+        return tokenService.rotateTokens(username);
     }
 
     // 내부: 리프레시 토큰 검증

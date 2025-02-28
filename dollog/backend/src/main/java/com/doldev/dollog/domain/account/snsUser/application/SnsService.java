@@ -81,7 +81,7 @@ public class SnsService {
                     // 신규 사용자 등록 후 반환
                     return snsUserRegistrationService.registerNewUser(username, provider);
                 });
-                
+
         // 인증 처리
         setAuthenticationSnsUser(snsUser);
         Map<String, String> tokens = tokenService.generateNewTokens(username);
