@@ -47,9 +47,13 @@ public class AvatarService {
 
         Path targetPath = uploadPath.resolve(uniqueFileName);
         Files.createDirectories(targetPath.getParent());
-        file.transferTo(targetPath);
 
-        return uniqueFileName; // 상대 경로 대신 파일명만 반환
+        // file.transferTo 대신 파일의 InputStream을 복사하는 방식 사용
+        try (InputStream is = file.getInputStream()) {
+            Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return uniqueFileName;
     }
 
     // 회원가입 시 기본 아바타 설정
@@ -57,14 +61,14 @@ public class AvatarService {
         String sanitizedName = sanitizeFilename(nickname);
         String extension = getFileExtension(defaultImage);
         String uniqueFileName = generateUniqueFileName(sanitizedName, extension);
-    
+
         Path targetPath = uploadPath.resolve(uniqueFileName);
-        
+
         // static에서 직접 복사
         try (InputStream is = new ClassPathResource("static/" + defaultImage).getInputStream()) {
             Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
-        
+
         return uniqueFileName;
     }
 
