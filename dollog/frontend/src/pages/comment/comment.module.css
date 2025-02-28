@@ -1,0 +1,27 @@
+:global(.ui.comments) {
+    max-width: none;
+}
+
+.commentForm {
+    margin-top: 2rem;
+}
+
+.commentTextArea {
+    min-height: 80px;
+}
+
+.avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.replyForm {
+    margin-top: 1rem;
+    margin-left: 3rem;
+}
+
+.replyGroup {
+    margin-left: 2rem;
+}
