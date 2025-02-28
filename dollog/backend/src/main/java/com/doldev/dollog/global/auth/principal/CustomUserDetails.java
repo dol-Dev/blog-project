@@ -24,21 +24,21 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     private SnsUser snsUser;
     private Map<String, Object> attributes;
 
-    // ì¼ë°˜ íšŒì› ìƒì„±ì
+    // ÀÏ¹İ È¸¿ø »ı¼ºÀÚ
     public CustomUserDetails(User user) {
         this.user = user;
         this.snsUser = null;
         this.attributes = Map.of();
     }
 
-    // SNS(ì¹´ì¹´ì˜¤, ë„¤ì´ë²„) ë¡œê·¸ì¸ íšŒì› ìƒì„±ì
+    // SNS(Ä«Ä«¿À, ³×ÀÌ¹ö) ·Î±×ÀÎ È¸¿ø »ı¼ºÀÚ
     public CustomUserDetails(SnsUser snsUser) {
         this.user = null;
         this.snsUser = snsUser;
         this.attributes = Map.of();
     }
 
-    // êµ¬ê¸€ ë¡œê·¸ì¸ íšŒì› ìƒì„±ì
+    // ±¸±Û ·Î±×ÀÎ È¸¿ø »ı¼ºÀÚ
     public CustomUserDetails(SnsUser snsUser, Map<String, Object> attributes) {
         this.user = null;
         this.snsUser = snsUser;
@@ -69,7 +69,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return isUser() ? user.getId() : snsUser.getId();
     }
 
-    // UserDetails êµ¬í˜„
+    // UserDetails ±¸Çö
     @Override
     public String getPassword() {
         return isUser() ? user.getPassword() : null;
@@ -86,7 +86,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    // OAuth2User êµ¬í˜„
+    // OAuth2User ±¸Çö
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;
@@ -101,7 +101,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.attributes = attributes;
     }
 
-    // ê³„ì • ìƒíƒœ ê´€ë ¨ ë©”ì„œë“œ
+    // °èÁ¤ »óÅÂ °ü·Ã ¸Ş¼­µå
     @Override
     public boolean isAccountNonExpired() {
         return true;
