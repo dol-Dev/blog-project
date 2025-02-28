@@ -6,14 +6,16 @@ import com.doldev.dollog.domain.banner.entity.Banner;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 @Getter
 public class LayoutRelatedInfoResDto {
     private String bannerImageUrl;
     private String bannerDescription;
     private String blogName;
-    private int userId;
+    private String nickname;
 
     public static LayoutRelatedInfoResDto fromEntity(User user) {
         Banner banner = user.getBanner();
@@ -21,7 +23,7 @@ public class LayoutRelatedInfoResDto {
                 .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
                 .bannerDescription(banner != null ? banner.getBannerDescription() : null)
                 .blogName(user.getProfile().getBlogName())
-                .userId(user.getId())
+                .nickname(user.getProfile().getNickname())
                 .build();
     }
 
@@ -31,7 +33,7 @@ public class LayoutRelatedInfoResDto {
                 .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
                 .bannerDescription(banner != null ? banner.getBannerDescription() : null)
                 .blogName(snsUser.getProfile().getBlogName())
-                .userId(snsUser.getId())
+                .nickname(snsUser.getProfile().getNickname())
                 .build();
     }
 }
