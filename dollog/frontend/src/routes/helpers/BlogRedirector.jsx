@@ -7,8 +7,8 @@ function BlogRedirector() {
     const location = useLocation();
 
     const { nickname } = useParams();
-    const { blogName } = location.state || {};
-    const { setBlogName, setNickname } = useBlog();
+    const { blogName, provider} = location.state || {};
+    const { setBlogName, setNickname, setProvider } = useBlog();
 
     useEffect(() => {
         if (blogName) {
@@ -17,8 +17,11 @@ function BlogRedirector() {
         if (nickname) {
             setNickname(nickname);
         }
+        if (provider) {
+            setProvider(provider);
+        }
         navigate('/posts');
-    }, [blogName, nickname, setBlogName, setNickname, navigate]);
+    }, [nickname, setNickname, navigate]);
 
     return null;
 }
