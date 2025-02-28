@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Draggable from 'react-draggable';
+import { toast } from 'react-toastify';
 import { Container, Icon, Pagination } from 'semantic-ui-react';
 import Swal from "sweetalert2";
 import { useAuth } from "../../contexts/AuthContext";
@@ -35,7 +36,7 @@ const ManageCategory = () => {
         console.log("fetchCategories - page:", page);  // 추가된 로그
 
         try {
-            const response = await axiosInstance.get(`/api/categories/${userId}?page=${page}`);
+            const response = await axiosInstance.get(`/api/categories?page=${page}`);
 
             console.log("Fetched categories:", response.data.data.content);
 
@@ -124,7 +125,7 @@ const ManageCategory = () => {
 
     const handleCategorySubmit = () => {
         if (!newCategoryName.trim()) {
-            Swal.fire('카테고리 이름을 입력하세요', '', 'warning');
+            toast.error('카테고리 이름을 입력하세요');
             return;
         }
 
