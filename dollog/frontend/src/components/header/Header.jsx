@@ -8,7 +8,7 @@ import AVATAR_URL from '../../utils/avatarUrl';
 import axiosInstance from '../../utils/axiosInstance';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './header.module.css';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const Header = ({ onBlogSidebarToggle }) => {
     const { authInfo } = useAuth();
@@ -16,7 +16,8 @@ const Header = ({ onBlogSidebarToggle }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [nickname, setNickname] = useState('');
-    const [blogNameByAuthInfo, setBlogNameByAuthInfo] = useState('');
+    const [blogNameByAuthInfo, setBlogNameByAuthInfo] = useState({ blogName: '', provider: '' });
+
     const [avatar, setAvatar] = useState('');
 
     useEffect(() => {
@@ -25,17 +26,17 @@ const Header = ({ onBlogSidebarToggle }) => {
 
     const updateLoginStatus = () => {
         if (authInfo) {
-            const { avatarImageName, nickname, blogName } = authInfo;
+            const { avatarImageName, nickname, blogName, provider } = authInfo;
             setAvatar(AVATAR_URL + avatarImageName);
             setNickname(nickname);
-            setBlogNameByAuthInfo(blogName);
+            setBlogNameByAuthInfo({ blogName, provider });
         }
     }
 
     const handleLogout = async () => {
         if (!authInfo) return;
         try {
-            const response = await axiosInstance.post('/api/autah/logout');
+            const response = await axiosInstance.post('/api/auth/logout');
 
             if (response.status === 200) {
                 navigate('/');
@@ -75,7 +76,8 @@ const Header = ({ onBlogSidebarToggle }) => {
                                         icon={null}
                                     >
                                         <Dropdown.Menu>
-                                            <Dropdown.Item text="정보 수정" icon="info" onClick={() => navigate('/user')} />
+                                            <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
+                                            <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
                                             <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage')} />
                                             <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
                                         </Dropdown.Menu>
@@ -89,7 +91,13 @@ const Header = ({ onBlogSidebarToggle }) => {
                                         <Nav.Link as={Link} to="/write" className={styles['nav-link']}>글쓰기</Nav.Link>
                                     </>
                                 ) : (
-                                    <Nav.Link as={Link} to={`/blog/${nickname}`} state={{ blogName: blogNameByAuthInfo }} className={styles['nav-link']}>내블로그</Nav.Link>
+                                    <Nav.Link as={Link} to={`/blog/${nickname}`} className={styles['nav-link']}
+                                        state={{
+                                            blogName: blogNameByAuthInfo.blogName,
+                                            provider: blogNameByAuthInfo.provider
+                                        }}
+                                    >내블로그
+                                    </Nav.Link>
                                 )}
                             </>
                         ) : (
