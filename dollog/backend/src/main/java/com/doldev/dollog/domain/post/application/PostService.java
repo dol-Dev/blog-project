@@ -90,14 +90,6 @@ public class PostService {
                 .map(PostResDto::fromEntity);
     }
 
-    // // 페이징된 유저에 따른 게시글 조회
-    // @Transactional(readOnly = true)
-    // public Page<PostResDto> findAllPagedPostsByUser(Pageable pageable, int
-    // userId) {
-    // return postRepository.findAllByUserId(pageable, userId)
-    // .map(PostResDto::fromEntity);
-    // }
-
     // 제목 또는 내용으로 검색
     public Page<Post> searchPostsByTitleOrContent(String keyword, Pageable pageable) {
         return postRepository.findByTitleOrContent(keyword, pageable);

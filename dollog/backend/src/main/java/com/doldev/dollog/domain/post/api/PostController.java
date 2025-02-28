@@ -78,7 +78,7 @@ public class PostController {
                         .build());
     }
 
-    // 페이징된 게시글 전체 조회
+    // 페이징된 게시글 전체 조회(로그인 유무x)
     @GetMapping
     public ResponseEntity<ApiResDto<Page<PostResDto>>> getAllPosts(
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -92,7 +92,7 @@ public class PostController {
                         .build());
     }
 
-    // 페이징된 닉네임에 따른 게시글 조회
+    // 페이징된 닉네임에 따른 게시글 조회(로그인 유무x)
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<ApiResDto<Page<PostResDto>>> getPostsByNickname(
             @PathVariable("nickname") String nickname,
@@ -106,7 +106,7 @@ public class PostController {
                         .build());
     }
 
-    // 페이징된 카테고리에 따른 게시글 조회
+    // 페이징된 카테고리에 따른 게시글 조회(로그인 유무x)
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<ApiResDto<Page<PostResDto>>> getPostsByCategoryId(
             @PathVariable("categoryId") int categoryId,
