@@ -8,33 +8,34 @@ import lombok.Getter;
 @Getter
 @Builder
 public class AuthenticatedUserResDto {
-    private int id;
-    private String username;
-    private String nickname;
-    private String provider;
-    private String email;
-    private String avatarImageName;
-    private String blogName;
+        private int id;
+        private String username;
+        private String nickname;
+        private String provider;
+        private String email;
+        private String avatarImageName;
+        private String blogName;
 
-    public static AuthenticatedUserResDto from(CustomUserDetails userDetails) {
-        return AuthenticatedUserResDto.builder()
-                .id(userDetails.getId())
-                .username(userDetails.getUsername())
-                .nickname(userDetails.getNickname())
-                .provider(userDetails.getProvider())
-                .email(userDetails.getEmail())
-                .avatarImageName(
-                        userDetails.getUser() != null
-                                ? userDetails.getUser().getProfile().getAvatarImageName()
-                                : userDetails.getSnsUser() != null
-                                        ? userDetails.getSnsUser().getProfile().getAvatarImageName()
-                                        : null)
-                .blogName(
-                        userDetails.getUser() != null
-                                ? userDetails.getUser().getProfile().getBlogName()
-                                : userDetails.getSnsUser() != null
-                                        ? userDetails.getSnsUser().getProfile().getBlogName()
-                                        : null)
-                .build();
-    }
+        public static AuthenticatedUserResDto from(CustomUserDetails userDetails) {
+                String avatarImageName = null;
+                String blogName = null;
+
+                if (userDetails.getUser() != null) {
+                        avatarImageName = userDetails.getUser().getProfile().getAvatarImageName();
+                        blogName = userDetails.getUser().getProfile().getBlogName();
+                } else if (userDetails.getSnsUser() != null) {
+                        avatarImageName = userDetails.getSnsUser().getProfile().getAvatarImageName();
+                        blogName = userDetails.getSnsUser().getProfile().getBlogName();
+                }
+
+                return AuthenticatedUserResDto.builder()
+                                .id(userDetails.getId())
+                                .username(userDetails.getUsername())
+                                .nickname(userDetails.getNickname())
+                                .provider(userDetails.getProvider())
+                                .email(userDetails.getEmail())
+                                .avatarImageName(avatarImageName)
+                                .blogName(blogName)
+                                .build();
+        }
 }
