@@ -1,8 +1,6 @@
 package com.doldev.dollog.domain.account.snsUser.service;
 
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
@@ -13,44 +11,37 @@ import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SnsUserRegistrationService {
-    private Function<SnsUser, String> nicknameGenerator = this::generateDefaultNickname;
-    private Consumer<Profile> additionalProfileSetup = profile -> {
-    };
     private final SnsUserRepository snsUserRepository;
-    private final ProfileService profileSerivce;
+    private final ProfileService profileService;
 
+    @Transactional
     public SnsUser registerNewUser(String username, SnsProvider provider) {
-        SnsUser snsUser = buildSnsUser(username, provider);
-        Profile profile = createProfileWithStrategy(snsUser);
-        snsUser.assignProfile(profile);
+        // Profile 생성
+        Profile profile = createProfile(provider);
+
+        // 2. SnsUser 생성 및 Profile 연관관계 세팅
+        SnsUser snsUser = SnsUser.builder()
+                .username(username)
+                .provider(provider)
+                .role(RoleType.ROLE_USER)
+                .profile(profile)
+                .build();
+
         return snsUserRepository.save(snsUser);
     }
 
-    private SnsUser buildSnsUser(String id, SnsProvider provider) {
-        return SnsUser.builder()
-                .username(id)
-                .provider(provider)
-                .role(RoleType.ROLE_USER)
-                .build();
+    private Profile createProfile(SnsProvider provider) {
+        String nickname = generateDefaultNickname(provider);
+        return profileService.createProfile(nickname);
     }
 
-    private Profile createProfileWithStrategy(SnsUser user) {
-        String nickname = nicknameGenerator.apply(user);
-        Profile profile = profileSerivce.createProfile(nickname);
-        additionalProfileSetup.accept(profile);
-        return profile;
-    }
-
-    private String generateDefaultNickname(SnsUser user) {
-        return user.getProvider().name().toLowerCase()
-                + "_"
-                + UUID.randomUUID().toString().substring(0, 4);
+    private String generateDefaultNickname(SnsProvider provider) {
+        return provider.name().toLowerCase() + "_" + UUID.randomUUID().toString().substring(0, 6);
     }
 }
