@@ -1,61 +1,68 @@
 import React, { useEffect, useState } from 'react';
-
 import { Sidebar as SemanticSidebar } from 'semantic-ui-react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useBlog } from '../../../contexts/BlogContext';
+import axiosInstance from '../../../utils/axiosInstance';
 import Footer from '../../footer/Footer';
 import Header from '../../header/Header';
-import styles from './layout.module.css';
-
 import Sidebar from '../../sidebar/common/Sidebar';
-import axiosInstance from '../../../utils/axiosInstance';
+import styles from './layout.module.css';
 
 const Layout = ({ children }) => {
     const [blogSidebarVisible, setBlogSidebarVisible] = useState(false);
-    const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', username: '' });
-    const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', username: '', userId: '' });
-    const { nickname, blogName } = useBlog();
+    const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '' });
+    const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '', nickname: '' });
+    const { blogName, nickname } = useBlog();
+    const { authInfo } = useAuth();
+
+    // 공통 API 호출 함수
+    const fetchLayoutInfo = async (url, includeNickname = true) => {
+        try {
+            const response = await axiosInstance.get(url);
+            if (response.status === 200 && response.data.data) {
+                const data = {
+                    bannerImageUrl: response.data.data.bannerImageUrl,
+                    bannerDescription: response.data.data.bannerDescription,
+                    blogName: response.data.data.blogName,
+                };
+                if (includeNickname) {
+                    data.nickname = response.data.data.nickname;
+                }
+                return data;
+            }
+        } catch (error) {
+            console.error('Failed to fetch layout info:', error);
+        }
+        return null;
+    };
+
+    // principal 전용 함수 (로그인 o)
+    const fetchLayoutInfoByPrincipal = async () => {
+        const layoutInfo = await fetchLayoutInfo('/api/banners', false);
+        if (layoutInfo) {
+            setLayoutInfoByPrincipal(layoutInfo); //nickname 미포함
+        }
+    };
+
+    // nickname 전용 함수 (로그인 유무 x)
+    const fetchLayoutInfoByNickname = async () => {
+        const layoutInfo = await fetchLayoutInfo(`/api/banners/${nickname}`);
+        if (layoutInfo) {
+            setLayoutInfoByNickname(layoutInfo); //nickname 포함
+        }
+    };
+
 
     useEffect(() => {
-        if (blogName) {
-            const fetchLayoutInfo = async (url, includeUserId = true) => {
-                try {
-                    const response = await axiosInstance.get(url);
-                    if (response.status === 200 && response.data.data) {
-                        const data = {
-                            bannerImageUrl: response.data.data.bannerImageUrl,
-                            bannerDescription: response.data.data.bannerDescription,
-                            blogName: response.data.data.blogName,
-                        };
-                        if (includeUserId) {
-                            data.userId = response.data.data.userId;
-                        }
-                        return data;
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch layout info:', error);
-                }
-                return null;
-            };
-
-            const fetchLayoutInfoByPrincipal = async () => {
-                const layoutInfo = await fetchLayoutInfo('/api/banners', false); // userId 제외
-                if (layoutInfo) {
-                    setLayoutInfoByPrincipal(layoutInfo);
-                }
-            };
-
-            const fetchLayoutInfoByNickname = async () => {
-                if (blogName === '') return;
-                const layoutInfo = await fetchLayoutInfo(`/api/banners/${nickname}`); // userId 포함
-                if (layoutInfo) {
-                    setLayoutInfoByNickname(layoutInfo);
-                }
-            };
-
+        if (blogName == authInfo?.blogName) {
             fetchLayoutInfoByPrincipal();
+        }
+
+        if (nickname) {
             fetchLayoutInfoByNickname();
         }
     }, [blogName]);
+
 
     const handleBlogSidebarToggle = () => {
         setBlogSidebarVisible(!blogSidebarVisible);
@@ -63,9 +70,9 @@ const Layout = ({ children }) => {
 
     return (
         <div className={styles.layout}>
-            <Header onBlogSidebarToggle={handleBlogSidebarToggle} isBlogSidebarVisible={blogSidebarVisible} />
+            <Header onBlogSidebarToggle={handleBlogSidebarToggle} />
             <SemanticSidebar.Pushable>
-                <Sidebar userId={layoutInfoByNickname.userId} visible={blogSidebarVisible} onClose={() => setBlogSidebarVisible(false)} />
+                <Sidebar nickname={layoutInfoByNickname.nickname} visible={blogSidebarVisible} onClose={() => setBlogSidebarVisible(false)} />
                 <SemanticSidebar.Pusher>
                     {blogName === '' ? (
                         <div className={styles.banner}>
