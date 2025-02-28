@@ -7,7 +7,7 @@ const AuthContext = createContext();
 
 // 2. export를 사용하면 다른 파일에서 import { AuthProvider } from '경로'로 사용 가능
 export const AuthProvider = ({ children }) => {  // AuthProvider로 감싸는 jsx가 children으로 전달됨
-    const [authInfo, setAuthInfo] = useState(null);
+    const [authInfo, setAuthInfo] = useState(undefined);
     const [loading, setLoading] = useState(true);
 
     // 사용자 정보를 불러오는 함수
@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {  // AuthProvider로 감싸는 js
             const response = await axiosInstance.get('/api/auth/info');
             if (response.status === 200 && response.data.data) {
                 setAuthInfo(response.data.data);
+            } else {
+                setAuthInfo(null);
             }
         } catch (error) {
             console.error('사용자 정보를 불러오는데 실패했습니다.', error);
