@@ -18,6 +18,7 @@ public class PostResDto {
     private LocalDateTime createDate;
     private Category category;
     private int likeCnt;
+    private String avatarImageName;
 
     public static PostResDto fromEntity(Post post) {
         return PostResDto.builder()
@@ -28,6 +29,7 @@ public class PostResDto {
                 .createDate(post.getCreateDate())
                 .nickname(post.getUser().getProfile().getNickname())
                 .category(post.getCategory() != null ? post.getCategory() : null)
+                .avatarImageName(post.getUser().getProfile().getAvatarImageName())
                 .build();
     }
 }
