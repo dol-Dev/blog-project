@@ -1,22 +1,18 @@
 package com.doldev.dollog.domain.account.profile.application;
 
 import java.io.IOException;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.doldev.dollog.domain.account.profile.dto.req.BlogNameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.dto.req.NicknameUpdateReqDto;
-import com.doldev.dollog.domain.account.profile.dto.req.ProfileUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
-import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.domain.account.user.entity.User;
-import com.doldev.dollog.domain.account.user.repository.UserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,9 +22,45 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfileService {
 
     private final AvatarService avatarService;
-    private final UserRepository userRepository;
-    private final SnsUserRepository snsUserRepository;
 
+    //사용자와 SNS 사용자의 프로필 조회 및 업데이트 로직을 캡슐화하는 내부 인터페이스
+    private interface ProfileHolder {
+        Profile getProfile();
+        void assignProfile(Profile profile);
+    }
+
+    // 로그인 방식에 (일반, sns)에 따른 ProfileHolder 세팅(for Update) 
+    private ProfileHolder getProfileHolder(CustomUserDetails userDetails) {
+        if (userDetails.isUser()) {
+            User user = userDetails.getUser();
+            return new ProfileHolder() {
+                @Override
+                public Profile getProfile() {
+                    return user.getProfile();
+                }
+                @Override
+                public void assignProfile(Profile profile) {
+                    user.assignProfile(profile);
+                }
+            };
+        } else if (userDetails.isSnsUser()) {
+            SnsUser snsUser = userDetails.getSnsUser();
+            return new ProfileHolder() {
+                @Override
+                public Profile getProfile() {
+                    return snsUser.getProfile();
+                }
+                @Override
+                public void assignProfile(Profile profile) {
+                    snsUser.assignProfile(profile);
+                }
+            };
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
+        }
+    }
+
+    // 회원가입 시 프로필 생성
     public Profile createProfile(String nickname) {
         String avatarImageName;
         try {
@@ -45,104 +77,36 @@ public class ProfileService {
                 .build();
     }
 
-    public void updateProfile(ProfileUpdateReqDto reqDto, MultipartFile avatarFile, CustomUserDetails userDetails) {
-        try {
-            if (userDetails.isUser()) {
-                User user = userRepository.findByUsername(userDetails.getUsername())
-                        .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
-                applyProfileUpdate(user::getProfile, user::assignProfile, reqDto, avatarFile);
-            } else if (userDetails.isSnsUser()) {
-                SnsUser snsUser = snsUserRepository
-                        .findByUsernameAndProvider(
-                                userDetails.getSnsUser().getUsername(),
-                                userDetails.getSnsUser().getProvider())
-                        .orElseThrow(() -> new IllegalArgumentException("SNS 회원 찾기 실패"));
-                applyProfileUpdate(snsUser::getProfile, snsUser::assignProfile, reqDto, avatarFile);
-            } else {
-                throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
-            }
-        } catch (IOException e) {
-            log.error("아바타 처리 실패", e);
-            throw new RuntimeException("아바타 업로드 오류", e);
-        }
-    }
-
+    // 닉네임 업데이트
+    @Transactional
     public void updateNickname(NicknameUpdateReqDto reqDto, CustomUserDetails userDetails) {
-        if (userDetails.isUser()) {
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
-            Profile profile = user.getProfile();
-            profile.changeNickname(reqDto.getNickname());
-            user.assignProfile(profile);
-        } else if (userDetails.isSnsUser()) {
-            SnsUser snsUser = snsUserRepository
-                    .findByUsernameAndProvider(
-                            userDetails.getSnsUser().getUsername(),
-                            userDetails.getSnsUser().getProvider())
-                    .orElseThrow(() -> new IllegalArgumentException("SNS 회원 찾기 실패"));
-            Profile profile = snsUser.getProfile();
-            profile.changeNickname(reqDto.getNickname());
-            snsUser.assignProfile(profile);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
-        }
-    }
-
-    public void updateAvatar(MultipartFile avatarFile, CustomUserDetails userDetails) throws IOException {
-        if (userDetails.isUser()) {
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
-            Profile profile = user.getProfile();
-            String avatarPath = avatarService.saveAvatar(profile.getNickname(), avatarFile);
-            profile.changeAvatarImageName(avatarPath);
-            user.assignProfile(profile);
-        } else if (userDetails.isSnsUser()) {
-            SnsUser snsUser = snsUserRepository
-                    .findByUsernameAndProvider(
-                            userDetails.getSnsUser().getUsername(),
-                            userDetails.getSnsUser().getProvider())
-                    .orElseThrow(() -> new IllegalArgumentException("SNS 회원 찾기 실패"));
-            Profile profile = snsUser.getProfile();
-            String avatarPath = avatarService.saveAvatar(profile.getNickname(), avatarFile);
-            profile.changeAvatarImageName(avatarPath);
-            snsUser.assignProfile(profile);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
-        }
-    }
-
-    public void updateBlogName(BlogNameUpdateReqDto reqDto, CustomUserDetails userDetails) {
-        if (userDetails.isUser()) {
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new IllegalArgumentException("회원 찾기 실패"));
-            Profile profile = user.getProfile();
-            profile.changeBlogName(reqDto.getBlogName());
-            user.assignProfile(profile);
-        } else if (userDetails.isSnsUser()) {
-            SnsUser snsUser = snsUserRepository
-                    .findByUsernameAndProvider(
-                            userDetails.getSnsUser().getUsername(),
-                            userDetails.getSnsUser().getProvider())
-                    .orElseThrow(() -> new IllegalArgumentException("SNS 회원 찾기 실패"));
-            Profile profile = snsUser.getProfile();
-            profile.changeBlogName(reqDto.getBlogName());
-            snsUser.assignProfile(profile);
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
-        }
-    }
-
-    private void applyProfileUpdate(
-            Supplier<Profile> profileGetter,
-            Consumer<Profile> profileSetter,
-            ProfileUpdateReqDto reqDto,
-            MultipartFile avatarFile) throws IOException {
-        Profile profile = profileGetter.get();
-        avatarService.deleteAvatar(profile.getAvatarImageName());
-        String avatarPath = avatarService.saveAvatar(reqDto.getNickname(), avatarFile);
-        profile.changeAvatarImageName(avatarPath);
+        ProfileHolder profileHolder = getProfileHolder(userDetails);
+        Profile profile = profileHolder.getProfile();
         profile.changeNickname(reqDto.getNickname());
+        profileHolder.assignProfile(profile);
+    }
+
+    // 아바타 업데이트
+    @Transactional
+    public void updateAvatar(MultipartFile avatarFile, CustomUserDetails userDetails) throws IOException {
+        ProfileHolder profileHolder = getProfileHolder(userDetails);
+        Profile profile = profileHolder.getProfile();
+        
+        // 기존 아바타 삭제
+        avatarService.deleteAvatar(profile.getAvatarImageName());
+
+        // 새로운 아바타 저장
+        String avatarImageName = avatarService.saveAvatar(profile.getNickname(), avatarFile);
+        profile.changeAvatarImageName(avatarImageName);
+        profileHolder.assignProfile(profile);
+    }
+
+    // 블로그이름 업데이트
+    @Transactional
+    public void updateBlogName(BlogNameUpdateReqDto reqDto, CustomUserDetails userDetails) {
+        ProfileHolder profileHolder = getProfileHolder(userDetails);
+        Profile profile = profileHolder.getProfile();
         profile.changeBlogName(reqDto.getBlogName());
-        profileSetter.accept(profile);
+        profileHolder.assignProfile(profile);
     }
 }
