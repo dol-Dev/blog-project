@@ -1,16 +1,75 @@
+@font-face {
+    font-family: 'NoonnuBasicGothicRegular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noon-2410@1.0/NoonnuBasicGothicRegular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* form-container 관련 css */
+.form-container {
+    min-height: 87vh;
+    font-family: 'NoonnuBasicGothicRegular', sans-serif !important;
+    max-width: 1045px;
+    margin: 0 auto; /* 수평 가운데 정렬 */
+}
+
+/* 카테고리 dropdown 관련 css */
 .dropdown {
-    width: 30%;
-    border: 1px solid #bbb;
-    padding: 5px;
-    padding-left: 10px;
+    width: 230px !important;
+    font-size: 15px;
     border-radius: 4px;
     color: black;
+    margin: 0 0 10px 0;
 }
 
+/* title 관련 css */
+.title {
+    height: 80px;
+    font-weight: 500;
+    font-size: 30px;
+    border-right: none ;
+    border-left: none ;
+    border-block-start: none;
+}
+
+/* quill-toolbar 관련 css */
+.quill-toolbar-container {
+    margin: 0px 0 50px 0;
+    min-width: 500px;
+}
+
+
+/* quill-editor 관련 css */
 .quill-editor {
-    height: 700px;
+    height: 500px;
+    margin: 20px 0;
 }
 
+.quill-editor :global(.ql-container.ql-snow) {
+    border: none !important;
+}
+
+.quill-editor p,
+.quill-editor span,
+.quill-editor div {
+    font-size: 2rem !important;
+    font-family: 'NoonnuBasicGothicRegular', sans-serif !important;
+}
+
+
+.quill-editor h1 {
+    font-size: 3rem !important;
+    font-family: 'NoonnuBasicGothicRegular', sans-serif !important;
+}
+
+.quill-editor h2 {
+    font-size: 2.5rem !important;
+    font-family: 'NoonnuBasicGothicRegular', sans-serif !important;
+}
+
+
+/* 게시글 작성 버튼 관련 css */
 .button-group {
     text-align: center;
+    margin-top: 100px;
 }

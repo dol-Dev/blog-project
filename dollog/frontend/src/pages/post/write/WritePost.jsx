@@ -1,205 +1,175 @@
-import ImageResize from 'quill-image-resize-module-react';
+// WritePost.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import ReactQuill, { Quill } from 'react-quill';
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { Button, Dropdown, DropdownItem, DropdownMenu, Icon } from 'semantic-ui-react';
-import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
+import CreatableSelect from 'react-select/creatable';
+import { toast } from 'react-toastify';
+import { Button, Icon } from 'semantic-ui-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useQuill } from '../../../contexts/QuillContext';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './writePost.module.css';
-import { toast } from "react-toastify";
-
-// Quill 관련 설정
-Quill.register('modules/imageResize', ImageResize);
-const modules = {
-    toolbar: {
-        container: [
-            [{ header: [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ color: [] }, { background: [] }],
-            [{ align: [] }, 'link', 'image'],
-        ],
-    },
-    imageResize: {
-        parchment: Quill.import("parchment"),
-        modules: ["Resize", "DisplaySize", "Toolbar"],
-    },
-};
 
 const WritePost = () => {
-    const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [category, setCategory] = useState(null);
+    const [nickname, setNickname] = useState('');
+    const [blogName, setBlogName] = useState('');
+    const [provider, setProvider] = useState('');
     const [categoryData, setCategoryData] = useState([]);
+    // 부모 카테고리는 단일 선택
+    const [selectedParentCategory, setSelectedParentCategory] = useState(null);
+    // 자식 카테고리도 단일 선택
+    const [selectedChildCategory, setSelectedChildCategory] = useState(null);
+    const [subCategories, setSubCategories] = useState([]);
     const { authInfo } = useAuth();
     const quillRef = useRef(null);
+    const navigate = useNavigate();
+    const { setQuillInstance, modules, formats } = useQuill();
+
+    // 에디터 내용 변경 시 content 상태 업데이트
+    const handleChange = (content) => {
+        setContent(content);
+    };
+
+    // ReactQuill 마운트 후 에디터 인스턴스 등록
+    useEffect(() => {
+        if (quillRef.current) {
+            const editor = quillRef.current.getEditor();
+            setQuillInstance(editor);
+        }
+    }, [quillRef, setQuillInstance]);
 
     useEffect(() => {
-        const { id } = authInfo;
-        fetchCategories(id);
+        if (authInfo) {
+            setNickname(authInfo.nickname);
+            setBlogName(authInfo.blogName);
+            setProvider(authInfo.provider);
+            fetchCategories(authInfo.nickname);
+        }
     }, [authInfo]);
 
-    if (!authInfo) {
-        return <Navigate to="/" />;
-    }
-
-    const fetchCategories = async (userId) => {
+    const fetchCategories = async (nickname) => {
+        console.log(nickname)
         try {
-            const response = await axiosInstance.get(`api/categories/${userId}/all`);
+            const response = await axiosInstance.get(`api/categories/nickname`, {
+                params: { nickname }
+            });
             setCategoryData(response.data.data);
         } catch (error) {
             console.error('Failed to fetch categories:', error);
         }
     };
 
-    const processDropdownData = (data) => {
-        if (!Array.isArray(data)) {
-            console.error('Expected data to be an array, but got:', data);
-            return [];
+    // 부모 카테고리 선택 시 처리
+    const handleParentCategorySelect = (selectedOption) => {
+        setSelectedParentCategory(selectedOption);
+        // 선택한 부모 카테고리에 해당하는 자식 카테고리 추출
+        if (selectedOption) {
+            const parentCat = categoryData.find(cat => cat.id === selectedOption.value);
+            const children = parentCat?.children || [];
+            const mappedChildren = children.map(child => ({
+                label: child.name,
+                value: child.id,
+            }));
+            setSubCategories(mappedChildren);
+            // 부모 변경 시 기존 자식 선택은 초기화
+            setSelectedChildCategory(null);
+        } else {
+            setSubCategories([]);
+            setSelectedChildCategory(null);
         }
-
-        // 부모 카테고리의 자식 카테고리 찾기
-        const findChildren = (parentId, categories = []) =>
-            categories
-                .filter((child) => child.parentId === parentId)
-                .map((child) => {
-                    if (child && child.name) {
-                        // 자식의 부모 ID를 설정
-                        child.parentId = parentId;
-                        return {
-                            key: child.id,
-                            text: child.name,
-                            value: child.id,
-                            parentId: child.parentId,
-                        };
-                    } else {
-                        return null;
-                    }
-                })
-                .filter((child) => child !== null);
-
-        return data.map((category) => {
-            // 부모 카테고리의 자식 카테고리에 부모 ID 설정
-            if (Array.isArray(category.children)) {
-                category.children.forEach((child) => {
-                    child.parentId = category.id;
-                });
-            }
-
-            return {
-                key: category.id,
-                title: category.name,
-                content: {
-                    key: category.id,
-                    content: findChildren(category.id, category.children || []),
-                },
-            };
-        });
     };
 
-    const dropdownOptions = processDropdownData(categoryData);
-
-    const handleCategoryChange = (child) => {
-
-        // 자식 카테고리를 찾기
-        const foundCategory = categoryData
-            .flatMap((cat) => cat.children)
-            .find((childCategory) => childCategory.id === child.value);
-
-        setCategory(foundCategory);  // 자식 카테고리 업데이트
+    // 자식 카테고리 선택 시 처리
+    const handleChildCategorySelect = (selectedOption) => {
+        setSelectedChildCategory(selectedOption);
     };
 
-    // 게시글 작성
     const handleWritePost = async () => {
         try {
+            // 자식 카테고리 선택이 있다면 우선 사용, 없으면 부모 카테고리 사용
+            const categoryId = selectedChildCategory
+                ? selectedChildCategory.value
+                : selectedParentCategory
+                    ? selectedParentCategory.value
+                    : null;
             const response = await axiosInstance.post('/api/posts', {
-                title: title,
-                content: content,
-                categoryId: category.id
+                title,
+                content,
+                categoryId,
             });
 
             if (response.status === 200) {
-                navigate('/');
+                navigate(`/blog/${nickname}`, { state: { blogName, provider } });
             }
         } catch (error) {
-            toast.error("수정 실패. 다시 시도해주세요.");
+            toast.error("등록 실패. 다시 시도해주세요");
         }
     };
 
     return (
-        <>
-            <br /><br />
-            <div className={styles.container}>
-                <Form>
-                    <Form.Group>
-                        <Dropdown
-                            placeholder="Select a category"
-                            fluid
-                            pointing
-                            className={`item ${styles.dropdown}`}
-                            text={category?.name || 'Select a category'}
-                        >
-                            <DropdownMenu>
-                                {dropdownOptions.map((cat) => (
-                                    <DropdownItem key={cat.key}>
-                                        <Dropdown text={cat.title} pointing="left" className="link item">
-                                            <DropdownMenu>
-                                                {cat.content.content &&
-                                                    cat.content.content.map((child) => (
-                                                        <DropdownItem
-                                                            key={child.key}
-                                                            onClick={() => handleCategoryChange(child)}>
-                                                            {child.text}
-                                                        </DropdownItem>
-                                                    ))}
-                                            </DropdownMenu>
-                                        </Dropdown>
-                                    </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                        </Dropdown>
-                    </Form.Group>
-                    <br />
-                    <Form.Group>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                    </Form.Group>
-                    <br />
-                    <Form.Group>
-                        <ReactQuill
-                            ref={quillRef}
-                            theme="snow"
-                            modules={modules}
-                            className={styles['quill-editor']}
-                            placeholder="Write your content here..."
-                            value={content}
-                            onChange={(val) => setContent(val)}
-                        />
-                    </Form.Group>
-                    <br /><br /><br /><br />
-                    <div className={styles['button-group']}>
-                        <Button icon onClick={() => navigate('/')}>
-                            <Icon name="arrow left" />
-                        </Button>
-                        <Button icon
-                            type="button"
-                            onClick={handleWritePost}>
-                            <Icon name="edit" />
-                        </Button>
-                    </div>
-                    <br /><br />
-                </Form>
+        <Form className={styles['form-container']}>
+            <Form.Group>
+                <CreatableSelect
+                    placeholder="부모 카테고리 선택"
+                    options={categoryData.map(cat => ({
+                        label: cat.name,
+                        value: cat.id,
+                    }))}
+                    value={selectedParentCategory}
+                    onChange={handleParentCategorySelect}
+                    className={styles.dropdown}
+                />
+            </Form.Group>
+
+            {/* 자식 카테고리 선택 (있을 경우) */}
+            {subCategories.length > 0 && (
+                <Form.Group>
+                    <CreatableSelect
+                        placeholder="자식 카테고리 선택"
+                        options={subCategories}
+                        value={selectedChildCategory}
+                        onChange={handleChildCategorySelect}
+                        className={styles.dropdown}
+                    />
+                </Form.Group>
+            )}
+
+            {/* 제목 입력 */}
+            <Form.Group>
+                <Form.Control
+                    className={styles.title}
+                    type="text"
+                    placeholder="제목을 입력하세요"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+            </Form.Group>
+
+            {/* 내용 입력 */}
+            <Form.Group>
+                <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    modules={modules}
+                    formats={formats}
+                    className={styles['quill-editor']}
+                    value={content}
+                    onChange={handleChange}
+                />
+            </Form.Group>
+
+            {/* 작성 버튼 */}
+            <div className={styles['button-group']}>
+                <Button type="button" icon onClick={handleWritePost}>
+                    <Icon name="edit" />
+                    게시글 작성
+                </Button>
             </div>
-        </>
+        </Form>
     );
 };
 
