@@ -1,0 +1,47 @@
+.custom-navbar {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* .navContainer 스타일 */
+.navContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* toolbar 위치를 조정 */
+.customToolbarWrapper {
+    position: relative;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.nav-link-blogName {
+    position: relative;
+    transition: color 0.3s ease;
+    height: 100%;
+}
+
+.nav-link-blogName::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 50%;
+    background-color: #f7e600;
+    transition: width 0.3s ease-out, left 0.3s ease-out;
+    transform: translateX(-50%);
+}
+
+.nav-link-blogName:hover::after {
+    width: 100%;
+    left: 0;
+    transform: translateX(0);
+}

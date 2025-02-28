@@ -1,0 +1,25 @@
+:global(#custom-quill-toolbar.ql-toolbar.ql-snow) {
+    border: none !important;
+}
+
+
+/* 각 ql-formats 그룹 사이에 구분선 추가 */
+:global(.ql-formats:not(:last-child))::after {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 8px 0 16px;
+    height: 24px;
+    /* 원하는 높이로 조절 */
+    vertical-align: middle;
+}
+
+/* ql-formats 내부 버튼, 셀렉트 등의 크기 조정 */
+:global(.ql-formats button),
+:global(.ql-formats select) {
+    font-size: 30px;
+    /* 폰트 크기 증가 */
+    padding: 8px 10px;
+    /* 여백 조정 */
+}
