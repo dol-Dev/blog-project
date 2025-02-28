@@ -42,18 +42,17 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void processAuthentication(HttpServletRequest req, HttpServletResponse res) {
-        Optional<String> accessToken = cookieManager.extractAccessToken(req);
-
-        if (accessToken.isPresent() && tokenAuthenticationManager.isValidToken(accessToken.get())) {
-            tokenAuthenticationManager.setAuthenticationForFilter(accessToken.get());
+        Optional<String> accessTokenOpt = cookieManager.extractAccessToken(req);
+        if (accessTokenOpt.isPresent() && tokenAuthenticationManager.isValidToken(accessTokenOpt.get())) {
+            tokenAuthenticationManager.setAuthenticationForFilter(accessTokenOpt.get());
         } else {
             processRefreshToken(req, res);
         }
     }
 
     private void processRefreshToken(HttpServletRequest req, HttpServletResponse res) {
-        Optional<String> refreshToken = cookieManager.extractRefreshToken(req);
-        refreshToken.ifPresent(token -> {
+        Optional<String> refreshTokenOpt = cookieManager.extractRefreshToken(req);
+        refreshTokenOpt.ifPresent(token -> {
             Map<String, String> newTokens = tokenAuthenticationManager.refreshTokens(token);
             cookieManager.setTokens(res, newTokens); // response → res로 수정
             tokenAuthenticationManager.setAuthenticationForFilter(newTokens.get("accessToken"));

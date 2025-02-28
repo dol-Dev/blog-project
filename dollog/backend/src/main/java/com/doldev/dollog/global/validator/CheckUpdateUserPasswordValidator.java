@@ -22,7 +22,7 @@ public class CheckUpdateUserPasswordValidator extends AbstractValidator<Password
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private Optional<User> optionalUser;
+    private Optional<User> userOpt;
 
     // 정규식 패턴 정의
     private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!-/:-@\\[-`{-~])[A-Za-z\\d!-/:-@\\[-`{-~]{8,16}$"; // 영문+숫자+특수문자 조합 8~16자
@@ -32,9 +32,9 @@ public class CheckUpdateUserPasswordValidator extends AbstractValidator<Password
     protected void doValidate(PasswordUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 비밀번호 업데이트 사용자 {}", reqDto.getUsername());
 
-        optionalUser = userRepository.findByUsername(reqDto.getUsername());
+        userOpt = userRepository.findByUsername(reqDto.getUsername());
 
-        if (!optionalUser.isPresent()) {
+        if (!userOpt.isPresent()) {
             addError(errors, "username", "user.notFound", "사용자를 찾을 수 없습니다.");
             return;
         }
@@ -46,7 +46,7 @@ public class CheckUpdateUserPasswordValidator extends AbstractValidator<Password
 
         // 기존 비밀번호 확인
         if (StringUtils.isBlank(reqDto.getCurrentPassword())
-                || !passwordEncoder.matches(reqDto.getCurrentPassword(), optionalUser.get().getPassword())) {
+                || !passwordEncoder.matches(reqDto.getCurrentPassword(), userOpt.get().getPassword())) {
             addError(errors, "currentPassword", "password.mismatch", "기존 비밀번호가 일치하지 않습니다.");
             return;
         }

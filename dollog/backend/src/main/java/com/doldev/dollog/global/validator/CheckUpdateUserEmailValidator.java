@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CheckUpdateUserEmailValidator extends AbstractValidator<EmailUpdateReqDto> {
 
     private final UserRepository userRepository;
-    private Optional<User> optionalUser;
+    private Optional<User> userOpt;
 
     // 정규식 패턴 정의
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"; // 이메일 형식
@@ -30,9 +30,9 @@ public class CheckUpdateUserEmailValidator extends AbstractValidator<EmailUpdate
     protected void doValidate(EmailUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 이메일 업데이트 사용자 {}", reqDto.getUsername());
 
-        optionalUser = userRepository.findByUsername(reqDto.getUsername());
+        userOpt = userRepository.findByUsername(reqDto.getUsername());
 
-        if (!optionalUser.isPresent()) {
+        if (!userOpt.isPresent()) {
             addError(errors, "username", "user.notFound", "사용자를 찾을 수 없습니다.");
             return;
         }
@@ -57,7 +57,7 @@ public class CheckUpdateUserEmailValidator extends AbstractValidator<EmailUpdate
             return;
         }
 
-        User currentUser = optionalUser.get();
+        User currentUser = userOpt.get();
         if (!reqDto.getNewEmail().equals(currentUser.getEmail())
                 && userRepository.existsByEmail(reqDto.getNewEmail())) {
             addError(errors, "email", "email.duplicate", "이미 사용 중인 이메일입니다.");

@@ -42,11 +42,13 @@ public class AuthService {
     // 로그아웃
     public void logout(CustomUserDetails userDetails, HttpServletRequest req, HttpServletResponse res) {
         String refreshKey = "refresh_" + userDetails.getUsername();
-        String storedRefreshToken = redisTemplate.opsForValue().get(refreshKey).substring(7);
+        String storedRefreshToken = Optional.ofNullable(redisTemplate.opsForValue().get(refreshKey))
+                                            .map(token -> token.substring(7))
+                                            .orElseThrow(() -> new IllegalArgumentException("Refresh token not found in Redis."));
 
-        Optional<String> refreshToken = cookieManager.extractRefreshToken(req);
+        Optional<String> refreshTokenOpt = cookieManager.extractRefreshToken(req);
         
-        refreshToken.ifPresent(r -> {
+        refreshTokenOpt.ifPresent(r -> {
             if (!StringUtils.equals(r, storedRefreshToken)) {
                 throw new IllegalArgumentException("Invalid refresh token.");
             }

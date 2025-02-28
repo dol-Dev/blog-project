@@ -23,7 +23,7 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
-    private Optional<User> optionalUser;
+    private Optional<User> userOpt;
 
     // 정규식 패턴 정의
     private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$"; // 2~8자, 특수문자 포함 가능
@@ -33,13 +33,13 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
     protected void doValidate(NicknameUpdateReqDto reqDto, Errors errors) {
         log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
 
-        optionalUser = userRepository.findByUsername(reqDto.getUsername());
-        if (!optionalUser.isPresent()) {
+        userOpt = userRepository.findByUsername(reqDto.getUsername());
+        if (!userOpt.isPresent()) {
             addError(errors, "username", "user.notFound", "사용자를 찾을 수 없습니다.");
             return;
         }
 
-        Profile profile = optionalUser.get().getProfile();
+        Profile profile = userOpt.get().getProfile();
         validateNickname(reqDto, profile, errors);
     }
 
