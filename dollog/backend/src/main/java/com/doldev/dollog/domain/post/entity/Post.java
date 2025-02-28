@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.domain.category.entity.Category;
 import com.doldev.dollog.domain.comment.entity.Comment;
@@ -59,6 +60,10 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "sns_user_id")
+    private SnsUser snsUser;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

@@ -21,15 +21,26 @@ public class PostResDto {
     private String avatarImageName;
 
     public static PostResDto fromEntity(Post post) {
+        String nickname = null;
+        String avatarImageName = null;
+
+        if (post.getUser() != null) {
+            nickname = post.getUser().getProfile().getNickname();
+            avatarImageName = post.getUser().getProfile().getAvatarImageName();
+        } else if (post.getSnsUser() != null) {
+            nickname = post.getSnsUser().getProfile().getNickname();
+            avatarImageName = post.getSnsUser().getProfile().getAvatarImageName();
+        }
+
         return PostResDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCnt(post.getLikeCnt())
                 .createDate(post.getCreateDate())
-                .nickname(post.getUser().getProfile().getNickname())
-                .category(post.getCategory() != null ? post.getCategory() : null)
-                .avatarImageName(post.getUser().getProfile().getAvatarImageName())
+                .nickname(nickname)
+                .avatarImageName(avatarImageName)
+                .category(post.getCategory()) 
                 .build();
     }
 }
