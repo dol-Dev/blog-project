@@ -8,8 +8,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +39,7 @@ public class ProfileController {
     // 닉네임 수정
     @PutMapping("/nickname")
     public ResponseEntity<ApiResDto<Void>> updateNickname(
-            @ModelAttribute NicknameUpdateReqDto reqDto,
+            @RequestBody NicknameUpdateReqDto reqDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws BindException {
         BindingResult bindingResult = new BeanPropertyBindingResult(reqDto, "nicknameUpdateReqDto");
         checkUpdateNicknameValidator.validate(reqDto, bindingResult);
@@ -71,7 +71,7 @@ public class ProfileController {
     // 블로그 이름 수정
     @PutMapping("/blogName")
     public ResponseEntity<ApiResDto<Void>> updateBlogName(
-            @ModelAttribute BlogNameUpdateReqDto reqDto,
+            @RequestBody BlogNameUpdateReqDto reqDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws BindException {
         BindingResult bindingResult = new BeanPropertyBindingResult(reqDto, "blogNameUpdateReqDto");
         checkUpdateBlogNameValidator.validate(reqDto, bindingResult);
