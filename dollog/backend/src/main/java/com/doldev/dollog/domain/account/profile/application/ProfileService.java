@@ -23,43 +23,6 @@ public class ProfileService {
 
     private final AvatarService avatarService;
 
-    //사용자와 SNS 사용자의 프로필 조회 및 업데이트 로직을 캡슐화하는 내부 인터페이스
-    private interface ProfileHolder {
-        Profile getProfile();
-        void assignProfile(Profile profile);
-    }
-
-    // 로그인 방식에 (일반, sns)에 따른 ProfileHolder 세팅(for Update) 
-    private ProfileHolder getProfileHolder(CustomUserDetails userDetails) {
-        if (userDetails.isUser()) {
-            User user = userDetails.getUser();
-            return new ProfileHolder() {
-                @Override
-                public Profile getProfile() {
-                    return user.getProfile();
-                }
-                @Override
-                public void assignProfile(Profile profile) {
-                    user.assignProfile(profile);
-                }
-            };
-        } else if (userDetails.isSnsUser()) {
-            SnsUser snsUser = userDetails.getSnsUser();
-            return new ProfileHolder() {
-                @Override
-                public Profile getProfile() {
-                    return snsUser.getProfile();
-                }
-                @Override
-                public void assignProfile(Profile profile) {
-                    snsUser.assignProfile(profile);
-                }
-            };
-        } else {
-            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
-        }
-    }
-
     // 회원가입 시 프로필 생성
     public Profile createProfile(String nickname) {
         String avatarImageName;
@@ -77,6 +40,46 @@ public class ProfileService {
                 .build();
     }
 
+    // 사용자와 SNS 사용자의 프로필 조회 및 업데이트 로직을 캡슐화하는 내부 인터페이스
+    private interface ProfileHolder {
+        Profile getProfile();
+
+        void assignProfile(Profile profile);
+    }
+
+    // 로그인 방식에 (일반, sns)에 따른 ProfileHolder 세팅(for Update)
+    private ProfileHolder getProfileHolder(CustomUserDetails userDetails) {
+        if (userDetails.isUser()) {
+            User user = userDetails.getUser();
+            return new ProfileHolder() {
+                @Override
+                public Profile getProfile() {
+                    return user.getProfile();
+                }
+
+                @Override
+                public void assignProfile(Profile profile) {
+                    user.assignProfile(profile);
+                }
+            };
+        } else if (userDetails.isSnsUser()) {
+            SnsUser snsUser = userDetails.getSnsUser();
+            return new ProfileHolder() {
+                @Override
+                public Profile getProfile() {
+                    return snsUser.getProfile();
+                }
+
+                @Override
+                public void assignProfile(Profile profile) {
+                    snsUser.assignProfile(profile);
+                }
+            };
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
+        }
+    }
+
     // 닉네임 업데이트
     @Transactional
     public void updateNickname(NicknameUpdateReqDto reqDto, CustomUserDetails userDetails) {
@@ -91,7 +94,7 @@ public class ProfileService {
     public void updateAvatar(MultipartFile avatarFile, CustomUserDetails userDetails) throws IOException {
         ProfileHolder profileHolder = getProfileHolder(userDetails);
         Profile profile = profileHolder.getProfile();
-        
+
         // 기존 아바타 삭제
         avatarService.deleteAvatar(profile.getAvatarImageName());
 
