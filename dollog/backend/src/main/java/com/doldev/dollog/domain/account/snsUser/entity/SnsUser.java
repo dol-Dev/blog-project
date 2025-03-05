@@ -68,7 +68,7 @@ public class SnsUser {
     public void assignProfile(Profile profile) {
         this.profile = profile;
         if (profile.getSnsUser() != this) { // 중복 호출 방지
-            profile.assignSnsUser(null);
+            profile.assignSnsUser(this);
         }
     }
 

@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.doldev.dollog.domain.account.profile.dto.req.BlogNameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.dto.req.NicknameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
+import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfileService {
 
     private final AvatarService avatarService;
+    private final ProfileRepository profileRepository;
 
     // 회원가입 시 프로필 생성
     public Profile createProfile(String nickname) {
@@ -54,7 +56,8 @@ public class ProfileService {
             return new ProfileHolder() {
                 @Override
                 public Profile getProfile() {
-                    return user.getProfile();
+                    return profileRepository.findById(userDetails.getUser().getProfile().getId())
+                            .orElseThrow(() -> new IllegalArgumentException("프로필 찾기 실패"));
                 }
 
                 @Override
@@ -67,7 +70,8 @@ public class ProfileService {
             return new ProfileHolder() {
                 @Override
                 public Profile getProfile() {
-                    return snsUser.getProfile();
+                    return profileRepository.findById(userDetails.getSnsUser().getProfile().getId())
+                            .orElseThrow(() -> new IllegalArgumentException("프로필 찾기 실패"));
                 }
 
                 @Override
@@ -85,7 +89,7 @@ public class ProfileService {
     public void updateNickname(NicknameUpdateReqDto reqDto, CustomUserDetails userDetails) {
         ProfileHolder profileHolder = getProfileHolder(userDetails);
         Profile profile = profileHolder.getProfile();
-        profile.changeNickname(reqDto.getNickname());
+        profile.changeNickname(reqDto.getNewNickname());
         profileHolder.assignProfile(profile);
     }
 
@@ -109,7 +113,7 @@ public class ProfileService {
     public void updateBlogName(BlogNameUpdateReqDto reqDto, CustomUserDetails userDetails) {
         ProfileHolder profileHolder = getProfileHolder(userDetails);
         Profile profile = profileHolder.getProfile();
-        profile.changeBlogName(reqDto.getBlogName());
+        profile.changeBlogName(reqDto.getNewBlogName());
         profileHolder.assignProfile(profile);
     }
 }
