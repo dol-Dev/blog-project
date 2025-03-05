@@ -1,6 +1,5 @@
 package com.doldev.dollog.global.validator;
 
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
@@ -9,8 +8,6 @@ import org.springframework.validation.Errors;
 import com.doldev.dollog.domain.account.profile.dto.req.NicknameUpdateReqDto;
 import com.doldev.dollog.domain.account.profile.entity.Profile;
 import com.doldev.dollog.domain.account.profile.repository.ProfileRepository;
-import com.doldev.dollog.domain.account.user.entity.User;
-import com.doldev.dollog.domain.account.user.repository.UserRepository;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpdateReqDto> {
 
-    private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
-    private Optional<User> userOpt;
 
     // 정규식 패턴 정의
     private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$"; // 2~8자, 특수문자 포함 가능
@@ -31,38 +26,40 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
 
     @Override
     protected void doValidate(NicknameUpdateReqDto reqDto, Errors errors) {
-        log.info("doValidate 실행: 사용자 {}", reqDto.getUsername());
-
-        userOpt = userRepository.findByUsername(reqDto.getUsername());
-        if (!userOpt.isPresent()) {
-            addError(errors, "username", "user.notFound", "사용자를 찾을 수 없습니다.");
-            return;
-        }
-
-        Profile profile = userOpt.get().getProfile();
+        Profile profile = profileRepository.findByNickname(reqDto.getNewNickname()).orElse(null);
         validateNickname(reqDto, profile, errors);
     }
 
     // 닉네임 검증
     private void validateNickname(NicknameUpdateReqDto reqDto, Profile profile, Errors errors) {
 
-        if (StringUtils.isBlank(reqDto.getNickname())) {
+        // 동일한 닉네임일 때 검증 패스
+        if (reqDto.getNewNickname().equals(profile.getNickname())) {
+            return;
+        }
+
+        // 공백 검증
+        if (StringUtils.isBlank(reqDto.getNewNickname())) {
             addError(errors, "nickname", "nickname.empty", "닉네임을 입력해주세요.");
             return;
         }
 
-        // 형식 검증
-        if (Pattern.matches(SPACE_PATTERN, reqDto.getNickname())) {
+        // 형식 검증(1)
+        if (Pattern.matches(SPACE_PATTERN, reqDto.getNewNickname())) {
             addError(errors, "nickname", "nickname.space", "닉네임은 공백을 포함할 수 없습니다.");
+            return;
         }
-        if (!reqDto.getNickname().matches(NICKNAME_PATTERN)) {
+
+        // 형식 검증(2)
+        if (!reqDto.getNewNickname().matches(NICKNAME_PATTERN)) {
             addError(errors, "nickname", "nickname.format", "2~8자의 영문/한글/숫자/특수문자만 가능합니다.");
             return;
         }
 
         // 중복 검증
-        if (profileRepository.existsByNickname(reqDto.getNickname())) {
+        if (profileRepository.existsByNickname(reqDto.getNewNickname())) {
             addError(errors, "nickname", "nickname.duplicate", "이미 사용 중인 닉네임입니다.");
+            return;
         }
     }
 

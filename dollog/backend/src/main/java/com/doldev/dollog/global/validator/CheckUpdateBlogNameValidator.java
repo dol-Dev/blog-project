@@ -13,19 +13,25 @@ import lombok.extern.slf4j.Slf4j;
 public class CheckUpdateBlogNameValidator extends AbstractValidator<BlogNameUpdateReqDto> {
 
     // 정규식 패턴 정의
-    private static final String BLOGNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,50}$"; // 2~50자, 특수문자 포함 가능
+    private static final String BLOGNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~\\s]{2,50}$"; // 2~50자, 특수문자 포함 가능
 
     @Override
     protected void doValidate(BlogNameUpdateReqDto reqDto, Errors errors) {
-        log.info("doValidate 실행: 블로그 이름 검증");
+        validateBlogName(reqDto, errors);
+    }
 
+    private void validateBlogName(BlogNameUpdateReqDto reqDto, Errors errors) {
+
+        // 공백 검증
         if (StringUtils.isBlank(reqDto.getBlogName())) {
             addError(errors, "blogName", "blogName.empty", "블로그 이름을 입력해주세요.");
             return;
         }
 
+        // 형식 검증
         if (!reqDto.getBlogName().matches(BLOGNAME_PATTERN)) {
             addError(errors, "blogName", "blogName.format", "2~50자의 영문/한글/숫자/특수문자만 가능합니다.");
+            return;
         }
     }
 

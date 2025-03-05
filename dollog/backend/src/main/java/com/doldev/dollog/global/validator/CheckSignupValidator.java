@@ -28,8 +28,6 @@ public class CheckSignupValidator extends AbstractValidator<UserSignupReqDto> {
 
     @Override
     protected void doValidate(UserSignupReqDto req, Errors errors) {
-        log.info("doValidate 실행: 사용자 {}", req.getUsername());
-
         validateUsername(req, errors);
         validateEmail(req, errors);
         validateNickname(req, errors);

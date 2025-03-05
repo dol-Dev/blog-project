@@ -16,8 +16,11 @@ public class CheckUpdateAvatarValidator extends AbstractValidator<MultipartFile>
 
     @Override
     protected void doValidate(MultipartFile avatarFile, Errors errors) {
-        log.info("doValidate 실행: 아바타 파일 검증");
+        validateAvatarFile(avatarFile, errors);
+    }
 
+    private void validateAvatarFile(MultipartFile avatarFile, Errors errors) {
+        // 공백 검증
         if (avatarFile == null || avatarFile.isEmpty()) {
             addError(errors, "avatarFile", "avatarFile.empty", "아바타 파일이 비어 있습니다.");
             return;
@@ -26,12 +29,14 @@ public class CheckUpdateAvatarValidator extends AbstractValidator<MultipartFile>
         // 파일 크기 검증
         if (avatarFile.getSize() > MAX_FILE_SIZE) {
             addError(errors, "avatarFile", "avatarFile.size", "아바타 파일 크기는 5MB 이하이어야 합니다.");
+            return;
         }
 
         // 파일 형식 검증
         String contentType = avatarFile.getContentType();
         if (contentType == null || !contentType.matches(IMAGE_PATTERN)) {
             addError(errors, "avatarFile", "avatarFile.type", "아바타 파일은 이미지 파일이어야 합니다.");
+            return;
         }
     }
 

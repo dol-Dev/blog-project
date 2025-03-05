@@ -16,14 +16,12 @@ public class CheckLoginValidator extends AbstractValidator<UserLoginReqDto> {
 
     @Override
     protected void doValidate(UserLoginReqDto req, Errors errors) {
-        log.info("doValidate 실행: 사용자 {}", req.getUsername());
-
+        // 공백 검증 메서드
         validateUsername(req, errors);
         validatePassword(req, errors);
     }
 
     private void validateUsername(UserLoginReqDto req, Errors errors) {
-        log.info("validateUsername - username: '{}'", req.getUsername());
         if (StringUtils.isBlank(req.getUsername())) {
             addError(errors, "username", "username.empty", "아이디는 필수 입력값입니다.");
         }
