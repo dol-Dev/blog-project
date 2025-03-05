@@ -21,7 +21,7 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
     private final ProfileRepository profileRepository;
 
     // 정규식 패턴 정의
-    private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,8}$"; // 2~8자, 특수문자 포함 가능
+    private static final String NICKNAME_PATTERN = "^[A-Za-z가-힣\\d!-/:-@\\[-`{-~]{2,13}$"; // 2~13자, 특수문자 포함 가능
     private static final String SPACE_PATTERN = "\\s"; // 공백 포함 여부
 
     @Override
@@ -34,31 +34,31 @@ public class CheckUpdateNicknameValidator extends AbstractValidator<NicknameUpda
     private void validateNickname(NicknameUpdateReqDto reqDto, Profile profile, Errors errors) {
 
         // 동일한 닉네임일 때 검증 패스
-        if (reqDto.getNewNickname().equals(profile.getNickname())) {
+        if (profile != null && reqDto.getNewNickname().equals(profile.getNickname())) {
             return;
         }
 
         // 공백 검증
         if (StringUtils.isBlank(reqDto.getNewNickname())) {
-            addError(errors, "nickname", "nickname.empty", "닉네임을 입력해주세요.");
+            addError(errors, "newNickname", "newNickname.empty", "닉네임을 입력해주세요.");
             return;
         }
 
         // 형식 검증(1)
         if (Pattern.matches(SPACE_PATTERN, reqDto.getNewNickname())) {
-            addError(errors, "nickname", "nickname.space", "닉네임은 공백을 포함할 수 없습니다.");
+            addError(errors, "newNickname", "newNickname.space", "닉네임은 공백을 포함할 수 없습니다.");
             return;
         }
 
         // 형식 검증(2)
         if (!reqDto.getNewNickname().matches(NICKNAME_PATTERN)) {
-            addError(errors, "nickname", "nickname.format", "2~8자의 영문/한글/숫자/특수문자만 가능합니다.");
+            addError(errors, "newNickname", "newNickname.format", "2~13자의 영문/한글/숫자/특수문자만 가능합니다.");
             return;
         }
 
         // 중복 검증
         if (profileRepository.existsByNickname(reqDto.getNewNickname())) {
-            addError(errors, "nickname", "nickname.duplicate", "이미 사용 중인 닉네임입니다.");
+            addError(errors, "newNickname", "newNickname.duplicate", "이미 사용 중인 닉네임입니다.");
             return;
         }
     }

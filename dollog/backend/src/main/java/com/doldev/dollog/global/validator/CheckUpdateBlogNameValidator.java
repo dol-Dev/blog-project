@@ -23,14 +23,14 @@ public class CheckUpdateBlogNameValidator extends AbstractValidator<BlogNameUpda
     private void validateBlogName(BlogNameUpdateReqDto reqDto, Errors errors) {
 
         // 공백 검증
-        if (StringUtils.isBlank(reqDto.getBlogName())) {
-            addError(errors, "blogName", "blogName.empty", "블로그 이름을 입력해주세요.");
+        if (StringUtils.isBlank(reqDto.getNewBlogName())) {
+            addError(errors, "newBlogName", "newBlogName.empty", "블로그 이름을 입력해주세요.");
             return;
         }
 
         // 형식 검증
-        if (!reqDto.getBlogName().matches(BLOGNAME_PATTERN)) {
-            addError(errors, "blogName", "blogName.format", "2~50자의 영문/한글/숫자/특수문자만 가능합니다.");
+        if (!reqDto.getNewBlogName().matches(BLOGNAME_PATTERN)) {
+            addError(errors, "newBlogName", "newBlogName.format", "2~50자의 영문/한글/숫자/특수문자만 가능합니다.");
             return;
         }
     }
