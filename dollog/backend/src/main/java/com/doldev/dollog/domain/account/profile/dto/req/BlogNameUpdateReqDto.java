@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class BlogNameUpdateReqDto {
-    private String blogName;
+    private String newBlogName;
 }
