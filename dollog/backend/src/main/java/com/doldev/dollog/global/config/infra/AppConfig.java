@@ -11,8 +11,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import reactor.util.annotation.NonNull;
-
+@SuppressWarnings("null")
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
@@ -35,7 +34,7 @@ public class AppConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // uploads/avatars 디렉토리의 절대 경로 추출
         String absolutePath = new File(uploadDir).getAbsolutePath() + File.separator;
 
