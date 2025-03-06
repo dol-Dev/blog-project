@@ -7,8 +7,8 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,7 +70,7 @@ public class UserController {
         }
 
         @Operation(summary = "이메일 수정", description = "사용자 이메일을 수정함.")
-        @PatchMapping("/email")
+        @PutMapping("/email")
         public ResponseEntity<ApiResDto<Void>> updateEmail(
                         @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
                         @RequestBody EmailUpdateReqDto reqDto) throws BindException {
@@ -87,7 +87,7 @@ public class UserController {
         }
 
         @Operation(summary = "비밀번호 수정", description = "사용자 비밀번호를 수정함.")
-        @PatchMapping("/password")
+        @PutMapping("/password")
         public ResponseEntity<ApiResDto<Void>> updatePassword(
                         @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
                         @RequestBody PasswordUpdateReqDto reqDto) throws BindException {

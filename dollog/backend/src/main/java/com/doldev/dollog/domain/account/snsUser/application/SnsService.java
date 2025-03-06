@@ -67,7 +67,7 @@ public class SnsService {
             case NAVER -> snsUtils.getAccessToken(
                     code, snsType,
                     naverClientId, naverClientSecret,
-                    "http://localhost:8080/api/oauth2/naver/callback");
+                    null);
         };
     }
 
