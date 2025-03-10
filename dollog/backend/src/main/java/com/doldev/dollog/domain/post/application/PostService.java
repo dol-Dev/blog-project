@@ -45,10 +45,13 @@ public class PostService {
     // 게시글 수정
     @Transactional
     public void updatePost(int postId, PostUpdateReqDto reqDto) {
+        Category category = categoryService.findCategoryById(reqDto.getCategoryId());
+
         postRepository.findById(postId)
                 .ifPresentOrElse(post -> {
                     post.updateTitle(reqDto.getTitle());
                     post.updateContent(reqDto.getContent());
+                    post.assignCategory(category);
                 }, () -> {
                     throw new IllegalArgumentException("게시글 찾기 실패 ID: " + postId);
                 });
@@ -107,11 +110,13 @@ public class PostService {
     public Page<PostResDto> searchPosts(Pageable pageable, String keyword, int type, int userId, String provider) {
         return switch (type) {
             case 0 ->
-                (StringUtils.isNotBlank(provider) ? postRepository.findBySnsUserTitleContaining(keyword, userId, pageable)
+                (StringUtils.isNotBlank(provider)
+                        ? postRepository.findBySnsUserTitleContaining(keyword, userId, pageable)
                         : postRepository.findByUserTitleContaining(keyword, userId, pageable))
                         .map(PostResDto::fromEntity);
             case 1 ->
-                (StringUtils.isNotBlank(provider) ? postRepository.findBySnsUserContentContaining(keyword, userId, pageable)
+                (StringUtils.isNotBlank(provider)
+                        ? postRepository.findBySnsUserContentContaining(keyword, userId, pageable)
                         : postRepository.findByUserContentContaining(keyword, userId, pageable))
                         .map(PostResDto::fromEntity);
             case 2 -> (StringUtils.isNotBlank(provider)

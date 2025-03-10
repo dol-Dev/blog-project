@@ -1,3 +1,4 @@
+// UpdatePost.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
@@ -19,28 +20,28 @@ const UpdatePost = () => {
     const navigate = useNavigate();
     const quillRef = useRef(null);
 
-    // 기존 게시글 데이터 상태
+    // 기존 게시글 데이터
     const [detailPost, setDetailPost] = useState({
         title: '',
         content: '',
         category: null,
     });
 
-    // 카테고리 관련 상태
+    // 전체 카테고리
     const [categoryData, setCategoryData] = useState([]);
-    const [selectedParentCategory, setSelectedParentCategory] = useState(null);
-    const [selectedChildCategory, setSelectedChildCategory] = useState(null);
-    const [subCategories, setSubCategories] = useState([]);
 
-    // 게시글 및 카테고리 데이터 불러오기
+    // 부모/자식 카테고리 상태
+    const [selectedParentCategory, setSelectedParentCategory] = useState(null);
+    const [subCategories, setSubCategories] = useState([]);
+    const [selectedChildCategory, setSelectedChildCategory] = useState(null);
+
     useEffect(() => {
         if (authInfo) {
             fetchPost();
-            fetchCategories(authInfo?.nickname);
+            fetchCategories(authInfo.nickname);
         }
     }, [authInfo, id]);
 
-    // ReactQuill 인스턴스 등록 (WritePost와 동일)
     useEffect(() => {
         if (quillRef.current) {
             const editor = quillRef.current.getEditor();
@@ -48,13 +49,15 @@ const UpdatePost = () => {
         }
     }, [quillRef, setQuillInstance]);
 
-    // 기존 게시글 불러오기
+    // 게시글 상세 불러오기
     const fetchPost = async () => {
         try {
             const response = await axiosInstance.get(`/api/posts/${id}`);
-            const post = response.data.data;
+            const post = response.data?.data;
             setDetailPost(post);
-            if (post.category) {
+
+            // 기존 카테고리가 있다면 parentCategory로 셋팅
+            if (post?.category) {
                 setSelectedParentCategory({
                     label: post.category.name,
                     value: post.category.id,
@@ -65,21 +68,23 @@ const UpdatePost = () => {
         }
     };
 
-    // 카테고리 데이터 불러오기
+    // 카테고리 목록 불러오기
     const fetchCategories = async (nickname) => {
         try {
-            const response = await axiosInstance.get(`api/categories/nickname`, {
-                params: {nickname}
-            });
-            setCategoryData(response.data.data);
+            const response = await axiosInstance.get(`/api/categories/nickname`, { params: { nickname } });
+            setCategoryData(response.data.data || []);
+            return response.data.data || [];
         } catch (error) {
-            console.error('카테고리 불러오기 실패:', error);
+            console.error('Failed to fetch categories:', error);
+            return [];
         }
     };
 
-    // 부모 카테고리 선택 시 자식 카테고리 매핑
+
+    // 부모 카테고리 선택
     const handleParentCategorySelect = (selectedOption) => {
         setSelectedParentCategory(selectedOption);
+
         if (selectedOption) {
             const parentCat = categoryData.find(cat => cat.id === selectedOption.value);
             const children = parentCat?.children || [];
@@ -100,20 +105,95 @@ const UpdatePost = () => {
         setSelectedChildCategory(selectedOption);
     };
 
-    // 게시글 수정 처리
+    // 부모 카테고리 즉석 생성
+    const handleCreateParentCategory = (inputValue) => {
+        if (!authInfo) {
+            toast.error("로그인 정보가 없습니다.");
+            return;
+        }
+
+        const newCategoryData = { name: inputValue };
+
+        axiosInstance.post('/api/categories', newCategoryData)
+            .then(async () => {
+                toast.success("부모 카테고리가 생성되었습니다.");
+
+                // 전체 목록 재조회
+                const updatedList = await fetchCategories(authInfo.nickname);
+
+                // 방금 만든 parent를 찾고 선택
+                const justCreated = updatedList.find(cat => cat.name === inputValue);
+                if (justCreated) {
+                    setSelectedParentCategory({ label: justCreated.name, value: justCreated.id });
+                    setSubCategories([]);
+                    setSelectedChildCategory(null);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to create parent category:', error);
+                toast.error("카테고리 생성 실패");
+            });
+    };
+
+    // **자식 카테고리 즉석 생성
+    const handleCreateChildCategory = (inputValue) => {
+        if (!authInfo) {
+            toast.error("로그인 정보가 없습니다.");
+            return;
+        }
+        if (!selectedParentCategory) {
+            toast.error("부모 카테고리를 먼저 선택해주세요.");
+            return;
+        }
+
+        const newChildData = {
+            name: inputValue,
+            parentId: selectedParentCategory.value,
+        };
+
+        axiosInstance.post('/api/categories', newChildData)
+            .then(async () => {
+                toast.success("자식 카테고리가 생성되었습니다.");
+
+                // 전체 목록 재조회
+                const updatedList = await fetchCategories(authInfo.nickname);
+
+                // parent 찾고, 그 children에서 막 만든 자식 찾기
+                const parentCat = updatedList.find(cat => cat.id === selectedParentCategory.value);
+                const children = parentCat?.children || [];
+                const justCreatedChild = children.find(ch => ch.name === inputValue);
+
+                if (justCreatedChild) {
+                    // subCategories 세팅
+                    const mappedChildren = children.map(ch => ({ label: ch.name, value: ch.id }));
+                    setSubCategories(mappedChildren);
+
+                    // 새 자식카테고리 선택
+                    setSelectedChildCategory({ label: justCreatedChild.name, value: justCreatedChild.id });
+                }
+            })
+            .catch(error => {
+                console.error('Failed to create child category:', error);
+                toast.error("자식 카테고리 생성 실패");
+            });
+    };
+
+    // 게시글 수정
     const handleUpdatePost = async () => {
         try {
-            // 자식 카테고리가 선택되었으면 우선 사용, 없으면 부모 카테고리 또는 기존 값 사용
             const categoryId =
                 selectedChildCategory?.value ||
                 selectedParentCategory?.value ||
-                detailPost.category?.id;
+                detailPost.category?.id ||
+                null;
+
             const response = await axiosInstance.put(`/api/posts/${id}`, {
                 title: detailPost.title,
                 content: detailPost.content,
-                categoryId: categoryId,
+                categoryId,
             });
             if (response.status === 200) {
+                toast.success("게시글이 수정되었습니다.");
                 navigate(`/detail-post/${id}`);
             }
         } catch (error) {
@@ -121,7 +201,7 @@ const UpdatePost = () => {
         }
     };
 
-    // 게시글 삭제 처리
+    // 게시글 삭제
     const handleDeletePost = async () => {
         const result = await Swal.fire({
             title: '정말 삭제하시겠습니까?',
@@ -145,7 +225,8 @@ const UpdatePost = () => {
 
     return (
         <Form className={styles['form-container']}>
-            {/* 부모 카테고리 선택 */}
+
+            {/* 부모 카테고리 + 즉석 생성 */}
             <Form.Group>
                 <CreatableSelect
                     placeholder="부모 카테고리 선택"
@@ -155,11 +236,12 @@ const UpdatePost = () => {
                     }))}
                     value={selectedParentCategory}
                     onChange={handleParentCategorySelect}
+                    onCreateOption={handleCreateParentCategory}
                     className={styles.dropdown}
                 />
             </Form.Group>
 
-            {/* 자식 카테고리 선택 (있을 경우) */}
+            {/* 자식 카테고리 선택 (있으면) + 즉석 생성 */}
             {subCategories.length > 0 && (
                 <Form.Group>
                     <CreatableSelect
@@ -167,25 +249,22 @@ const UpdatePost = () => {
                         options={subCategories}
                         value={selectedChildCategory}
                         onChange={handleChildCategorySelect}
+                        onCreateOption={handleCreateChildCategory}
                         className={styles.dropdown}
                     />
                 </Form.Group>
             )}
 
-            {/* 제목 입력 */}
             <Form.Group>
                 <Form.Control
                     className={styles.title}
                     type="text"
                     placeholder="제목을 입력하세요"
                     value={detailPost.title}
-                    onChange={(e) =>
-                        setDetailPost({ ...detailPost, title: e.target.value })
-                    }
+                    onChange={(e) => setDetailPost({ ...detailPost, title: e.target.value })}
                 />
             </Form.Group>
 
-            {/* 내용 입력 (ReactQuill) */}
             <Form.Group>
                 <ReactQuill
                     ref={quillRef}
@@ -194,13 +273,10 @@ const UpdatePost = () => {
                     formats={formats}
                     className={styles['quill-editor']}
                     value={detailPost.content}
-                    onChange={(value) =>
-                        setDetailPost({ ...detailPost, content: value })
-                    }
+                    onChange={(value) => setDetailPost({ ...detailPost, content: value })}
                 />
             </Form.Group>
 
-            {/* 버튼 그룹 */}
             <div className={styles['button-group']}>
                 <Button icon onClick={() => navigate("/")}>
                     <Icon name="arrow left" />
