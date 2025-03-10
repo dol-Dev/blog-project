@@ -1,8 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
-import { Button, Icon, Loader } from 'semantic-ui-react';
-import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import { Button, Icon, Loader } from 'semantic-ui-react';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './findAccount.module.css';
 
@@ -18,10 +17,11 @@ const FindAccount = () => {
     const [codeVerifiedForPassword, setCodeVerifiedForPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // 아이디 찾기
     const handleSendCodeForId = async (email) => {
         setLoading(true);
         try {
-            await axiosInstance.post('/api/auth/send-mail/code', null, {
+            await axiosInstance.post('/api/accounts/recovery/code', null, {
                 params: { email }
             });
             toast.success('인증 코드가 전송되었습니다. 이메일을 확인하고 인증해주세요.');
@@ -36,7 +36,7 @@ const FindAccount = () => {
     const handleVerifyCodeForId = async (code) => {
         setLoading(true);
         try {
-            await axiosInstance.post('/api/auth/send-mail/code/verify', null, {
+            await axiosInstance.post('/api/accounts/recovery/code/verify', null, {
                 params: { code }
             });
             toast.success('인증이 완료되었습니다. 아래 링크를 클릭하여 아이디를 확인하세요.');
@@ -48,10 +48,25 @@ const FindAccount = () => {
         }
     };
 
+    const handleSendUsername = async (email) => {
+        setLoading(true);
+        try {
+            await axiosInstance.post('/api/accounts/recovery/username', null, {
+                params: { email }
+            });
+            toast.success('아이디가 이메일로 전송되었습니다.');
+        } catch (error) {
+            toast.error('아이디 전송 실패. 다시 시도해주세요.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 비밀번호 찾기 
     const handleSendCodeForPassword = async (email) => {
         setLoading(true);
         try {
-            await axiosInstance.post('/api/auth/send-mail/code', null, {
+            await axiosInstance.post('/api/accounts/recovery/code', null, {
                 params: { email }
             });
             toast.success('인증 코드가 전송되었습니다. 이메일을 확인하고 인증해주세요.');
@@ -66,7 +81,7 @@ const FindAccount = () => {
     const handleVerifyCodeForPassword = async (code) => {
         setLoading(true);
         try {
-            await axiosInstance.post('/api/auth/send-mail/code/verify', null, {
+            await axiosInstance.post('/api/accounts/recovery/code/verify', null, {
                 params: { code }
             });
             toast.success('인증이 완료되었습니다. 아래 링크를 클릭하여 비밀번호를 재설정하세요.');
@@ -78,24 +93,10 @@ const FindAccount = () => {
         }
     };
 
-    const handleSendUsername = async (email) => {
-        setLoading(true);
-        try {
-            await axiosInstance.post('/api/auth/send-mail/username', null, {
-                params: { email }
-            });
-            toast.success('아이디가 이메일로 전송되었습니다.');
-        } catch (error) {
-            toast.error('아이디 전송 실패. 다시 시도해주세요.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSendTempPassword = async (email) => {
         setLoading(true);
         try {
-            await axiosInstance.post('/api/auth/send-mail/password', null, {
+            await axiosInstance.post('/api/accounts/recovery/password', null, {
                 params: { email }
             });
             toast.success('임시 비밀번호가 이메일로 전송되었습니다.');
