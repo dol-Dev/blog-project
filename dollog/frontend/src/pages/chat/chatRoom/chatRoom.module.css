@@ -1,7 +1,9 @@
 .chatRoomContainer {
+    position: absolute;
+    top: 340px;
     right: 30px;
-    width: 350px;
-    height: 380px;
+    width: 400px;
+    height: 500px;
     background-color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 20px;
@@ -10,7 +12,6 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    position: fixed;
 }
 
 .chatRoomContainer:hover {

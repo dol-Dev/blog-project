@@ -6,6 +6,7 @@ import 'semantic-ui-css/semantic.min.css';
 import { Button, Divider, Header, Icon, Image, List } from 'semantic-ui-react';
 import SockJS from 'sockjs-client';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useChat } from '../../../contexts/ChatContext';
 import AVATAR_URL from '../../../utils/avatarUrl';
 import axiosInstance from '../../../utils/axiosInstance';
 import BASE_URL from '../../../utils/baseUrl';
@@ -13,15 +14,17 @@ import Chat from '../chat/Chat';
 import styles from './chatRoom.module.css';
 
 const ChatRoom = () => {
-    const [visible, setVisible] = useState(false);
-    const [buttonVisible, setButtonVisible] = useState(true);
     const [chatPosition, setChatPosition] = useState({ x: 0, y: 0 });
     const [scrollPosition, setScrollPosition] = useState(0);
     const [dragging, setDragging] = useState(false);
     const [rooms, setRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState(null);
+
     const clientRef = useRef(null);
+
+    const { chatRoomInfo, buttonVisible, chatVisible, setChatVisible, setButtonVisible } = useChat();
     const { authInfo } = useAuth();
+
     const [myNickname, setMyNickname] = useState('');
     const [myAvatarImageName, setMyAvatarImageName] = useState('');
 
@@ -83,7 +86,7 @@ const ChatRoom = () => {
     // 채팅방 선택
     const handleSelectRoom = (room) => {
         setSelectedRoom(room);
-        setVisible(false);
+        setChatVisible(true);
         setButtonVisible(false);
     };
 
@@ -96,8 +99,8 @@ const ChatRoom = () => {
             if (event.key === 'Escape') {
                 if (selectedRoom) {
                     setSelectedRoom(null);
-                } else if (visible) {
-                    setVisible(false);
+                } else if (chatVisible) {
+                    setChatVisible(false);
                     setButtonVisible(true);
                 }
             }
@@ -108,14 +111,14 @@ const ChatRoom = () => {
             window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [selectedRoom, visible]);
+    }, [selectedRoom, chatVisible]);
 
     // 채팅창 위치 업데이트
     useEffect(() => {
-        if (visible) {
+        if (chatVisible) {
             setChatPosition(prev => ({ ...prev, y: scrollPosition }));
         }
-    }, [scrollPosition, visible]);
+    }, [scrollPosition, chatVisible]);
 
     // 드래그 관련 함수
     const handleDrag = (e, data) => {
@@ -131,13 +134,6 @@ const ChatRoom = () => {
         setDragging(false);
     };
     const handleStart = () => { setDragging(true); };
-
-    // 채팅창 토글
-    const toggleChat = () => {
-        setVisible(!visible);
-        setButtonVisible(false);
-    };
-
     return (
         <div>
             {buttonVisible && (
@@ -146,13 +142,16 @@ const ChatRoom = () => {
                     style={{ transform: `translateY(${scrollPosition}px)` }}
                     size="huge"
                     icon
-                    onClick={toggleChat}
+                    onClick={() => {
+                        setChatVisible(!chatVisible);
+                        setButtonVisible(false);
+                    }}
                 >
                     <Icon name="chat" />
                 </Button>
             )}
 
-            {visible && !selectedRoom && (
+            {chatVisible && !selectedRoom && (
                 <Draggable
                     position={chatPosition}
                     onStart={handleStart}
@@ -164,7 +163,10 @@ const ChatRoom = () => {
                             <Header as="h3">1:1 채팅</Header>
                             <Button
                                 className={styles.chatRoomCloseButton}
-                                onClick={() => { setVisible(false); setButtonVisible(true); }}
+                                onClick={() => {
+                                    setChatVisible(false);
+                                    setButtonVisible(true);
+                                }}
                                 icon
                             >
                                 <Icon name="x" />
@@ -219,7 +221,7 @@ const ChatRoom = () => {
                 </Draggable>
             )}
 
-            {selectedRoom && (
+            {chatVisible && selectedRoom && (
                 <Chat
                     roomId={selectedRoom.roomId}
                     chatRoomName={
@@ -231,8 +233,13 @@ const ChatRoom = () => {
                                     ? selectedRoom.owner
                                     : selectedRoom.owner
                     }
-                    setVisible={() => setSelectedRoom(null)}
-                    setButtonVisible={setButtonVisible}
+                />
+            )}
+
+            {chatVisible && chatRoomInfo.roomId && (
+                <Chat
+                    roomId={chatRoomInfo.roomId}
+                    chatRoomName={chatRoomInfo.roomName}
                 />
             )}
         </div>

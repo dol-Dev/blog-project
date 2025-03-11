@@ -15,6 +15,7 @@ import AVATAR_URL from '../../../utils/avatarUrl';
 import axiosInstance from '../../../utils/axiosInstance';
 import BASE_URL from '../../../utils/baseUrl';
 import styles from './chat.module.css';
+import { useChat } from '../../../contexts/ChatContext';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utc);
@@ -22,18 +23,23 @@ dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 dayjs.locale('ko');
 
-const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
+const Chat = ({ roomId, chatRoomName }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [roomName, setRoomName] = useState(chatRoomName);
     const [nickname, setNickname] = useState('');
-    const clientRef = useRef(null);
+
     const [scrollPosition, setScrollPosition] = useState(0);
     const [chatPosition, setChatPosition] = useState({ x: 0, y: 0 });
     const [dragging, setDragging] = useState(false);
+
     const [darkMode, setDarkMode] = useState(false);
+
+    const clientRef = useRef(null);
     const messageListRef = useRef(null);
+
     const { authInfo } = useAuth();
+    const { setChatRoomInfo, setButtonVisible, setChatVisible } = useChat();
 
     // 인증 정보 설정
     useEffect(() => {
@@ -95,11 +101,6 @@ const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
         setRoomName(chatRoomName);
     }, [chatRoomName]);
 
-    // 기본 위치 설정
-    useEffect(() => {
-        setChatPosition({ x: 30, y: 30 });
-    }, []);
-
     // 스크롤 위치 변화에 따라 채팅창의 y 위치 업데이트
     useEffect(() => {
         setChatPosition((prevPosition) => ({
@@ -124,16 +125,23 @@ const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
-                setVisible(); // 채팅창 닫기
-                setButtonVisible(true); // 버튼 다시 보이기
+                setChatRoomInfo({ roomId: null, roomName: "" });
+                setButtonVisible(true);
+                setChatVisible(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [setVisible, setButtonVisible]);
+    }, [setChatRoomInfo, setChatVisible, setButtonVisible]);
 
+    // X 버튼으로 채팅 닫기
+    const handleCloseChat = () => {
+        setChatRoomInfo({ roomId: null, roomName: "" });
+        setButtonVisible(true);
+        setChatVisible(false);
+    };
 
     // 메시지 목록 스크롤 하단으로 이동
     useEffect(() => {
@@ -288,7 +296,7 @@ const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
                             <Icon name={darkMode ? 'sun' : 'moon'} />
                         </Button>
                     </div>
-                    <Button className={styles['close-button']} icon onClick={() => { setVisible(); setButtonVisible(true); }}>
+                    <Button className={styles['close-button']} icon onClick={handleCloseChat}>
                         <Icon name="close" />
                     </Button>
                 </div>
