@@ -1,0 +1,126 @@
+/* 전체 컨테이너 */
+.containerStyle {
+    min-height: 87vh;
+    padding-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* 프로필 전체 컨테이너 */
+.profileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 아바타 영역 */
+.avatarContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.avatarImage {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.avatarContainer:hover .avatarImage {
+    transform: scale(1.05);
+}
+
+/* 아바타 오버레이 */
+.avatarOverlay {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.avatarContainer:hover .avatarOverlay {
+    opacity: 1;
+}
+
+/* 프로필 입력 폼 */
+.profileInput {
+    width: 250px;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+/* inputGroup 관련 css */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.inputGroup label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+    width: 100%;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    transition: all 0.2s ease-in-out;
+}
+
+.inputGroup input:focus {
+    background-color: #fff;
+    border-color: #888;
+    box-shadow: 0 0 4px rgba(136, 136, 136, 0.2);
+}
+
+.inputGroup button {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #444;
+    background-color: #e0e0e0;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.inputGroup button:hover {
+    background-color: #d0d0d0;
+}
+
+/* 에러 메시지 */
+.errorMessage {
+    color: #d9534f;
+    font-size: 13px;
+    margin-top: -3px;
+}
