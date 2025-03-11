@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +32,25 @@ public class CommentService {
         private final CommentRepository commentRepository;
         private final PostRepository postRepository;
 
-        // 게시글에 대한 최상위 댓글 조회
+        // 게시글에 대한 댓글 조회
         @Transactional(readOnly = true)
-        public List<CommentResDto> getRootCommentsByPost(int postId) {
-                return commentRepository.findByPostIdAndParentIsNull(postId).stream()
+        public List<CommentResDto> getCommentsByPost(int postId) {
+                return commentRepository.findByPostIdAndParentIsNull(postId)
+                                .stream()
                                 .map(CommentResDto::new)
                                 .collect(Collectors.toList());
+        }
+
+        // 유저가 쓴 모든 댓글들 조회
+        @Transactional
+        public Page<CommentResDto> getCommentsByUser(Pageable pageable, CustomUserDetails userDetails) {
+                Page<Comment> comments;
+                if (userDetails.isUser()) {
+                        comments = commentRepository.findByUserIdAndParentIsNull(userDetails.getId(), pageable);
+                } else {
+                        comments = commentRepository.findBySnsUserIdAndParentIsNull(userDetails.getId(), pageable);
+                }
+                return comments.map(CommentResDto::new);
         }
 
         // 댓글/답글 생성

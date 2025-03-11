@@ -2,6 +2,10 @@ package com.doldev.dollog.domain.comment.api;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,8 +35,8 @@ public class CommentController {
 
         // 특정 게시글의 최상위 댓글 조회 (계층형 구조)
         @GetMapping("/post/{postId}")
-        public ResponseEntity<ApiResDto<List<CommentResDto>>> getRootComments(@PathVariable int postId) {
-                List<CommentResDto> comments = commentService.getRootCommentsByPost(postId);
+        public ResponseEntity<ApiResDto<List<CommentResDto>>> getCommentsByPost(@PathVariable int postId) {
+                List<CommentResDto> comments = commentService.getCommentsByPost(postId);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<List<CommentResDto>>builder()
                                                 .messageCode("COMMENT_LIST_SUCCESS")
@@ -40,11 +44,22 @@ public class CommentController {
                                                 .build());
         }
 
+        // 댓글 불러오기
+        @GetMapping("/me")
+        public ResponseEntity<ApiResDto<?>> getCommentsByUser(@AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+                Page<CommentResDto> comments = commentService.getCommentsByUser(pageable, userDetails);
+                return ResponseEntity.ok().body(ApiResDto.builder()
+                                .messageCode("댓글 조회 성공!")
+                                .data(comments)
+                                .build());
+        }
+
         // 댓글/답글 생성
         @PostMapping
         public ResponseEntity<ApiResDto<CommentResDto>> createComment(
-                @RequestBody CommentCreateReqDto reqDto,
-                @AuthenticationPrincipal CustomUserDetails userDetails) {
+                        @RequestBody CommentCreateReqDto reqDto,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
                 CommentResDto response = commentService.createComment(reqDto, userDetails);
                 return ResponseEntity.ok()
                                 .body(ApiResDto.<CommentResDto>builder()
