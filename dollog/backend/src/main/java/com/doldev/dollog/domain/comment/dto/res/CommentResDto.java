@@ -13,6 +13,7 @@ import lombok.Getter;
 public class CommentResDto {
     private int id;
     private String content;
+    private int likeCnt;
     private WriterInfo writer;
     private LocalDateTime createdAt;
     private Integer parentId; 
@@ -21,6 +22,7 @@ public class CommentResDto {
     public CommentResDto(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
+        this.likeCnt = comment.getLikeCnt();
         
         if (comment.getUser() != null) {
             this.writer = new WriterInfo(comment.getUser());
@@ -40,12 +42,16 @@ public class CommentResDto {
         private final int userId;
         private final String nickname;
         private final String avatarImageName;
+        private final String blogName;
+        private final String provider;
 
         // User 
         public WriterInfo(User user) {
             this.userId = user.getId();
             this.nickname = user.getProfile().getNickname();
             this.avatarImageName = user.getProfile().getAvatarImageName();
+            this.blogName = user.getProfile().getBlogName();
+            this.provider = null;
         }
 
         // SnsUser
@@ -53,6 +59,8 @@ public class CommentResDto {
             this.userId = snsUser.getId();  
             this.nickname = snsUser.getProfile().getNickname();
             this.avatarImageName = snsUser.getProfile().getAvatarImageName();
+            this.blogName = snsUser.getProfile().getBlogName();
+            this.provider = snsUser.getProvider().name();
         }
     }
 }
