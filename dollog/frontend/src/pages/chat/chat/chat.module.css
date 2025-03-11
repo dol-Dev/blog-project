@@ -1,0 +1,289 @@
+.chat-container {
+    position: absolute;
+    top: 350px;
+    right: 60px;
+    width: 400px;
+    height: 500px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+}
+
+.chat-container:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 다크 모드 전체 */
+.dark-mode {
+    background-color: #110f0f;
+    color: #fff;
+}
+
+.dark-mode .chat-header {
+    border-bottom-color: #555;
+}
+
+.dark-mode .ui.horizontal.divider {
+    color: #bbb !important;
+}
+
+.dark-mode .ui.horizontal.divider:after,
+.dark-mode .ui.horizontal.divider:before {
+    border-color: #bbb !important;
+}
+
+.dark-mode .message-input-container {
+    border-top-color: #555;
+}
+
+.dark-mode .message-content {
+    background-color: #444;
+}
+
+.dark-mode .message-incoming .message-content {
+    background-color: #555;
+}
+
+.dark-mode .message-sender {
+    color: #bbb;
+}
+
+.dark-mode .message-input-container input {
+    background-color: #242424;
+}
+
+.dark-mode .message-input {
+    color: #ffffff !important;
+}
+
+.dark-mode .message-time {
+    color: #bbb;
+}
+
+.dark-mode .chat-header h2 {
+    color: #bbb;
+}
+
+.dark-mode .dark-mode-toggle .dark-mode-button {
+    color: #ffffff;
+}
+
+.dark-mode .close-button {
+    color: #ffffff;
+}
+
+.dark-mode .send-button {
+    color: #fff
+}
+
+/* 다크 모드 토글 버튼 컨테이너 */
+.dark-mode-toggle {
+    position: absolute;
+    right: 50px;
+}
+
+
+.dark-mode-button,
+.close-button {
+    background-color: transparent !important;
+}
+
+/* 채팅 헤더 */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    z-index: 10000;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+/* 채팅 내용 영역 */
+.chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 채팅 메시지 목록 */
+.message-list {
+    flex: 1;
+    padding: 10px 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f1f1f1;
+    scroll-behavior: smooth; /* 부드러운 스크롤링 */
+}
+
+.message-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.message-list::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+/* 날짜 헤더 */
+.date-header {
+    text-align: center; /* 중앙 정렬 */
+    margin-top: 40px;
+    font-weight: bold;  /* 폰트 굵게 */
+}
+
+/* 메시지 전체 스타일 */
+.message {
+    display: flex;
+    align-items: flex-start; /* 프로필 이미지와 닉네임을 세로로 정렬 */
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s forwards;
+    position: relative; /* 상대 위치 설정 */
+}
+
+.message-outgoing {
+    justify-content: flex-end;
+}
+
+.message-incoming {
+    justify-content: flex-start;
+}
+
+/* 아바타 */
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px; /* 프로필 이미지 오른쪽에 간격 추가 */
+}
+
+/* 메시지 실제 내용 컨테이너 */
+.message-body {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%; /* 메시지 최대 너비 설정 */
+    position: relative; /* 상대 위치 설정 */
+}
+
+/* 메시지 발신자 이름 */
+.message-sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+    align-self: flex-start; /* 닉네임 왼쪽 정렬 */
+    margin-right: 55px;
+    position: fixed;
+    margin-top: 15px;
+}
+
+/* 말풍선 */
+.message-content {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+    position: relative;
+    min-height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    word-wrap: break-word;
+    word-break: break-all;
+    margin-top: 45px; /* 메시지와 닉네임 사이 간격 추가 */
+}
+
+.message-outgoing .message-content {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end; /* 말풍선 오른쪽 정렬 */
+}
+
+.message-incoming .message-content {
+    align-self: flex-start; /* 말풍선 왼쪽 정렬 */
+}
+
+.message-incoming .message-sender {
+    margin-left: 55px;
+}
+
+/* 메시지 텍스트 */
+.message-text {
+    margin-bottom: -15px;
+    flex-grow: 1;
+}
+
+/* 시간 표시 */
+.message-time {
+    font-size: 0.8em;
+    color: #999;
+    position: relative;
+    white-space: nowrap;
+}
+
+.message-outgoing .message-time {
+    right: 41px; /* 왼쪽 고정 */
+    top: 12px;
+}
+
+.message-incoming .message-time {
+    left: 41px; /* 오른쪽 고정 */
+    top: 12px;
+}
+
+/* 입력창 영역 */
+.message-input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid #eee;
+}
+
+/* 메시지 입력창 */
+.message-input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    margin-right: 10px;
+    background-color: #f1f1f1;
+    transition: background-color 0.3s;
+}
+
+.message-input:focus {
+    background-color: #fff;
+}
+
+/* 전송 버튼 */
+.send-button {
+    background-color: transparent !important;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
