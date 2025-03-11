@@ -2,12 +2,21 @@
     max-width: none;
 }
 
+:global(.ui.comments:last-child ) {
+    margin-bottom: 100px
+}
+
 .commentForm {
     margin-top: 2rem;
 }
 
-.commentTextArea {
-    min-height: 80px;
+
+.commentForm :global(.ui.blue.button ) {
+    margin-top: 10px;
+}
+
+.commentForm :global(.field textarea) {
+    min-height: 200px !important;
 }
 
 .avatar {
@@ -25,3 +34,4 @@
 .replyGroup {
     margin-left: 2rem;
 }
+

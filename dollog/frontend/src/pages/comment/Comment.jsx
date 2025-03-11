@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Comment, Form } from "semantic-ui-react";
+import { toast } from "react-toastify";
+import { Button, Comment, Form, Icon, Label } from "semantic-ui-react";
 import Swal from "sweetalert2";
 import AVATAR_URL from "../../utils/avatarUrl";
-import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosInstance";
 import styles from "./comment.module.css";
 
@@ -69,7 +69,6 @@ const CommentList = ({ postId, currentUserId }) => {
                     placeholder="댓글을 입력하세요..."
                     value={newCommentContent}
                     onChange={(e) => setNewCommentContent(e.target.value)}
-                    className={styles.commentTextArea}
                 />
                 <Button
                     content="댓글 쓰기"
@@ -138,6 +137,32 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
         }
     };
 
+    // 댓글 좋아요 추가
+    const addLikeComment = async () => {
+        try {
+            const response = await axiosInstance.post(`/api/likes/comments/${comment.id}`);
+            if (response.status === 200) {
+                localStorage.setItem(`comment_${comment.id}_liked_${currentUserId}`, 'true');
+                onRefreshComment();
+            }
+        } catch (error) {
+            toast.error("좋아요 추가 실패. 다시 시도해주세요.");
+        }
+    };
+
+    // 댓글 좋아요 취소
+    const deleteLikeComment = async () => {
+        try {
+            const response = await axiosInstance.post(`/api/likes/comments/${comment.id}`);
+            if (response.status === 200) {
+                localStorage.setItem(`comment_${comment.id}_liked_${currentUserId}`, 'false');
+                onRefreshComment();
+            }
+        } catch (error) {
+            toast.error("좋아요 취소 실패. 다시 시도해주세요.");
+        }
+    };
+
     // 대댓글 작성 (최상위 댓글에만 적용)
     const handleCreateReply = async () => {
         if (!currentUserId) {
@@ -194,6 +219,31 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
                     </span>
                 </Comment.Metadata>
 
+                {/* 댓글 좋아요 토글 액션 */}
+                <Comment.Metadata>
+                    <span>
+                        {localStorage.getItem(`comment_${comment.id}_liked_${currentUserId}`) === "true" ? (
+                            <Button as="div" labelPosition="right" size="mini">
+                                <Button icon color="red" onClick={deleteLikeComment} size="mini">
+                                    <Icon name="heart" />
+                                </Button>
+                                <Label basic color="red" pointing="left">
+                                    {comment.likeCnt || 0}
+                                </Label>
+                            </Button>
+                        ) : (
+                            <Button as="div" labelPosition="right" size="mini">
+                                <Button icon onClick={addLikeComment} size="mini">
+                                    <Icon name="heart" />
+                                </Button>
+                                <Label basic pointing="left">
+                                    {comment.likeCnt || 0}
+                                </Label>
+                            </Button>
+                        )}
+                    </span>
+                </Comment.Metadata>
+
                 {isEditing ? (
                     <Form reply>
                         <Form.TextArea
@@ -205,11 +255,13 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
                             content="수정 완료"
                             color="blue"
                             onClick={handleUpdate}
+                            size="mini"
                         />
                         <Button
                             icon="cancel"
                             content="취소"
                             onClick={() => setIsEditing(false)}
+                            size="mini"
                         />
                     </Form>
                 ) : (
@@ -251,6 +303,7 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
                         icon="edit"
                         color="grey"
                         onClick={handleCreateReply}
+                        size="mini"
                     />
                 </Form>
             )}

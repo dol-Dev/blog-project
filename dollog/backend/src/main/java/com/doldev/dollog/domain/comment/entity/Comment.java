@@ -53,7 +53,7 @@ public class Comment {
     private List<Comment> child = new ArrayList<>();
 
     @ColumnDefault("0")
-    private Long likeCnt;
+    private int likeCnt;
 
     @Builder.Default
     @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
