@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from 'react-dom';
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Button, Comment, Form, Icon, Label } from "semantic-ui-react";
+import { Button, Comment, Dropdown, Form, Icon, Label } from "semantic-ui-react";
 import Swal from "sweetalert2";
+import { useAuth } from "../../contexts/AuthContext";
 import AVATAR_URL from "../../utils/avatarUrl";
 import axiosInstance from "../../utils/axiosInstance";
+import Chat from "../chat/chat/Chat";
 import styles from "./comment.module.css";
 
 const CommentList = ({ postId, currentUserId }) => {
@@ -83,10 +87,28 @@ const CommentList = ({ postId, currentUserId }) => {
 
 const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editContent, setEditContent] = useState(comment.content);
     const [showReplyForm, setShowReplyForm] = useState(false);
-    const [replyContent, setReplyContent] = useState("");
     const [showReplies, setShowReplies] = useState(false);
+
+    const [showChat, setShowChat] = useState(false);
+    const [chatRoomId, setChatRoomId] = useState(null);
+    const [chatRoomName, setChatRoomName] = useState('');
+
+    const [editContent, setEditContent] = useState(comment.content);
+    const [replyContent, setReplyContent] = useState("");
+    const [nickname, setNickname] = useState("");
+
+    const navigate = useNavigate();
+
+    const { authInfo } = useAuth();
+
+    // 인증 정보 세팅
+    useEffect(() => {
+        if (authInfo) {
+            setNickname(authInfo.nickname);
+        }
+    }, [authInfo]);
+
 
     // 댓글 수정
     const handleUpdate = async () => {
@@ -190,6 +212,51 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
         }
     };
 
+    // 상태 확인 후 재입장, 없으면 새로 생성
+    const handleChatRoomEntry = async () => {
+        try {
+            const response = await axiosInstance.get('/api/chatRooms/myRooms');
+            const rooms = response.data.data || [];
+
+            const existingRoom = rooms.find(room =>
+                (room.owner === comment.writer.nickname && room.participant === nickname) ||
+                (room.owner === nickname && room.participant === comment.writer.nickname)
+            );
+
+            if (existingRoom) {
+                if (existingRoom.participantStatus === "LEFT") {
+                    const reenterResponse = await axiosInstance.post(
+                        `/api/chatRooms/${existingRoom.roomId}/reenter`,
+                        null,
+                        { params: { participant: nickname } }
+                    );
+
+                    setChatRoomId(reenterResponse.data.data.roomId);
+                    setChatRoomName(reenterResponse.data.data.owner);
+                    setShowChat(true);
+
+                } else {
+                    setChatRoomId(existingRoom.roomId);
+                    setChatRoomName(existingRoom.owner);
+                    setShowChat(true);
+                }
+            } else {
+                const createResponse = await axiosInstance.post('/api/chatRooms/between', {
+                    owner: comment.writer.nickname,
+                    participant: nickname
+                });
+
+                setChatRoomId(createResponse.data.data.roomId);
+                setChatRoomName(createResponse.data.data.owner);
+                setShowChat(true);
+
+            }
+        } catch (error) {
+            console.error("Chat room entry error: ", error);
+            toast.error("채팅방 진입 실패. 다시 시도해주세요.");
+        }
+    };
+
     const handleShowEdit = () => {
         setIsEditing(true);
         setEditContent(comment.content);
@@ -199,11 +266,38 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
         <Comment>
             <Comment.Content>
                 <Comment.Author as="span">
-                    <img
-                        src={`${AVATAR_URL}${comment.writer.avatarImageName}`}
-                        alt="Avatar"
-                        className={styles.avatar}
-                    />
+                    <Dropdown
+                        trigger={
+                            <img
+                                src={`${AVATAR_URL}${comment.writer.avatarImageName}`}
+                                alt="Avatar"
+                                className={styles.avatar}
+                            />
+                        }
+                        pointing="right"
+                        icon={null}
+                    >
+                        <Dropdown.Menu>
+                            {/* 1:1 대화 클릭 시 handleChatRoomEntry 함수 호출 */}
+                            <Dropdown.Item
+                                text="1:1 대화"
+                                icon="chat"
+                                onClick={handleChatRoomEntry}
+                            />
+                            <Dropdown.Item
+                                text="블로그"
+                                icon="book"
+                                onClick={() => navigate(`/blog/${comment.writer.nickname}`,
+                                    {
+                                        state: {
+                                            blogName: comment.writer.blogName,
+                                            provider: comment.writer.provider
+                                        }
+                                    })
+                                }
+                            />
+                        </Dropdown.Menu>
+                    </Dropdown>
                     {comment.writer?.nickname}
                 </Comment.Author>
 
