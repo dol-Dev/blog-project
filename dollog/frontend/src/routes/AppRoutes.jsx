@@ -24,6 +24,8 @@ import { QuillProvider } from '../contexts/QuillContext';
 
 import UserSetting from '../pages/user/info/UserSetting';
 import ProtectedRoute from './auth/ProtectedRoute';
+import ManagePost from '../pages/post/manage/ManagePost';
+import ManageComment from '../pages/comment/manage/ManageComment';
 const AppRoutes = () => {
     const location = useLocation();
     const isLoginPage = location.pathname === '/login';
@@ -109,12 +111,33 @@ const AppRoutes = () => {
                             </ProtectedRoute>
                         }
                     >
-                        <Route index element={<ManagementDashboard />} />
+                        <Route
+                            index
+                            path="dashboard"
+                            element={<ManagementDashboard />
+                            }
+                        />
                         <Route
                             path="categorys"
                             element={
                                 <ProtectedRoute>
                                     <ManageCategory />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="posts"
+                            element={
+                                <ProtectedRoute>
+                                    <ManagePost />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="comments"
+                            element={
+                                <ProtectedRoute>
+                                    <ManageComment />
                                 </ProtectedRoute>
                             }
                         />
