@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
     }, [authInfo, isLoading, navigate]);
 
     // 인증 정보가 아직 준비되지 않았다면 (undefined) 또는 로딩 중이면 아무것도 렌더링하지 않음
-    if (isLoading || authInfo === undefined) return null;
+    if (isLoading || authInfo === undefined) return;
 
     // authInfo가 null이면 이미 useEffect에서 리다이렉트 처리됨
     return children;

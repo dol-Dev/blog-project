@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useBlog } from '../../contexts/BlogContext';
 
@@ -7,7 +7,7 @@ function BlogRedirector() {
     const location = useLocation();
 
     const { nickname } = useParams();
-    const { blogName, provider} = location.state || {};
+    const { blogName, provider } = location.state || {};
     const { setBlogName, setNickname, setProvider } = useBlog();
 
     useEffect(() => {
