@@ -2,19 +2,18 @@ import 'bootstrap/dist/css/bootstrap.css';
 import React, { useEffect, useState } from 'react';
 import { Nav, Navbar } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Button, Dropdown, Icon } from 'semantic-ui-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useBlog } from '../../contexts/BlogContext';
 import AVATAR_URL from '../../utils/avatarUrl';
 import axiosInstance from '../../utils/axiosInstance';
-import { useAuth } from '../../contexts/AuthContext';
 import styles from './header.module.css';
-import { toast } from 'react-toastify';
 
 const Header = ({ onBlogSidebarToggle }) => {
     const { authInfo } = useAuth();
     const { blogName, setBlogName } = useBlog();
     const navigate = useNavigate();
-    const location = useLocation();
     const [nickname, setNickname] = useState('');
     const [blogNameByAuthInfo, setBlogNameByAuthInfo] = useState({ blogName: '', provider: '' });
 
@@ -50,7 +49,7 @@ const Header = ({ onBlogSidebarToggle }) => {
     return (
         <>
             <Navbar bg="transparent" variant="light" expand="md" className={styles['custom-navbar']}>
-                {blogName ? (
+                {authInfo && blogName ? (
                     <Button icon className={styles['transparent-button']} onClick={(e) => {
                         e.preventDefault();
                         onBlogSidebarToggle();
@@ -60,7 +59,11 @@ const Header = ({ onBlogSidebarToggle }) => {
                 ) : (
                     <></>
                 )}
-                <Navbar.Brand className={styles['navbar-brand']}>{blogName}</Navbar.Brand>
+                {authInfo ? (
+                    <Navbar.Brand className={styles['navbar-brand']}>{blogName}</Navbar.Brand>
+                ) : (
+                    <></>
+                )}
                 <Navbar.Collapse id="collapsibleNavbar">
                     <Nav className="mr-auto" onClick={() => {
                         setBlogName('')
@@ -77,7 +80,9 @@ const Header = ({ onBlogSidebarToggle }) => {
                                     >
                                         <Dropdown.Menu>
                                             <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
-                                            <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
+                                            {!blogNameByAuthInfo.provider && (
+                                                <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
+                                            )}
                                             <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage')} />
                                             <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
                                         </Dropdown.Menu>
@@ -85,9 +90,11 @@ const Header = ({ onBlogSidebarToggle }) => {
                                 </Nav.Link>
                                 {blogName !== '' ? (
                                     <>
-                                        <Nav.Link as={Link} to="/" onClick={() => {
-                                            setBlogName('');
-                                        }} className={styles['nav-link']}>블로그 홈</Nav.Link>
+                                        <Nav.Link as="a" href="/" onClick={(e) => {
+                                                e.preventDefault();
+                                                setBlogName('');
+                                                window.location.href = '/';
+                                            }} className={styles['nav-link']}>블로그 홈</Nav.Link>
                                         <Nav.Link as={Link} to="/write" className={styles['nav-link']}>글쓰기</Nav.Link>
                                     </>
                                 ) : (
@@ -102,7 +109,7 @@ const Header = ({ onBlogSidebarToggle }) => {
                             </>
                         ) : (
                             <>
-                                {(location.pathname === '/login' || location.pathname === '/find') && (
+                                {(!authInfo) && (
                                     <Nav.Link as={Link} to="/" className={styles['nav-link']}>블로그 홈</Nav.Link>
                                 )}
                                 <Nav.Link as={Link} to="/login" className={styles['nav-link']}>로그인</Nav.Link>
