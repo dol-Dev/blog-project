@@ -1,0 +1,179 @@
+/* Container 관련 css */
+.managePosts {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 87vh;
+}
+
+/* Title 관련 css */
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.count {
+    font-size: 18px;
+    color: #007bff;
+    margin-left: 8px;
+}
+
+.writeLink {
+    color: #007bff;
+    font-size: 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.writeLink:hover {
+    text-decoration: underline;
+}
+
+/* Search 및 Bulk Actions 관련 css */
+.searchActionsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.searchDropdown {
+    background-color: transparent !important;
+    border: 1px solid rgba(34, 36, 38, 0.15) !important;
+    border-radius: 0.28571429rem !important;
+}
+
+.searchButton {
+    background-color: transparent !important;
+    color: gray !important;
+    font-weight: bold;
+}
+
+.bulkActionsContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+    margin-left: 20px;
+}
+
+.allCheckbox {
+    margin: 0;
+}
+
+.checkbox {
+    margin: 27px 10px 0 0;
+}
+
+.checkboxLabel {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Posts List 관련 css */
+.postsList {
+    margin-bottom: 100px;
+}
+
+.postItem {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s ease;
+}
+
+.postItem:hover {
+    background-color: #f9f9f9;
+}
+
+.postDiv {
+    flex-grow: 1;
+    margin-left: 15px;
+}
+
+.postTitle {
+    font-size: 18px;
+    color: #333;
+    text-decoration: none;
+    margin-top: 12px;
+}
+
+.postTitle a {
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.postTitle a:hover {
+    text-decoration: underline;
+}
+
+.postMeta {
+    font-size: 12px;
+    color: #777;
+    margin-top: 5px;
+}
+
+.postSeparator {
+    margin: 0 5px;
+    color: #ccc;
+}
+
+/* Post Actions 관련 css */
+.postActions {
+    display: flex;
+    gap: 10px;
+}
+
+.postAction {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.postAction:hover {
+    background-color: #0056b3;
+}
+
+/* No Posts 관련 css */
+.noPosts {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Pagination 관련 css */
+.paginationContainer {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 8px;
+}

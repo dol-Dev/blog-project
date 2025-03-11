@@ -1,0 +1,173 @@
+/* Container 관련 css */
+.manageComments {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 87vh;
+}
+
+/* Title 관련 css */
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.count {
+    font-size: 18px;
+    color: #007bff;
+    margin-left: 8px;
+}
+
+/* Search 및 Bulk Actions 관련 css */
+.searchActionsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.searchDropdown {
+    background-color: transparent !important;
+    border: 1px solid rgba(34, 36, 38, 0.15) !important;
+    border-radius: 0.28571429rem !important;
+}
+
+.searchButton {
+    background-color: transparent !important;
+    color: gray !important;
+    font-weight: bold;
+}
+
+.bulkActionsContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.allCheckbox {
+    margin: 0;
+}
+
+.checkbox {
+    margin: 27px 10px 0 0;
+}
+
+.checkboxLabel {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Comments List 관련 css */
+.commentsList {
+    margin-bottom: 100px;
+}
+
+/* Comment Item 관련 css */
+.commentItem {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s ease;
+}
+
+.commentItem:hover {
+    background-color: #f9f9f9;
+}
+
+.commentDiv {
+    flex-grow: 1;
+    margin-left: 15px;
+}
+
+.commentMeta {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.commentSeparator {
+    margin: 0 5px;
+    color: #ccc;
+}
+
+/* comment의 내용 부분 */
+.commentContent {
+    font-size: 18px;
+    color: #080808;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+/* comment의 내용 부분 */
+.commentTitle {
+    font-size: 15px;
+    color: #7c7c7c;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+/* Comment Actions 관련 css */
+.commentActions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.commentAction {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.commentAction:hover {
+    background-color: #0056b3;
+}
+
+/* Reply Label 관련 css */
+.replyLabel {
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 5px;
+}
+
+/* No Comments 관련 css */
+.noComments {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Pagination 관련 css */
+.paginationContainer {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 8px;
+}
