@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-DollogApplication<dollog>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.doldev.dollog.DollogApplication",
+            "projectName": "dollog",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
