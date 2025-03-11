@@ -137,33 +137,13 @@ const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
 
     // 메시지 목록 스크롤 하단으로 이동
     useEffect(() => {
-        const scrollToBottom = () => {
-            if (messageListRef.current) {
-                messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-            }
-        };
         scrollToBottom();
     }, [messages]);
 
-    // 드래그 시작
-    const handleStart = () => {
-        setDragging(true);
-    };
-
-    /// 드래그 중
-    const handleDrag = (e, data) => {
-        if (dragging) {
-            // deltaX와 deltaY 값을 즉시 반영하여 채팅방 위치 업데이트
-            const newX = chatPosition.x + data.deltaX;
-            const newY = chatPosition.y + data.deltaY;
-            setChatPosition({ x: newX, y: newY });
+    const scrollToBottom = () => {
+        if (messageListRef.current) {
+            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
         }
-    };
-
-    // 드래그 멈춤
-    const handleStop = (e, data) => {
-        setChatPosition({ x: data.x, y: data.y });
-        setDragging(false);
     };
 
     // 메세지 전송
@@ -198,6 +178,27 @@ const Chat = ({ roomId, chatRoomName, setVisible, setButtonVisible }) => {
         if (event.key === 'Enter') {
             sendMessage();
         }
+    };
+
+    // 드래그 시작
+    const handleStart = () => {
+        setDragging(true);
+    };
+
+    // 드래그 중
+    const handleDrag = (e, data) => {
+        if (dragging) {
+            // deltaX와 deltaY 값을 즉시 반영하여 채팅방 위치 업데이트
+            const newX = chatPosition.x + data.deltaX;
+            const newY = chatPosition.y + data.deltaY;
+            setChatPosition({ x: newX, y: newY });
+        }
+    };
+
+    // 드래그 멈춤
+    const handleStop = (e, data) => {
+        setChatPosition({ x: data.x, y: data.y });
+        setDragging(false);
     };
 
     // 날짜 포맷 변경 및 구분선 생성
