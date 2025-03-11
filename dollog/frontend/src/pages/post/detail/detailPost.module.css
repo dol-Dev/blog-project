@@ -17,6 +17,7 @@
 .container {
     padding-top: 50px;
     min-height: 87vh;
+    min-width: 200px
 }
 
 .avatar {
@@ -37,8 +38,16 @@
 
 .content {
     margin-top: 50px;
+    min-height: 500px;
 }
 
 .like-button {
     margin-bottom: 10px;
+}
+
+.renderChat {
+    position: fixed;
+    top: 70px;
+    right: 0px;
+    z-index: 1000;
 }
