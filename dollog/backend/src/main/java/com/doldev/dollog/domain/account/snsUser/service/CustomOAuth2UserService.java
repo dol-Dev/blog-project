@@ -21,7 +21,7 @@ import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.snsUser.enums.SnsProvider;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
-import com.doldev.dollog.global.auth.service.CookieManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final SnsUserRepository snsUserRepository;
     private final SnsUserRegistrationService snsUserRegistrationService;
     private final TokenService tokenService;
-    private final CookieManager cookieManager;
+    private final TokenCookieService tokenCookieService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest req) {
@@ -75,7 +75,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         HttpServletResponse res = getCurrentResponse();
         if (res != null) {
-            cookieManager.setTokens(res, tokens);
+            tokenCookieService.setTokens(res, tokens);
         } else {
             log.warn("HttpServletResponse is not available in the current context.");
         }

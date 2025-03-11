@@ -14,7 +14,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.doldev.dollog.domain.account.snsUser.service.CustomOAuth2UserService;
 import com.doldev.dollog.global.auth.filter.CustomAuthenticationFilter;
-import com.doldev.dollog.global.auth.service.CookieManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenAuthenticationManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsFilter corsFilter;
     private final TokenAuthenticationManager tokenAuthenticationManager;
-    private final CookieManager cookieManager;
+    private final TokenCookieService tokenCookieService;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,7 +52,7 @@ public class SecurityConfig {
     CustomAuthenticationFilter customAuthenticationFilter() {
         return CustomAuthenticationFilter.builder()
                 .tokenAuthenticationManager(tokenAuthenticationManager)
-                .cookieManager(cookieManager)
+                .tokenCookieService(tokenCookieService)
                 .objectMapper(objectMapper)
                 .build();
     }

@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.doldev.dollog.global.auth.service.CookieManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenAuthenticationManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,18 +24,19 @@ import lombok.RequiredArgsConstructor;
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenAuthenticationManager tokenAuthenticationManager;
-    private final CookieManager cookieManager;
+    private final TokenCookieService tokenCookieService;
     private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest req,
-            HttpServletResponse res,
-            FilterChain chain) throws IOException, ServletException {
+            @NonNull HttpServletRequest req,
+            @NonNull HttpServletResponse res,
+            @NonNull FilterChain chain) throws IOException, ServletException {
         try {
             processAuthentication(req, res);
             chain.doFilter(req, res);
-        } catch (TokenAuthenticationManager.InvalidTokenException | TokenAuthenticationManager.TokenMismatchException e) {
+        } catch (TokenAuthenticationManager.InvalidTokenException
+                | TokenAuthenticationManager.TokenMismatchException e) {
             handleAuthError(res, e);
         } finally {
             SecurityContextHolder.clearContext();
@@ -42,25 +44,25 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void processAuthentication(HttpServletRequest req, HttpServletResponse res) {
-        Optional<String> accessTokenOpt = cookieManager.extractAccessToken(req);
+        Optional<String> accessTokenOpt = tokenCookieService.extractAccessToken(req);
         if (accessTokenOpt.isPresent() && tokenAuthenticationManager.isValidToken(accessTokenOpt.get())) {
-            tokenAuthenticationManager.setAuthenticationForFilter(accessTokenOpt.get());
+            tokenAuthenticationManager.setAuthentication(accessTokenOpt.get());
         } else {
             processRefreshToken(req, res);
         }
     }
 
     private void processRefreshToken(HttpServletRequest req, HttpServletResponse res) {
-        Optional<String> refreshTokenOpt = cookieManager.extractRefreshToken(req);
+        Optional<String> refreshTokenOpt = tokenCookieService.extractRefreshToken(req);
         refreshTokenOpt.ifPresent(token -> {
             Map<String, String> newTokens = tokenAuthenticationManager.refreshTokens(token);
-            cookieManager.setTokens(res, newTokens); // response → res로 수정
-            tokenAuthenticationManager.setAuthenticationForFilter(newTokens.get("accessToken"));
+            tokenCookieService.setTokens(res, newTokens); // response → res로 수정
+            tokenAuthenticationManager.setAuthentication(newTokens.get("accessToken"));
         });
     }
 
     private void handleAuthError(HttpServletResponse res, RuntimeException e) throws IOException {
-        cookieManager.clearTokens(res);
+        tokenCookieService.clearTokens(res);
         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         res.getWriter().write(objectMapper.writeValueAsString(
                 Map.of("error", e.getMessage())));

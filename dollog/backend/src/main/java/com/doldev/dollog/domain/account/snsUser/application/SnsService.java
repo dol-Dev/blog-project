@@ -18,7 +18,7 @@ import com.doldev.dollog.domain.account.snsUser.enums.SnsType;
 import com.doldev.dollog.domain.account.snsUser.repository.SnsUserRepository;
 import com.doldev.dollog.domain.account.snsUser.service.SnsUserRegistrationService;
 import com.doldev.dollog.domain.account.snsUser.util.SnsOAuth2Utils;
-import com.doldev.dollog.global.auth.service.CookieManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class SnsService {
     private final SnsUserRepository snsUserRepository;
     private final SnsUserRegistrationService snsUserRegistrationService;
     private final TokenService tokenService;
-    private final CookieManager cookieManager;
+    private final TokenCookieService tokenCookieService;
 
     @Value("${kakao.client.id}")
     private String kakaoClientId;
@@ -85,7 +85,7 @@ public class SnsService {
         // 인증 처리
         setAuthenticationSnsUser(snsUser);
         Map<String, String> tokens = tokenService.generateNewTokens(username);
-        cookieManager.setTokens(res, tokens);
+        tokenCookieService.setTokens(res, tokens);
     }
 
     public void setAuthenticationSnsUser(SnsUser snsUser) {

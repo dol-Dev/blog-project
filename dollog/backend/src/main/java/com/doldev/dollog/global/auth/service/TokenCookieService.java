@@ -18,9 +18,10 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CookieManager {
-    
-    @Value("${app.env}") private String env;
+public class TokenCookieService {
+
+    @Value("${app.env}")
+    private String env;
 
     public Optional<String> extractAccessToken(HttpServletRequest req) {
         return extractToken(req, "accessToken");
@@ -32,12 +33,12 @@ public class CookieManager {
 
     private Optional<String> extractToken(HttpServletRequest req, String name) {
         return Optional.ofNullable(req.getCookies())
-            .flatMap(cookies -> Arrays.stream(cookies)
-                .filter(c -> name.equals(c.getName()))
-                .findFirst()
-                .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8))
-                .map(value -> value.startsWith("Bearer ") ? value.substring(7) : value));
-    } 
+                .flatMap(cookies -> Arrays.stream(cookies)
+                        .filter(c -> name.equals(c.getName()))
+                        .findFirst()
+                        .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8))
+                        .map(value -> value.startsWith("Bearer ") ? value.substring(7) : value));
+    }
 
     public void setTokens(HttpServletResponse res, Map<String, String> tokens) {
         res.addHeader("Set-Cookie", buildCookie("accessToken", tokens.get("accessToken"), 1800));
@@ -51,12 +52,12 @@ public class CookieManager {
 
     private String buildCookie(String name, String value, int maxAge) {
         return ResponseCookie.from(name, URLEncoder.encode(value, StandardCharsets.UTF_8))
-            .path("/")
-            .maxAge(Duration.ofSeconds(maxAge))
-            .httpOnly(true)
-            .sameSite("Strict")
-            .secure("prod".equals(env))
-            .build()
-            .toString();
+                .path("/")
+                .maxAge(Duration.ofSeconds(maxAge))
+                .httpOnly(true)
+                .sameSite("Strict")
+                .secure("prod".equals(env))
+                .build()
+                .toString();
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.doldev.dollog.domain.account.user.dto.req.UserLoginReqDto;
 import com.doldev.dollog.global.auth.dto.res.AuthenticatedUserResDto;
 import com.doldev.dollog.global.auth.principal.CustomUserDetails;
-import com.doldev.dollog.global.auth.service.CookieManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,14 +29,14 @@ public class AuthService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final TokenService tokenService;
-    private final CookieManager cookieManager;
+    private final TokenCookieService tokenCookieService;
     private final AuthenticationManager authenticationManager;
 
     // 로그인
     public void login(UserLoginReqDto reqDto, HttpServletResponse res) {
         setBeforeLoginAuthenticationUser(reqDto);
         Map<String, String> tokens = tokenService.generateNewTokens(reqDto.getUsername());
-        cookieManager.setTokens(res, tokens);
+        tokenCookieService.setTokens(res, tokens);
     }
 
     // 로그아웃
@@ -46,7 +46,7 @@ public class AuthService {
                 .map(token -> token.substring(7))
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token not found in Redis."));
 
-        Optional<String> refreshTokenOpt = cookieManager.extractRefreshToken(req);
+        Optional<String> refreshTokenOpt = tokenCookieService.extractRefreshToken(req);
 
         refreshTokenOpt.ifPresent(r -> {
             if (!StringUtils.equals(r, storedRefreshToken)) {
@@ -55,7 +55,7 @@ public class AuthService {
         });
 
         redisTemplate.delete(refreshKey);
-        cookieManager.clearTokens(res);
+        tokenCookieService.clearTokens(res);
     }
 
     // 인증된 사용자 정보 반환
