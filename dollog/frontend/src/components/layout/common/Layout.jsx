@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Sidebar as SemanticSidebar } from 'semantic-ui-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useBlog } from '../../../contexts/BlogContext';
+import ChatRoom from '../../../pages/chat/chatRoom/ChatRoom';
 import axiosInstance from '../../../utils/axiosInstance';
 import Footer from '../../footer/Footer';
 import Header from '../../header/Header';
@@ -10,10 +12,14 @@ import styles from './layout.module.css';
 
 const Layout = ({ children }) => {
     const [blogSidebarVisible, setBlogSidebarVisible] = useState(false);
+    const [chatRoomInfo] = useState({ roomId: null, roomName: "" });
+
     const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '' });
     const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '', nickname: '' });
     const { blogName, nickname } = useBlog();
+
     const { authInfo } = useAuth();
+    const location = useLocation();
 
     // 공통 API 호출 함수
     const fetchLayoutInfo = async (url, includeNickname = true) => {
@@ -68,6 +74,9 @@ const Layout = ({ children }) => {
         setBlogSidebarVisible(!blogSidebarVisible);
     };
 
+    const isAdminRoute = location.pathname.startsWith('/manage');
+
+
     return (
         <div className={styles.layout}>
             <Header onBlogSidebarToggle={handleBlogSidebarToggle} />
@@ -93,6 +102,7 @@ const Layout = ({ children }) => {
                         </div>
                     )}
                     <main className={styles.mainContent}>
+                        {authInfo && !isAdminRoute && <ChatRoom/>}
                         {children}
                     </main>
                 </SemanticSidebar.Pusher>
