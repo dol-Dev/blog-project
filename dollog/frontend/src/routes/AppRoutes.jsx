@@ -17,10 +17,12 @@ import ProfileSetting from '../pages/profile/ProfileSetting';
 import FindAccount from '../pages/user/find/FindAccount';
 import LoginAndSignUp from '../pages/user/loginAndSIgnUp/LoginAndSignUp';
 import BlogRedirector from '../routes/helpers/BlogRedirector';
+import ChatContext, { ChatProvider } from '../contexts/ChatContext';
 
 import PostHeader from '../components/header/PostHeader';
 import { QuillProvider } from '../contexts/QuillContext';
 
+import UserSetting from '../pages/user/info/UserSetting';
 import ProtectedRoute from './auth/ProtectedRoute';
 const AppRoutes = () => {
     const location = useLocation();
@@ -69,47 +71,57 @@ const AppRoutes = () => {
     }
 
     return (
-        <Layout>
-            <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/blog/:nickname" element={<BlogRedirector />} />
-                <Route path="/detail-post/:id" element={<DetailPost />} />
-                <Route
-                    path="/profile"
-                    element={
-                        <ProtectedRoute>
-                            <ProfileSetting />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/posts/:categoryId?"
-                    element={
-                        <ProtectedRoute>
-                            <CategoryPost />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/manage"
-                    element={
-                        <ProtectedRoute>
-                            <ManagementLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<ManagementDashboard />} />
+        <ChatProvider>
+            <Layout>
+                <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/blog/:nickname" element={<BlogRedirector />} />
+                    <Route path="/detail-post/:id" element={<DetailPost />} />
                     <Route
-                        path="categorys"
+                        path="/profile"
                         element={
                             <ProtectedRoute>
-                                <ManageCategory />
+                                <ProfileSetting />
                             </ProtectedRoute>
                         }
                     />
-                </Route>
-            </Routes>
-        </Layout>
+                    <Route
+                        path="/user"
+                        element={
+                            <ProtectedRoute>
+                                <UserSetting />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/posts/:categoryId?"
+                        element={
+                            <ProtectedRoute>
+                                <CategoryPost />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/manage"
+                        element={
+                            <ProtectedRoute>
+                                <ManagementLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route index element={<ManagementDashboard />} />
+                        <Route
+                            path="categorys"
+                            element={
+                                <ProtectedRoute>
+                                    <ManageCategory />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Route>
+                </Routes>
+            </Layout>
+        </ChatProvider>
     );
 };
 
