@@ -5,13 +5,28 @@ import styles from './managementSidebar.module.css';
 const ManagementSidebar = () => {
     return (
         <div className={styles['management-sidebar']}>
-            <div className={styles['management-sidebar-header']}>
+            <Link to="/manage/dashboard" className={styles['management-sidebar-header']}>
                 블로그 관리 홈
-            </div>
+            </Link>
             <ul>
                 <li>
-                    <Link to="/manage/categorys" className={styles['management-sidebar-link']}>
+                    <Link to="/manage/categorys">
                         카테고리 관리
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/manage/posts" className={styles['management-sidebar-link']}>
+                        게시글 관리
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/manage/comments" className={styles['management-sidebar-link']}>
+                        댓글 관리
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/manage/banners" className={styles['management-sidebar-link']}>
+                        배너 관리
                     </Link>
                 </li>
             </ul>
