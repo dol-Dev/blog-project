@@ -70,6 +70,17 @@ public class PostController {
                 .build());
     }
 
+    // 해당 유저의 게시글 조회(로그인 o)
+    @GetMapping("/me")
+    public ResponseEntity<ApiResDto<?>> getPostsByUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResDto.<Page<PostResDto>>builder()
+                .messageCode("POSTS_GET_SUCCESS")
+                .data(postService.getPostsByUser(pageable, userDetails))
+                .build());
+    }
+
     // 페이징된 게시글 전체 조회 (로그인 유무X)
     @GetMapping
     public ResponseEntity<ApiResDto<Page<PostResDto>>> getAllPosts(
@@ -127,15 +138,14 @@ public class PostController {
     }
 
     // 블로그 관리 내 글 검색
-    @GetMapping("/user/search")
+    @GetMapping("/search/me")
     public ResponseEntity<ApiResDto<Page<PostResDto>>> searchUserPosts(
-            @RequestParam("keyword") String keyword,
             @RequestParam("type") int type,
-            @RequestParam("userId") int userId,
-            @RequestParam("provider") String provider,
-            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam("keyword") String keyword,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<PostResDto> posts = postService.searchPosts(pageable, keyword, type, userId, provider);
+        Page<PostResDto> posts = postService.searchPosts(pageable, keyword, type, userDetails);
         return ResponseEntity.ok(ApiResDto.<Page<PostResDto>>builder()
                 .messageCode("USER_SEARCH_SUCCESS")
                 .data(posts)

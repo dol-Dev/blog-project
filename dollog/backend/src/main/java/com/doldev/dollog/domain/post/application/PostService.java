@@ -71,6 +71,18 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패 ID: " + postId));
     }
 
+    // 페이징된 유저에 따른 글 조회
+    @Transactional(readOnly = true)
+    public Page<PostResDto> getPostsByUser(Pageable pageable, CustomUserDetails userDetails) {
+        if (userDetails.getUser() != null) {
+            return postRepository.findAllByUserNickname(pageable, userDetails.getNickname())
+                    .map(PostResDto::fromEntity);
+        } else {
+            return postRepository.findAllBySnsUserNickname(pageable, userDetails.getNickname())
+                    .map(PostResDto::fromEntity);
+        }
+    }
+
     // 페이징된 게시글 전체 조회
     @Transactional(readOnly = true)
     public Page<PostResDto> getAllPosts(Pageable pageable) {
@@ -107,25 +119,28 @@ public class PostService {
     }
 
     // 블로그 관리 내 글 검색 (User & SnsUser)
-    public Page<PostResDto> searchPosts(Pageable pageable, String keyword, int type, int userId, String provider) {
+    public Page<PostResDto> searchPosts(Pageable pageable, String keyword, int type, CustomUserDetails userDetails) {
         return switch (type) {
             case 0 ->
-                (StringUtils.isNotBlank(provider)
-                        ? postRepository.findBySnsUserTitleContaining(keyword, userId, pageable)
-                        : postRepository.findByUserTitleContaining(keyword, userId, pageable))
+                (userDetails.isSnsUser()
+                        ? postRepository.findBySnsUserTitleContaining(keyword, userDetails.getId(), pageable)
+                        : postRepository.findByUserTitleContaining(keyword, userDetails.getId(), pageable))
                         .map(PostResDto::fromEntity);
             case 1 ->
-                (StringUtils.isNotBlank(provider)
-                        ? postRepository.findBySnsUserContentContaining(keyword, userId, pageable)
-                        : postRepository.findByUserContentContaining(keyword, userId, pageable))
+                (userDetails.isSnsUser()
+                        ? postRepository.findBySnsUserContentContaining(keyword, userDetails.getId(), pageable)
+                        : postRepository.findByUserContentContaining(keyword, userDetails.getId(), pageable))
                         .map(PostResDto::fromEntity);
-            case 2 -> (StringUtils.isNotBlank(provider)
-                    ? postRepository.findBySnsUserTitleOrContentContaining(keyword, userId, pageable)
-                    : postRepository.findByUserTitleOrContentContaining(keyword, userId, pageable))
-                    .map(PostResDto::fromEntity);
-            default -> (StringUtils.isNotBlank(provider) ? postRepository.findAllBySnsUserId(pageable, userId)
-                    : postRepository.findAllByUserId(pageable, userId))
-                    .map(PostResDto::fromEntity);
+            case 2 ->
+                (userDetails.isSnsUser()
+                        ? postRepository.findBySnsUserTitleOrContentContaining(keyword, userDetails.getId(), pageable)
+                        : postRepository.findByUserTitleOrContentContaining(keyword, userDetails.getId(), pageable))
+                        .map(PostResDto::fromEntity);
+            default ->
+                (userDetails.isSnsUser()
+                        ? postRepository.findAllBySnsUserId(pageable, userDetails.getId())
+                        : postRepository.findAllByUserId(pageable, userDetails.getId()))
+                        .map(PostResDto::fromEntity);
         };
     }
 }
