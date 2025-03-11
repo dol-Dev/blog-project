@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "../../../contexts/AuthContext";
 import AVATAR_URL from "../../../utils/avatarUrl";
 import axiosInstance from "../../../utils/axiosInstance";
-import CommentList from "../../comment/Comment";
+import CommentList from "../../comment/common/Comment";
 import styles from "./detailPost.module.css";
 import { useChat } from "../../../contexts/ChatContext";
 
