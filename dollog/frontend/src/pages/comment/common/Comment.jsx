@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import ReactDOM from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button, Comment, Dropdown, Form, Icon, Label } from "semantic-ui-react";
 import Swal from "sweetalert2";
-import { useAuth } from "../../contexts/AuthContext";
-import AVATAR_URL from "../../utils/avatarUrl";
-import axiosInstance from "../../utils/axiosInstance";
-import Chat from "../chat/chat/Chat";
+
+
 import styles from "./comment.module.css";
+import axiosInstance from "../../../utils/axiosInstance";
+import { useAuth } from "../../../contexts/AuthContext";
+import AVATAR_URL from "../../../utils/avatarUrl";
 
 const CommentList = ({ postId, currentUserId }) => {
     const [comments, setComments] = useState([]);
