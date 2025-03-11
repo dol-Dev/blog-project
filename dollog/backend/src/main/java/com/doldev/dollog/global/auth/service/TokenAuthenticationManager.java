@@ -23,7 +23,7 @@ public class TokenAuthenticationManager {
     private final RedisTemplate<String, String> redisTemplate;
 
     // 인증필터 컨텍스트 설정
-    public void setAuthenticationForFilter(String token) {
+    public void setAuthentication(String token) {
         String username = extractUsername(token); // 토큰에서 username 추출
         CustomUserDetails userDetails;
 
