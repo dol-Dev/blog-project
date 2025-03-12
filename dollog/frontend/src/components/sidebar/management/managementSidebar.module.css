@@ -7,7 +7,7 @@
     align-items: center;
     border: 1px solid #e6e6e6; 
     border-radius: 16px; 
-    margin: 20px; /* 사이드바와 페이지 사이의 여백 */
+    margin: 55px 0 55px 55px; 
 }
 
 .management-sidebar-header {
@@ -31,13 +31,13 @@
 }
 
 .management-sidebar ul li a {
-    color: #333; /* 다크 그레이 텍스트 색상 */
+    color: #333;
     text-decoration: none;
     display: block;
     padding: 12px 20px;
-    transition: background-color 0.3s ease, color 0.3s ease; /* 부드러운 색상 전환 */
+    transition: background-color 0.3s ease, color 0.3s ease;
     margin: 5px 0; 
-    border-radius: 8px; /* 둥근 모서리 */
+    border-radius: 8px; 
     font-weight: 550;
     font-size: 15px;
 }

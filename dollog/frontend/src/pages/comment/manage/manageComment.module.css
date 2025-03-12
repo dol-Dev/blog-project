@@ -56,6 +56,10 @@
     font-weight: bold;
 }
 
+.searchInput {
+    width: 300px;
+}
+
 .bulkActionsContainer {
     display: flex;
     align-items: center;
@@ -166,7 +170,7 @@
 /* Pagination 관련 css */
 .paginationContainer {
     position: absolute;
-    bottom: 0;
+    bottom: -20px;
     left: 50%;
     transform: translateX(-50%);
     border-radius: 8px;
