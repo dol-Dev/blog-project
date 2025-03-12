@@ -7,6 +7,7 @@ import Layout from '../components/layout/common/Layout';
 import ManagementLayout from '../components/layout/management/ManagementLayout';
 
 import ManagementDashboard from '../components/dashboard/management/ManagementDashboard';
+import { ChatProvider } from '../contexts/ChatContext';
 import ManageCategory from '../pages/category/ManageCategory';
 import Index from '../pages/index/Index';
 import CategoryPost from '../pages/post/category/CategoryPost';
@@ -17,21 +18,20 @@ import ProfileSetting from '../pages/profile/ProfileSetting';
 import FindAccount from '../pages/user/find/FindAccount';
 import LoginAndSignUp from '../pages/user/loginAndSIgnUp/LoginAndSignUp';
 import BlogRedirector from '../routes/helpers/BlogRedirector';
-import ChatContext, { ChatProvider } from '../contexts/ChatContext';
 
 import PostHeader from '../components/header/PostHeader';
 import { QuillProvider } from '../contexts/QuillContext';
 
+import ManageComment from '../pages/comment/manage/ManageComment';
+import ManagePost from '../pages/post/manage/ManagePost';
 import UserSetting from '../pages/user/info/UserSetting';
 import ProtectedRoute from './auth/ProtectedRoute';
-import ManagePost from '../pages/post/manage/ManagePost';
-import ManageComment from '../pages/comment/manage/ManageComment';
 const AppRoutes = () => {
     const location = useLocation();
     const isLoginPage = location.pathname === '/login';
     const isFindPage = location.pathname === '/find';
-    const isWriteOrUpdatePage =
-        location.pathname === '/write' || location.pathname.startsWith('/update-post/');
+    const isWriteOrUpdatePage = location.pathname === '/write' || location.pathname.startsWith('/update-post/');
+    const isManagePage = location.pathname.startsWith('/manage');
 
     if (isLoginPage) {
         return (
@@ -72,37 +72,11 @@ const AppRoutes = () => {
         );
     }
 
-    return (
-        <ChatProvider>
-            <Layout>
+    if (isManagePage) {
+        return (
+            <ProtectedRoute>
+                <Header />
                 <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/blog/:nickname" element={<BlogRedirector />} />
-                    <Route path="/detail-post/:id" element={<DetailPost />} />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <ProfileSetting />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/user"
-                        element={
-                            <ProtectedRoute>
-                                <UserSetting />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/posts/:categoryId?"
-                        element={
-                            <ProtectedRoute>
-                                <CategoryPost />
-                            </ProtectedRoute>
-                        }
-                    />
                     <Route
                         path="/manage"
                         element={
@@ -142,6 +116,42 @@ const AppRoutes = () => {
                             }
                         />
                     </Route>
+                </Routes>
+            </ProtectedRoute>
+        );
+    }
+
+    return (
+        <ChatProvider>
+            <Layout>
+                <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/blog/:nickname" element={<BlogRedirector />} />
+                    <Route path="/detail-post/:id" element={<DetailPost />} />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfileSetting />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/user"
+                        element={
+                            <ProtectedRoute>
+                                <UserSetting />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/posts/:categoryId?"
+                        element={
+                            <ProtectedRoute>
+                                <CategoryPost />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             </Layout>
         </ChatProvider>
