@@ -21,16 +21,20 @@ import BlogRedirector from '../routes/helpers/BlogRedirector';
 
 import PostHeader from '../components/header/PostHeader';
 import { QuillProvider } from '../contexts/QuillContext';
+import { PostActionProvider } from '../contexts/PostActionContext';
 
+import ManageBanner from '../components/banner/ManageBanner';
+import PostFooter from '../components/footer/PostFooter';
 import ManageComment from '../pages/comment/manage/ManageComment';
 import ManagePost from '../pages/post/manage/ManagePost';
+import SearchPost from '../pages/post/search/SearchPost';
 import UserSetting from '../pages/user/info/UserSetting';
 import ProtectedRoute from './auth/ProtectedRoute';
 const AppRoutes = () => {
     const location = useLocation();
     const isLoginPage = location.pathname === '/login';
     const isFindPage = location.pathname === '/find';
-    const isWriteOrUpdatePage = location.pathname === '/write' || location.pathname.startsWith('/update-post/');
+    const isWriteOrUpdatePage = location.pathname === '/write-post' || location.pathname.startsWith('/update-post/');
     const isManagePage = location.pathname.startsWith('/manage');
 
     if (isLoginPage) {
@@ -61,12 +65,14 @@ const AppRoutes = () => {
         return (
             <ProtectedRoute>
                 <QuillProvider>
-                    <PostHeader />
-                    <Routes>
-                        <Route path="/write" element={<WritePost />} />
-                        <Route path="/update-post/:id" element={<UpdatePost />} />
-                    </Routes>
-                    <Footer />
+                    <PostActionProvider>
+                        <PostHeader />
+                        <Routes>
+                            <Route path="/write-post" element={<WritePost />} />
+                            <Route path="/update-post/:id" element={<UpdatePost />} />
+                        </Routes>
+                        <PostFooter />
+                    </PostActionProvider>
                 </QuillProvider>
             </ProtectedRoute>
         );
@@ -115,6 +121,14 @@ const AppRoutes = () => {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="banners"
+                            element={
+                                <ProtectedRoute>
+                                    <ManageBanner />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Route>
                 </Routes>
             </ProtectedRoute>
@@ -128,6 +142,7 @@ const AppRoutes = () => {
                     <Route path="/" element={<Index />} />
                     <Route path="/blog/:nickname" element={<BlogRedirector />} />
                     <Route path="/detail-post/:id" element={<DetailPost />} />
+                    <Route path="/search-post" element={<SearchPost />} />
                     <Route
                         path="/profile"
                         element={
