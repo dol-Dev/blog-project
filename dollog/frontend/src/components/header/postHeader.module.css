@@ -1,18 +1,30 @@
 .custom-navbar {
-    max-width: 1400px;
     margin: 0 auto;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 50px;
+    padding: 0 20px; 
+    height: 70px;
 }
 
-/* .navContainer 스타일 */
 .navContainer {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
 }
 
-/* toolbar 위치를 조정 */
-.customToolbarWrapper {
-    position: relative;
+.leftSection {
+    flex: 1;
+    text-align: left;
+}
+
+.centerSection {
+    text-align: center;
+}
+
+.rightSection {
+    flex: 1;
+    text-align: right;
 }
 
 .avatar {
@@ -23,9 +35,9 @@
 }
 
 .nav-link-blogName {
+    display: inline-block; 
     position: relative;
     transition: color 0.3s ease;
-    height: 100%;
 }
 
 .nav-link-blogName::after {
