@@ -116,36 +116,28 @@ public class PostController {
 
     // 게시글 검색 (제목, 내용, 제목+내용)
     @GetMapping("/search")
-    public ResponseEntity<ApiResDto<Page<PostResDto>>> searchPosts(
+    public ResponseEntity<ApiResDto<Page<PostResDto>>> getSearchPostsForHeader(
             @RequestParam("type") int type,
             @RequestParam("keyword") String keyword,
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<PostResDto> posts = getSearchResults(type, keyword, pageable);
+        Page<PostResDto> posts = postService.getSearchPostsForHeader(pageable, keyword, type);
         return ResponseEntity.ok(ApiResDto.<Page<PostResDto>>builder()
                 .messageCode("SEARCH_SUCCESS")
                 .data(posts)
                 .build());
     }
 
-    private Page<PostResDto> getSearchResults(int type, String keyword, Pageable pageable) {
-        return switch (type) {
-            case 0 -> postService.searchPostsByTitle(keyword, pageable);
-            case 1 -> postService.searchPostsByContent(keyword, pageable);
-            case 2 -> postService.searchPostsByTitleOrContent(keyword, pageable);
-            default -> Page.empty(pageable);
-        };
-    }
 
     // 블로그 관리 내 글 검색
     @GetMapping("/search/me")
-    public ResponseEntity<ApiResDto<Page<PostResDto>>> searchUserPosts(
+    public ResponseEntity<ApiResDto<Page<PostResDto>>> getSearchPostsForBlog(
             @RequestParam("type") int type,
             @RequestParam("keyword") String keyword,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<PostResDto> posts = postService.searchPosts(pageable, keyword, type, userDetails);
+        Page<PostResDto> posts = postService.getSearchPostsForBlog(pageable, keyword, type, userDetails);
         return ResponseEntity.ok(ApiResDto.<Page<PostResDto>>builder()
                 .messageCode("USER_SEARCH_SUCCESS")
                 .data(posts)

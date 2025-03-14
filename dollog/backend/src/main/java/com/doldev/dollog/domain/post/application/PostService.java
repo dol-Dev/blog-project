@@ -103,34 +103,33 @@ public class PostService {
         return postRepository.findByCategoryId(categoryId, pageable).map(PostResDto::fromEntity);
     }
 
-    // 제목 또는 내용으로 검색
-    public Page<PostResDto> searchPostsByTitleOrContent(String keyword, Pageable pageable) {
-        return postRepository.findByTitleOrContent(keyword, pageable).map(PostResDto::fromEntity);
-    }
-
-    // 제목으로만 검색
-    public Page<PostResDto> searchPostsByTitle(String keyword, Pageable pageable) {
-        return postRepository.findByTitle(keyword, pageable).map(PostResDto::fromEntity);
-    }
-
-    // 내용으로만 검색
-    public Page<PostResDto> searchPostsByContent(String keyword, Pageable pageable) {
-        return postRepository.findByContent(keyword, pageable).map(PostResDto::fromEntity);
+    // 헤더에서 게시글 검색
+    public Page<PostResDto> getSearchPostsForHeader(Pageable pageable, String keyword, int type) {
+        return switch (type) {
+            case 0 -> postRepository.findByTitle(keyword, pageable).map(PostResDto::fromEntity);
+            case 1 -> postRepository.findByContent(keyword, pageable).map(PostResDto::fromEntity);
+            case 2 -> postRepository.findByTitleOrContent(keyword, pageable).map(PostResDto::fromEntity);
+            default -> postRepository.findAll(pageable).map(PostResDto::fromEntity);
+        };
     }
 
     // 블로그 관리 내 글 검색 (User & SnsUser)
-    public Page<PostResDto> searchPosts(Pageable pageable, String keyword, int type, CustomUserDetails userDetails) {
+    public Page<PostResDto> getSearchPostsForBlog(Pageable pageable, String keyword, int type,
+            CustomUserDetails userDetails) {
         return switch (type) {
+            // type 0 : 제목 검색
             case 0 ->
                 (userDetails.isSnsUser()
                         ? postRepository.findBySnsUserTitleContaining(keyword, userDetails.getId(), pageable)
                         : postRepository.findByUserTitleContaining(keyword, userDetails.getId(), pageable))
                         .map(PostResDto::fromEntity);
+            // type 1 : 내용 검색
             case 1 ->
                 (userDetails.isSnsUser()
                         ? postRepository.findBySnsUserContentContaining(keyword, userDetails.getId(), pageable)
                         : postRepository.findByUserContentContaining(keyword, userDetails.getId(), pageable))
                         .map(PostResDto::fromEntity);
+            // type 2 : 제목 + 내용 검색
             case 2 ->
                 (userDetails.isSnsUser()
                         ? postRepository.findBySnsUserTitleOrContentContaining(keyword, userDetails.getId(), pageable)
