@@ -2,7 +2,7 @@ package com.doldev.dollog.domain.post.dto.res;
 
 import java.time.LocalDateTime;
 
-import com.doldev.dollog.domain.category.entity.Category;
+import com.doldev.dollog.domain.category.dto.res.CategoryResDto;
 import com.doldev.dollog.domain.post.entity.Post;
 
 import lombok.Builder;
@@ -18,7 +18,7 @@ public class PostResDto {
     private String provider;
     private String blogName;
     private LocalDateTime createDate;
-    private Category category;
+    private CategoryResDto category; 
     private int likeCnt;
     private String avatarImageName;
 
@@ -49,7 +49,7 @@ public class PostResDto {
                 .provider(provider)
                 .blogName(blogName)
                 .avatarImageName(avatarImageName)
-                .category(post.getCategory()) 
+                .category(CategoryResDto.fromEntity(post.getCategory()))
                 .build();
     }
 }
