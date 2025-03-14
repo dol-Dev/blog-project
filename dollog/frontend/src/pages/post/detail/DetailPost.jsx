@@ -92,7 +92,7 @@ const DetailPost = () => {
         }
     };
 
-    // 채팅방 진입: 채팅방 정보를 Layout에 전달
+    // 채팅방 진입(없으면 생성 후 진입)
     const handleChatRoomEntry = async () => {
         try {
             const response = await axiosInstance.get('/api/chatRooms/myRooms');

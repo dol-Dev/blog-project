@@ -9,6 +9,7 @@ import styles from "./comment.module.css";
 import axiosInstance from "../../../utils/axiosInstance";
 import { useAuth } from "../../../contexts/AuthContext";
 import AVATAR_URL from "../../../utils/avatarUrl";
+import { useChat } from "../../../contexts/ChatContext";
 
 const CommentList = ({ postId, currentUserId }) => {
     const [comments, setComments] = useState([]);
@@ -90,16 +91,13 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
 
-    const [showChat, setShowChat] = useState(false);
-    const [chatRoomId, setChatRoomId] = useState(null);
-    const [chatRoomName, setChatRoomName] = useState('');
-
     const [editContent, setEditContent] = useState(comment.content);
     const [replyContent, setReplyContent] = useState("");
     const [nickname, setNickname] = useState("");
 
     const navigate = useNavigate();
 
+    const { setChatRoomInfo, setButtonVisible, setChatVisible } = useChat();
     const { authInfo } = useAuth();
 
     // 인증 정보 세팅
@@ -212,7 +210,7 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
         }
     };
 
-    // 상태 확인 후 재입장, 없으면 새로 생성
+    // 채팅방 진입(없으면 생성 후 진입)
     const handleChatRoomEntry = async () => {
         try {
             const response = await axiosInstance.get('/api/chatRooms/myRooms');
@@ -230,27 +228,28 @@ const SingleComment = ({ comment, postId, currentUserId, onRefreshComment }) => 
                         null,
                         { params: { participant: nickname } }
                     );
-
-                    setChatRoomId(reenterResponse.data.data.roomId);
-                    setChatRoomName(reenterResponse.data.data.owner);
-                    setShowChat(true);
-
+                    setChatRoomInfo({
+                        roomId: reenterResponse.data.data.roomId,
+                        roomName: reenterResponse.data.data.owner,
+                    });
                 } else {
-                    setChatRoomId(existingRoom.roomId);
-                    setChatRoomName(existingRoom.owner);
-                    setShowChat(true);
+                    setChatRoomInfo({
+                        roomId: existingRoom.roomId,
+                        roomName: existingRoom.owner,
+                    });
                 }
             } else {
                 const createResponse = await axiosInstance.post('/api/chatRooms/between', {
                     owner: comment.writer.nickname,
                     participant: nickname
                 });
-
-                setChatRoomId(createResponse.data.data.roomId);
-                setChatRoomName(createResponse.data.data.owner);
-                setShowChat(true);
-
+                setChatRoomInfo({
+                    roomId: createResponse.data.data.roomId,
+                    roomName: createResponse.data.data.owner,
+                });
             }
+            setButtonVisible(false);
+            setChatVisible(true);
         } catch (error) {
             console.error("Chat room entry error: ", error);
             toast.error("채팅방 진입 실패. 다시 시도해주세요.");

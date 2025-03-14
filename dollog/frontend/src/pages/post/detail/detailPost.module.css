@@ -29,7 +29,8 @@
 }
 
 .title {
-    margin-right: 50px;
+    font-size: 35px;
+    margin-top: 10px;
 }
 
 .category-label {
@@ -50,4 +51,38 @@
     top: 70px;
     right: 0px;
     z-index: 1000;
+}
+
+/* .content * {
+    font-family: 'NoonnuBasicGothicRegular', sans-serif !important;
+} */
+
+.content {
+    font-size: 19px;
+    margin-bottom: 1em !important;
+}
+
+.content .ql-size-small {
+    font-size: 15px !important;
+    margin-bottom: 0.8em !important;
+}
+
+.content .ql-size-large {
+    font-size: 23px !important;
+    margin-bottom: 0.9em !important;
+}
+
+.content .ql-size-huge {
+    font-size: 27px !important;
+    margin-bottom: 1em !important;
+}
+
+.content h2 {
+    font-size: 31px !important;
+    margin-bottom: 1.1em !important;
+}
+
+.content h1 {
+    font-size: 35px !important;
+    margin-bottom: 1.2em !important;
 }
