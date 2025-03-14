@@ -4,14 +4,11 @@
 }
 
 .item-group {
-    padding-top: 110px;
     min-height: 87vh;
 }
 
-.thumbnail {
-    margin-right: 20px;
-    width: 130px;
-    height: 90px;
+.postItem {
+    height: 180px;
 }
 
 .author {
@@ -19,10 +16,39 @@
     margin-right: 7px;
 }
 
+.date {
+    font-size: 0.9em;
+}
+
 .divider {
-    margin: 10px 0;
+    margin-top: 70px;
+    border-bottom: 1px solid #ddd;
 }
 
 .meta-separator {
     color: #ccc;
+}
+
+.postItem :global(.description) {
+    font-size: 15px !important;
+    color: #9999A1 !important;
+    margin-top: 30px !important;
+}
+
+.postItem :global(.content) {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+.postItem :global(.header:not(.ui)) {
+    cursor: pointer !important;
+    font-size: 30px !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.postItem :global(.meta) {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #9999A1 !important;
 }

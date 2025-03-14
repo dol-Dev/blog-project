@@ -1,14 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import DOMPurify from 'dompurify';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import { Container, Divider, Icon, Item, Pagination } from 'semantic-ui-react';
 import axiosInstance from '../../utils/axiosInstance';
 import styles from './index.module.css';
-import { toast } from "react-toastify";
-
-const DEFAULT_THUMBNAIL = 'https://i.namu.wiki/i/_FIKQ7NQtBilT8QtmXWvjY8FfusWX6uYHmoDPsK70tP_vijKovxuPJrT-oEEdhjlXPRCEJy0zR30MwQpVRQ0WA.webp';
 
 const Index = () => {
     const [posts, setPosts] = useState([]);
@@ -19,8 +15,7 @@ const Index = () => {
     useEffect(() => {
         const fetchPosts = async (page) => {
             try {
-                const response = await axiosInstance.get(`http://localhost:8080/api/posts?page=${page}`);
-
+                const response = await axiosInstance.get(`/api/posts?page=${page}`);
                 setPosts(response.data.data.content);
                 setTotalPages(response.data.data.totalPages);
                 setCurrentPage(page);
@@ -41,74 +36,68 @@ const Index = () => {
         setCurrentPage(pageNumber);
     };
 
-    if (!posts) {
-        return toast.info("Loading...");
-    }
+    const stripHtmlTags = (html) => {
+        return html.replace(/<[^>]+>/g, '');
+    };
 
-    const getThumbnailAndText = (content) => {
-        const cleanContent = DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(cleanContent, 'text/html');
 
-        const imgTag = doc.querySelector('img');
-        const imgSrc = imgTag ? imgTag.src : DEFAULT_THUMBNAIL;
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const today = new Date();
 
-        if (imgTag) {
-            imgTag.remove();
+        // 오늘 날짜인지 확인 (년, 월, 일)
+        if (
+            date.getFullYear() === today.getFullYear() &&
+            date.getMonth() === today.getMonth() &&
+            date.getDate() === today.getDate()
+        ) {
+            // 오늘이면 시간과 분만 표시 (시간과 분 사이에 공백 추가)
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const period = hours < 12 ? '오전' : '오후';
+            // 0시나 12시의 경우 12로 표시
+            const adjustedHour = hours % 12 === 0 ? 12 : hours % 12;
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            return `${period} ${adjustedHour} : ${formattedMinutes}`;
+        } else {
+            // 오늘이 아닌 경우 년, 월, 일을 "YYYY년 M월 D일" 형식으로 표시
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}년 ${month}월 ${day}일`;
         }
-        const textContent = doc.body.textContent || "";
-
-        return { imgSrc, textContent };
     };
 
     return (
         <Container>
+            <div className={styles.divider}></div>
             <Item.Group className={styles['item-group']}>
                 {posts.map((post) => {
-                    const { imgSrc, textContent } = getThumbnailAndText(post.content);
                     return (
                         <React.Fragment key={post.id}>
-                            <Item
-                                onClick={() => navigate(`/detail-post/${post.id}`)}
-                            >
-                                {imgSrc ? (
-                                    <img
-                                        src={imgSrc}
-                                        className={styles['thumbnail']}
-                                        alt="thumbnail"
-                                    />
-                                ) : (
-                                    <img
-                                        src="/default-thumbnail.jpg"
-                                        className={styles['thumbnail']}
-                                        alt="default thumbnail"
-                                    />
-                                )}
+                            <Item className={styles.postItem}>
                                 <Item.Content>
-                                    <Item.Header>
+                                    <Item.Meta>
+                                        {post.category.name}
+                                    </Item.Meta>
+                                    <Item.Header onClick={() => navigate(`/detail-post/${post.id}`)}>
                                         {post.title}
                                     </Item.Header>
-                                    <Item.Description>
-                                        {textContent.length >= 15 ? `${textContent.substring(0, 14)}...` : textContent}
-                                    </Item.Description>
                                     <Item.Meta>
-                                        <span className={styles['author']}>
-                                            작성자 : {post.nickname || '알 수 없음'}
+                                        <span className={styles.author}>
+                                            {post.nickname || '알 수 없음'}
                                         </span>
                                         <span className={styles['meta-separator']}>|</span>
-                                        <span>
-                                            작성일 : {new Date(post.createDate).toLocaleDateString('ko-KR', {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: 'numeric',
-                                                minute: 'numeric',
-                                            })}
+                                        <span className={styles.date}>
+                                            {formatDate(post.createDate)}
                                         </span>
                                     </Item.Meta>
+                                    <Item.Description>
+                                        {stripHtmlTags(post.content.length >= 70 ? `${post.content.substring(0, 69)}...` : post.content)}
+                                    </Item.Description>
                                 </Item.Content>
                             </Item>
-                            <Divider className={styles['divider']} />
+                            <Divider />
                         </React.Fragment>
                     );
                 })}
