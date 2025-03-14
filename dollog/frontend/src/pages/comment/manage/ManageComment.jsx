@@ -92,7 +92,7 @@ const ManageComment = () => {
         if (result.isConfirmed) {
             try {
                 const response = await axiosInstance.delete(`/api/comments/${commentId}`);
-                if (response.status === 200) {
+                if (response.every(res => res.status === 200)) {
                     setComments(comments.filter((c) => c.id !== commentId));
                 }
             } catch (error) {
@@ -212,18 +212,16 @@ const ManageComment = () => {
                             button
                             className={styles.searchDropdown}
                             options={[
-                                { key: 'title', text: '제목', value: '0' },
-                                { key: 'content', text: '내용', value: '1' },
-                                { key: 'titleAndContent', text: '제목+내용', value: '2' },
+                                { key: 'title', text: '내용', value: '0' },
+                                { key: 'content', text: '닉네임', value: '1' },
+                                { key: 'contentAndNickname', text: '제목+닉네임', value: '2' },
                             ]}
                             onChange={(e, { value }) => setSearchType(value)}
                             defaultValue="0"
                             text={
-                                searchType === '0'
-                                    ? '제목'
-                                    : searchType === '1'
-                                        ? '내용'
-                                        : '제목+내용'
+                                searchType === '0' ? '내용' :
+                                    searchType === '1' ? '닉네임' :
+                                        '내용+닉네임'
                             }
                         />
                         <Input

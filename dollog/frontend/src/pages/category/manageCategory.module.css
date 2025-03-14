@@ -1,13 +1,29 @@
 .container {
-    position: relative; /* 자식 요소 기준 위치를 설정하기 위해 필수 */
-    padding-bottom: 200px; /* 페이지네이션 포함 영역 확보 */
-    overflow: visible; 
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0px auto;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 87vh;
 }
+
+/* Title 관련 css */
 .title {
-    margin-bottom: 24px;
-    font-size: 26px;
-    font-weight: 600;
-    color: #555;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.count {
+    font-size: 18px;
+    color: #007bff;
+    margin-left: 8px;
 }
 
 .addButton {
@@ -41,8 +57,8 @@
     background-color: #fcfcfc;
     border: 1px solid #e6e6e6;
     border-radius: 8px;
-    cursor: move;
     transition: box-shadow 0.3s ease, transform 0.2s;
+    margin-bottom: 10px;
 }
 
 .categoryItem:hover {
@@ -53,7 +69,46 @@
 .categoryContent {
     display: flex;
     justify-content: space-between;
+    align-items: stretch;
+    /* 자식 요소들이 전체 높이를 채우도록 */
+}
+
+.categoryHeader {
+    display: flex;
     align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.leftSide {
+    display: flex;
+    align-items: center;
+
+}
+
+.divider {
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 20px 0 8px;
+    align-self: stretch;
+}
+
+.dragHandle {
+    cursor: grab;
+    margin-right: 10px !important;
+    height: unset !important;
+    color: #5e5e5e79;
+
+}
+
+.dragHandle:active {
+    cursor: grabbing;
+}
+
+.dropdownIcon {
+    cursor: pointer;
+    height: unset !important;
+    color: #5e5e5e79;
 }
 
 .actions {
@@ -79,8 +134,10 @@
 
 .childCategoryList {
     list-style: none;
-    padding: 12px 0 12px 18px;
+    padding: 12px 0 12px 30px;
     margin: 10px 0;
+    border-left: 2px dashed #e0e0e0;
+    transition: max-height 0.3s ease;
 }
 
 .childCategoryItem {
@@ -128,7 +185,8 @@
     font-size: 16px;
 }
 
-.cancelButton, .saveButton {
+.cancelButton,
+.saveButton {
     padding: 12px 18px;
     margin: 0 6px;
     border: 1px solid #e0e0e0;
@@ -160,10 +218,9 @@
 }
 
 .paginationContainer {
-    position: fixed; /* 부모 컨테이너를 기준으로 위치 */
-    bottom: 50px; /* 부모 컨테이너 하단에서 50px 아래 */
-    left: 50%; /* 가로 중앙 정렬 */
-    z-index: 999; /* 다른 콘텐츠 위로 표시 */
-    text-align: center;
-    transform: translateX(-40%); /* 중앙 정렬 보정 */
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 8px;
 }

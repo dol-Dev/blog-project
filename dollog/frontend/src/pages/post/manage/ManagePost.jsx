@@ -14,27 +14,30 @@ const ManagePost = () => {
     const [searchType, setSearchType] = useState('0');
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
+    const [totalPosts, setTotalPosts] = useState(0);
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const navigate = useNavigate();
     const { authInfo } = useAuth();
 
-    useEffect(() => {
-        const fetchPosts = async (page) => {
-            try {
-                const response = await axiosInstance.get(`/api/posts/me?page=${page}`);
-                if (response.status === 200) {
-                    setPosts(response.data.data.content);
-                    setTotalPages(response.data.data.totalPages);
-                    setCurrentPage(page);
-                }
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            }
-        };
 
+    useEffect(() => {
         fetchPosts(currentPage);
     }, [authInfo, currentPage]);
+
+    const fetchPosts = async (page) => {
+        try {
+            const response = await axiosInstance.get(`/api/posts/me?page=${page}`);
+            if (response.status === 200) {
+                setPosts(response.data.data.content);
+                setTotalPages(response.data.data.totalPages);
+                setCurrentPage(page);
+                setTotalPosts(response.data.data.totalElements);
+            }
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    };
 
     const handleEditPost = (postId) => {
         navigate(`/update-post/${postId}`);
@@ -54,6 +57,7 @@ const ManagePost = () => {
                 const response = await axiosInstance.delete(`/api/posts/${postId}`);
                 if (response.status === 200) {
                     setPosts(posts.filter(post => post.id !== postId));
+                    fetchPosts(currentPage);
                 }
             } catch {
                 toast.error("게시글 삭제 실패");
@@ -74,10 +78,11 @@ const ManagePost = () => {
             try {
                 if (action === 'delete') {
                     const response = await Promise.all(selectedPosts.map(postId => axiosInstance.delete(`/api/posts/${postId}`)));
-                    if (response.status === 200) {
+                    if (response.every(res => res.status === 200)) {
                         setPosts(posts.filter(post => !selectedPosts.includes(post.id)));
                         setSelectedPosts([]);
                         setSelectAll(false);
+                        fetchPosts(currentPage);
                     }
                 }
             } catch {
@@ -108,7 +113,7 @@ const ManagePost = () => {
         }
     };
 
-    
+
     // 엔터 키를 감지하여 검색 기능 호출
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -148,13 +153,12 @@ const ManagePost = () => {
     return (
         <div className={styles.managePosts}>
             <h2 className={styles.title}>
-                <span>글 관리 {posts ? <span className={styles.count}>{posts.length}</span> : null}</span>
-                <Link to="/write" className={styles.writeLink}>
+                <span>글 관리 {posts ? <span className={styles.count}>{totalPosts}</span> : null}</span>
+                <Link to="/write-post" className={styles.writeLink}>
                     <Icon name="write" />
                 </Link>
             </h2>
 
-            {/* Search and Actions Container */}
             <div className={styles.searchActionsContainer}>
                 <form className={styles.searchForm} onSubmit={handleSubmit}>
                     <Nav className="mr-auto">
@@ -228,7 +232,7 @@ const ManagePost = () => {
                                 onChange={() => handleSelectPost(post.id)}
                             />
                             <div className={styles.postDiv}>
-                            <div className={styles.postMeta}>
+                                <div className={styles.postMeta}>
                                     <span className={styles.postCategory}>{post.category?.name}</span>
                                     <span className={styles.postSeparator}>ㆍ</span>
                                     <span className={styles.postAuthor}>
@@ -246,7 +250,7 @@ const ManagePost = () => {
                                 <div className={styles.postTitle}>
                                     <a href={`/detail-post/${post.id}`}>{post.title}</a>
                                 </div>
-                    
+
                             </div>
                             <div className={styles.postActions}>
                                 <Button className={styles.postAction} onClick={() => handleEditPost(post.id)}>수정</Button>

@@ -15,6 +15,7 @@ const ManageCategory = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [editCategoryId, setEditCategoryId] = useState(null);
     const [parentCategoryId, setParentCategoryId] = useState(null);
+    const [expandedCategories, setExpandedCategories] = useState({});
 
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
@@ -28,23 +29,16 @@ const ManageCategory = () => {
         if (authInfo) {
             const { id } = authInfo;
             setUserId(id);
-            console.log("userId:", userId);
         }
     }, [authInfo]);
 
     const fetchCategories = async (page) => {
-        console.log("fetchCategories - page:", page);  // 추가된 로그
-
         try {
             const response = await axiosInstance.get(`/api/categories?page=${page}`);
-
-            console.log("Fetched categories:", response.data.data.content);
-
             const transformedCategories = response.data.data.content.map(category => ({
                 ...category,
                 children: category.children || []
             }));
-
             setCategoryData(transformedCategories);
             setTotalPages(response.data.data.totalPages);
             setCurrentPage(page);
@@ -52,7 +46,6 @@ const ManageCategory = () => {
             console.error("API 호출 오류:", error);
         }
     };
-
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -67,7 +60,7 @@ const ManageCategory = () => {
             if (result.isConfirmed) {
                 axiosInstance.delete(`/api/categories/${id}`)
                     .then(() => {
-                        fetchCategories(currentPage);  // currentPage를 파라미터로 전달
+                        fetchCategories(currentPage);
                     })
                     .catch(error => {
                         console.error('Failed to delete category:', error);
@@ -76,7 +69,7 @@ const ManageCategory = () => {
         });
     };
 
-    // 재귀 함수로 카테고리 트리 내에서 특정 id를 가진 카테고리를 찾음
+    // 재귀 함수: 카테고리 트리 내 특정 id 찾기
     const findCategoryById = (categories, id) => {
         for (let category of categories) {
             if (category.id === id) {
@@ -91,8 +84,6 @@ const ManageCategory = () => {
     };
 
     const handleUpdate = (id) => {
-        console.log("id:", id);
-        // 최상위 배열과 그 자식들까지 포함해서 재귀적으로 검색
         const category = findCategoryById(categoryData, id);
         if (!category) {
             console.error(`Category with id ${id} not found`);
@@ -128,8 +119,7 @@ const ManageCategory = () => {
             toast.error('카테고리 이름을 입력하세요');
             return;
         }
-
-        const categoryData = {
+        const data = {
             name: newCategoryName,
             userId: userId,
             parentId: parentCategoryId,
@@ -137,7 +127,7 @@ const ManageCategory = () => {
 
         if (authInfo) {
             if (editCategoryId) {
-                axiosInstance.put(`/api/categories/${editCategoryId}`, categoryData)
+                axiosInstance.put(`/api/categories/${editCategoryId}`, data)
                     .then(() => {
                         Swal.fire('수정 완료!', '', 'success');
                         fetchCategories(currentPage);
@@ -148,8 +138,7 @@ const ManageCategory = () => {
                         Swal.fire('카테고리 수정에 실패했습니다', '', 'error');
                     });
             } else {
-                console.log("categoryData:", categoryData);
-                axiosInstance.post('/api/categories', categoryData)
+                axiosInstance.post('/api/categories', data)
                     .then(() => {
                         Swal.fire('카테고리가 추가되었습니다', '', 'success');
                         fetchCategories(currentPage);
@@ -166,14 +155,11 @@ const ManageCategory = () => {
     const onStop = (e, data) => {
         const movedCategoryId = parseInt(data.node.dataset.id, 10);
         const movedCategoryIndex = categoryData.findIndex(cat => cat.id === movedCategoryId);
-
         const newIndex = Math.round(data.y / 50);
         const reorderedCategories = [...categoryData];
         const [removed] = reorderedCategories.splice(movedCategoryIndex, 1);
         reorderedCategories.splice(newIndex, 0, removed);
-
         setCategoryData(reorderedCategories);
-
         try {
             const categoryIds = reorderedCategories.map(category => category.id);
             axiosInstance.put('/api/categories/order', categoryIds);
@@ -186,60 +172,101 @@ const ManageCategory = () => {
         setCurrentPage(activePage - 1);
     };
 
+    // 드롭다운 토글 함수
+    const toggleExpand = (id) => {
+        setExpandedCategories(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>카테고리 관리</h2>
-            <button className={styles.addButton} onClick={() => openAddCategoryModal()}>새 카테고리 추가</button>
+            <h2 className={styles.title}>
+                <span>
+                    카테고리 관리
+                </span>
+
+                <button className={styles.addButton} onClick={() => openAddCategoryModal()}>
+                    새 카테고리 추가
+                </button>
+
+            </h2>
             <ul className={styles.categoryList}>
-                {categoryData.map((category, index) => {
-                    return (
-                        <Draggable
-                            key={category.id}
-                            axis="y"
-                            onStop={onStop}
-                            position={{ x: 0, y: index * 50 }}  // orderIndex에 맞춰 위치 조정
-                        >
-                            <li data-id={category.id} className={styles.categoryItem}>
-                                <div className={styles.categoryContent}>
-                                    <span>{category.name}</span>
-                                    <div className={styles.actions}>
-                                        <button className={styles.actionButton} onClick={() => openAddCategoryModal(category.id)}>자식 추가</button>
-                                        <button className={styles.actionButton} onClick={() => handleUpdate(category.id)}>수정</button>
-                                        <button className={styles.actionButton} onClick={() => handleDelete(category.id)}>삭제</button>
-                                    </div>
+                {categoryData.map((category, index) => (
+                    <Draggable
+                        key={category.id}
+                        axis="y"
+                        handle={`.${styles.dragHandle}`}
+                        onStop={onStop}
+                        position={{ x: 0, y: index * 50 }}
+                    >
+                        <li data-id={category.id} className={styles.categoryItem}>
+                            <div className={styles.categoryContent}>
+                                <div className={styles.leftSide}>
+                                    {/* {category.children && category.children.length > 0 && ( */}
+                                    <Icon
+                                        name={expandedCategories[category.id] ? 'angle down' : 'angle right'}
+                                        onClick={() => toggleExpand(category.id)}
+                                        className={styles.dropdownIcon}
+                                    />
+                                    {/* )} */}
+                                    <div className={styles.divider} />
+                                    <Icon name="bars" className={styles.dragHandle} />
+                                    <span className={styles.categoryName}>
+                                        {category.name}
+                                        {typeof category.postCount !== 'undefined' && (
+                                            <span className={styles.postCount}> ({category.postCount})</span>
+                                        )}
+                                    </span>
                                 </div>
 
-                                {/* 자식 카테고리 렌더링 */}
-                                {category.children && category.children.length > 0 && (
-                                    <ul className={styles.childCategoryList}>
-                                        {category.children.map((childCategory) => {
-                                            return (
-                                                <li key={childCategory.id} className={styles.childCategoryItem}>
-                                                    <div className={styles.categoryContent}>
-                                                        <span>{childCategory.name}</span>
-                                                        <div className={styles.actions}>
-                                                            {/* 자식 카테고리 수정 및 삭제 */}
-                                                            <button className={styles.actionButton} onClick={() => handleUpdate(childCategory.id)}>수정</button>
-                                                            <button className={styles.actionButton} onClick={() => handleDelete(childCategory.id)}>삭제</button>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                )}
-                            </li>
-                        </Draggable>
-                    );
-                })}
-            </ul>
+                                <div className={styles.actions}>
+                                    <button className={styles.actionButton} onClick={() => openAddCategoryModal(category.id)}>
+                                        자식 추가
+                                    </button>
+                                    <button className={styles.actionButton} onClick={() => handleUpdate(category.id)}>
+                                        수정
+                                    </button>
+                                    <button className={styles.actionButton} onClick={() => handleDelete(category.id)}>
+                                        삭제
+                                    </button>
+                                </div>
+                            </div>
 
+                            {/* 자식 카테고리 (드롭다운) */}
+                            {category.children && category.children.length > 0 && expandedCategories[category.id] && (
+                                <ul className={styles.childCategoryList}>
+                                    {category.children.map(childCategory => (
+                                        <li key={childCategory.id} className={styles.childCategoryItem}>
+                                            <div className={styles.categoryContent}>
+                                                <span className={styles.categoryName}>
+                                                    {childCategory.name}
+                                                    {typeof childCategory.postCount !== 'undefined' && (
+                                                        <span className={styles.postCount}> ({childCategory.postCount})</span>
+                                                    )}
+                                                </span>
+                                                <div className={styles.actions}>
+                                                    <button className={styles.actionButton} onClick={() => handleUpdate(childCategory.id)}>
+                                                        수정
+                                                    </button>
+                                                    <button className={styles.actionButton} onClick={() => handleDelete(childCategory.id)}>
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </li>
+                    </Draggable>
+                ))}
+            </ul>
 
             {isModalOpen && (
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
                         <h3>{modalTitle}</h3>
-                        <input className={styles.textInput}
+                        <input
+                            className={styles.textInput}
                             type="text"
                             value={newCategoryName}
                             onChange={handleNewCategoryChange}
