@@ -75,13 +75,19 @@ const Layout = ({ children }) => {
     };
 
     const isAdminRoute = location.pathname.startsWith('/manage');
+    const showSidebar = location.pathname.startsWith('/posts');
 
 
     return (
-        <div className={styles.layout}>
+        <div>
             <Header onBlogSidebarToggle={handleBlogSidebarToggle} />
             <SemanticSidebar.Pushable>
-                <Sidebar nickname={layoutInfoByNickname.nickname} visible={blogSidebarVisible} onClose={() => setBlogSidebarVisible(false)} />
+                {showSidebar && (
+                    <Sidebar
+                        nickname={layoutInfoByNickname.nickname}
+                        visible={blogSidebarVisible}
+                        onClose={() => setBlogSidebarVisible(false)} />
+                )};
                 <SemanticSidebar.Pusher>
                     {blogName === '' ? (
                         <div className={styles.banner}>
@@ -102,7 +108,7 @@ const Layout = ({ children }) => {
                         </div>
                     )}
                     <main className={styles.mainContent}>
-                        {authInfo && !isAdminRoute && <ChatRoom/>}
+                        {authInfo && !isAdminRoute && <ChatRoom />}
                         {children}
                     </main>
                 </SemanticSidebar.Pusher>

@@ -80,25 +80,6 @@ const Sidebar = ({ nickname, visible, onClose }) => {
         }
     }, [nickname, categoryId]);
 
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-                onClose();
-            }
-        };
-
-        if (visible) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [visible, onClose]);
-
     const toggleCategory = (id) => {
         setExpandedCategories(prev => ({
             ...prev,

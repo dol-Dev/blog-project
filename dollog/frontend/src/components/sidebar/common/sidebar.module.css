@@ -2,12 +2,12 @@
     width: 250px;
     background-color: #fff;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 음영 효과 추가 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     position: fixed;
     height: 100%;
     overflow-y: auto;
     transition: transform 0.3s ease;
-    transform: translateX(-100%);
+    transform: translateX(0); 
     z-index: 1000;
 }
 
