@@ -1,10 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
-import styles from './quillProvider.module.css';
+import React, { createContext, useContext } from 'react';
 
 export const QuillContext = createContext();
 
 export const QuillProvider = ({ children }) => {
-    const [quillInstance, setQuillInstance] = useState(null);
 
     const modules = {
         toolbar: {
@@ -23,8 +21,8 @@ export const QuillProvider = ({ children }) => {
         'link', 'image', 'video', 'formula'
     ];
     return (
-        <QuillContext.Provider value={{ quillInstance, setQuillInstance, modules, formats }}>
-            <div className={styles.providerWrapper}>
+        <QuillContext.Provider value={{ modules, formats }}>
+            <div>
                 {children}
             </div>
         </QuillContext.Provider>
