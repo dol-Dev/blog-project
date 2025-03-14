@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.doldev.dollog.domain.comment.application.CommentService;
@@ -89,5 +90,20 @@ public class CommentController {
                                 .body(ApiResDto.<Void>builder()
                                                 .messageCode("COMMENT_DELETE_SUCCESS")
                                                 .build());
+        }
+
+        // 블로그 관리 내 댓글 검색
+        @GetMapping("/search/me")
+        public ResponseEntity<ApiResDto<Page<CommentResDto>>> getSearchPostsForBlog(
+                        @RequestParam("type") int type,
+                        @RequestParam("keyword") String keyword,
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+                Page<CommentResDto> comments = commentService.getSearchPostsForBlog(pageable, keyword, type, userDetails);
+                return ResponseEntity.ok(ApiResDto.<Page<CommentResDto>>builder()
+                                .messageCode("USER_COMMENT_SEARCH_SUCCESS")
+                                .data(comments)
+                                .build());
         }
 }

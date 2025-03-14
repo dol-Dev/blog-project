@@ -53,6 +53,36 @@ public class CommentService {
                 return comments.map(CommentResDto::new);
         }
 
+        // 블로그 관리 내 댓글 검색 (User & SnsUser)
+        public Page<CommentResDto> getSearchPostsForBlog(Pageable pageable, String keyword, int type,
+                        CustomUserDetails userDetails) {
+                return switch (type) {
+                        // type 0 : 내용 검색
+                        case 0 ->
+                                (userDetails.isSnsUser()
+                                                ? commentRepository.findBySnsUserContentContaining(keyword, userDetails.getId(), pageable)
+                                                : commentRepository.findByUserContentContaining(keyword, userDetails.getId(), pageable))
+                                                .map(comment -> new CommentResDto(comment));
+                        // type 1 : 사용자(닉네임) 검색
+                        case 1 ->
+                                (userDetails.isSnsUser()
+                                                ? commentRepository.findBySnsUserNicknameContaining(keyword, userDetails.getId(), pageable)
+                                                : commentRepository.findByUserNicknameContaining(keyword, userDetails.getId(), pageable))
+                                                .map(comment -> new CommentResDto(comment));
+                        // type 2 : 내용 + 사용자(닉네임) 검색
+                        case 2 ->
+                                (userDetails.isSnsUser()
+                                                ? commentRepository.findBySnsUserContentOrNicknameContaining(keyword, userDetails.getId(), pageable)
+                                                : commentRepository.findByUserContentOrNicknameContaining(keyword, userDetails.getId(), pageable))
+                                                .map(comment -> new CommentResDto(comment));
+                        default ->
+                                (userDetails.isSnsUser()
+                                                ? commentRepository.findAllBySnsUserId(pageable, userDetails.getId())
+                                                : commentRepository.findAllByUserId(pageable, userDetails.getId()))
+                                                .map(comment -> new CommentResDto(comment));
+                };
+        }
+
         // 댓글/답글 생성
         @Transactional
         public CommentResDto createComment(CommentCreateReqDto reqDto, CustomUserDetails userDetails) {
