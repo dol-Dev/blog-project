@@ -1,8 +1,7 @@
-// UpdatePost.jsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { toast } from 'react-toastify';
@@ -12,13 +11,16 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useQuill } from '../../../contexts/QuillContext';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './updatePost.module.css';
+import { usePostAction } from '../../../contexts/PostActionContext';
 
 const UpdatePost = () => {
     const { authInfo } = useAuth();
-    const { setQuillInstance, modules, formats } = useQuill();
+    const { modules, formats } = useQuill();
     const { id } = useParams();
     const navigate = useNavigate();
     const quillRef = useRef(null);
+
+    const { setOnSubmit } = usePostAction();
 
     // 기존 게시글 데이터
     const [detailPost, setDetailPost] = useState({
@@ -41,13 +43,6 @@ const UpdatePost = () => {
             fetchCategories(authInfo.nickname);
         }
     }, [authInfo, id]);
-
-    useEffect(() => {
-        if (quillRef.current) {
-            const editor = quillRef.current.getEditor();
-            setQuillInstance(editor);
-        }
-    }, [quillRef, setQuillInstance]);
 
     // 게시글 상세 불러오기
     const fetchPost = async () => {
@@ -179,7 +174,7 @@ const UpdatePost = () => {
     };
 
     // 게시글 수정
-    const handleUpdatePost = async () => {
+    const handleUpdatePost = useCallback(async () => {
         try {
             const categoryId =
                 selectedChildCategory?.value ||
@@ -199,7 +194,12 @@ const UpdatePost = () => {
         } catch (error) {
             toast.error('수정 실패. 다시 시도해주세요.');
         }
-    };
+    }, [selectedParentCategory, selectedChildCategory, detailPost]);
+
+    useEffect(() => {
+        setOnSubmit(() => handleUpdatePost);
+        return () => setOnSubmit(null);
+    }, [setOnSubmit, handleUpdatePost]);
 
     // 게시글 삭제
     const handleDeletePost = async () => {
@@ -224,59 +224,58 @@ const UpdatePost = () => {
     };
 
     return (
-        <Form className={styles['form-container']}>
-
-            {/* 부모 카테고리 + 즉석 생성 */}
-            <Form.Group>
-                <CreatableSelect
-                    placeholder="부모 카테고리 선택"
-                    options={categoryData.map(cat => ({
-                        label: cat.name,
-                        value: cat.id,
-                    }))}
-                    value={selectedParentCategory}
-                    onChange={handleParentCategorySelect}
-                    onCreateOption={handleCreateParentCategory}
-                    className={styles.dropdown}
-                />
-            </Form.Group>
-
-            {/* 자식 카테고리 선택 (있으면) + 즉석 생성 */}
-            {subCategories.length > 0 && (
+        <div>
+            <Form className={styles['form-container']}>
+                {/* 부모 카테고리 + 즉석 생성 */}
                 <Form.Group>
                     <CreatableSelect
-                        placeholder="자식 카테고리 선택"
-                        options={subCategories}
-                        value={selectedChildCategory}
-                        onChange={handleChildCategorySelect}
-                        onCreateOption={handleCreateChildCategory}
+                        placeholder="부모 카테고리 선택"
+                        options={categoryData.map(cat => ({
+                            label: cat.name,
+                            value: cat.id,
+                        }))}
+                        value={selectedParentCategory}
+                        onChange={handleParentCategorySelect}
+                        onCreateOption={handleCreateParentCategory}
                         className={styles.dropdown}
                     />
                 </Form.Group>
-            )}
 
-            <Form.Group>
-                <Form.Control
-                    className={styles.title}
-                    type="text"
-                    placeholder="제목을 입력하세요"
-                    value={detailPost.title}
-                    onChange={(e) => setDetailPost({ ...detailPost, title: e.target.value })}
-                />
-            </Form.Group>
+                {/* 자식 카테고리 선택 + 즉석 생성 */}
+                {selectedParentCategory && (
+                    <Form.Group>
+                        <CreatableSelect
+                            placeholder="자식 카테고리 선택"
+                            options={subCategories}
+                            value={selectedChildCategory}
+                            onChange={handleChildCategorySelect}
+                            onCreateOption={handleCreateChildCategory}
+                            className={styles.dropdown}
+                        />
+                    </Form.Group>
+                )}
 
-            <Form.Group>
-                <ReactQuill
-                    ref={quillRef}
-                    theme="snow"
-                    modules={modules}
-                    formats={formats}
-                    className={styles['quill-editor']}
-                    value={detailPost.content}
-                    onChange={(value) => setDetailPost({ ...detailPost, content: value })}
-                />
-            </Form.Group>
+                <Form.Group className={styles.title}>
+                    <Form.Control
+                        type="text"
+                        placeholder="제목을 입력하세요"
+                        value={detailPost.title}
+                        onChange={(e) => setDetailPost({ ...detailPost, title: e.target.value })}
+                    />
+                </Form.Group>
 
+                <Form.Group>
+                    <ReactQuill
+                        ref={quillRef}
+                        theme="snow"
+                        modules={modules}
+                        formats={formats}
+                        className={styles['quill-editor']}
+                        value={detailPost.content}
+                        onChange={(value) => setDetailPost({ ...detailPost, content: value })}
+                    />
+                </Form.Group>
+            </Form>
             <div className={styles['button-group']}>
                 <Button icon onClick={() => navigate("/")}>
                     <Icon name="arrow left" />
@@ -288,7 +287,7 @@ const UpdatePost = () => {
                     <Icon name="trash alternate" />
                 </Button>
             </div>
-        </Form>
+        </div>
     );
 };
 

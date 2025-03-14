@@ -1,13 +1,13 @@
-// WritePost.jsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { useNavigate } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { toast } from 'react-toastify';
 import { Button, Icon } from 'semantic-ui-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { usePostAction } from '../../../contexts/PostActionContext';
 import { useQuill } from '../../../contexts/QuillContext';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './writePost.module.css';
@@ -18,6 +18,8 @@ const WritePost = () => {
     const [nickname, setNickname] = useState('');
     const [blogName, setBlogName] = useState('');
     const [provider, setProvider] = useState('');
+
+    const { setOnSubmit } = usePostAction();
 
     // 전체 카테고리
     const [categoryData, setCategoryData] = useState([]);
@@ -32,22 +34,13 @@ const WritePost = () => {
     const { authInfo } = useAuth();
     const quillRef = useRef(null);
     const navigate = useNavigate();
-    const { setQuillInstance, modules, formats } = useQuill();
+    const { modules, formats } = useQuill();
 
     // 에디터 내용 변경
     const handleChange = (content) => {
-        setContent(content);
+        setContent(content); // 기본 HTML 저장
     };
 
-    // ReactQuill 에디터 인스턴스 설정
-    useEffect(() => {
-        if (quillRef.current) {
-            const editor = quillRef.current.getEditor();
-            setQuillInstance(editor);
-        }
-    }, [quillRef, setQuillInstance]);
-
-    // 로그인 정보가 있으면 닉네임, 블로그 이름, provider 설정 + 카테고리 목록 불러오기
     useEffect(() => {
         if (authInfo) {
             setNickname(authInfo.nickname);
@@ -176,86 +169,89 @@ const WritePost = () => {
     };
 
     // 게시글 작성
-    const handleWritePost = async () => {
+    const handleWritePost = useCallback(async () => {
         try {
-            // 자식 카테고리를 선택했으면 그것 우선, 없으면 부모 카테고리를 사용
             const categoryId =
-            selectedChildCategory?.value
-            || selectedParentCategory?.value
-            || null;
-
+                selectedChildCategory?.value ||
+                selectedParentCategory?.value ||
+                null;
+            console.log("게시글 생성 시 전달되는 categoryId:", categoryId);
             const response = await axiosInstance.post('/api/posts', {
                 title,
                 content,
                 categoryId,
             });
-
             if (response.status === 200) {
                 toast.success("게시글이 등록되었습니다.");
                 navigate(`/blog/${nickname}`, { state: { blogName, provider } });
             }
         } catch (error) {
-            console.error("Failed to create post:", error);
             toast.error("등록 실패. 다시 시도해주세요");
         }
-    };
+    }, [selectedParentCategory, selectedChildCategory, title, content]);
+
+    useEffect(() => {
+        setOnSubmit(() => handleWritePost);
+        return () => setOnSubmit(null);
+    }, [handleWritePost, setOnSubmit]);
 
     return (
-        <Form className={styles['form-container']}>
-            {/* 부모 카테고리 셀렉트 + 즉석 생성 */}
-            <Form.Group>
-                <CreatableSelect
-                    placeholder="부모 카테고리 선택"
-                    options={categoryData
-                        .filter(cat => cat && cat.name)  // cat이 있고, cat.name이 존재하는 경우만
-                        .map(cat => ({
-                            label: cat.name,
-                            value: cat.id,
-                        }))}
-                    value={selectedParentCategory}
-                    onChange={handleParentCategorySelect}
-                    onCreateOption={handleCreateParentCategory} // 새 옵션(카테고리) 생성
-                    className={styles.dropdown}
-                />
-            </Form.Group>
-
-            {/* 자식 카테고리 (있을 경우) + 즉석 생성 */}
-            {subCategories.length > 0 && (
+        <div>
+            <Form className={styles['form-container']}>
+                {/* 부모 카테고리 셀렉트 + 즉석 생성 */}
                 <Form.Group>
                     <CreatableSelect
-                        placeholder="자식 카테고리 선택"
-                        options={subCategories}
-                        value={selectedChildCategory}
-                        onChange={handleChildCategorySelect}
-                        onCreateOption={handleCreateChildCategory} // 새 옵션(카테고리) 생성
+                        placeholder="부모 카테고리 선택"
+                        options={categoryData
+                            .filter(cat => cat && cat.name)  // cat이 있고, cat.name이 존재하는 경우만
+                            .map(cat => ({
+                                label: cat.name,
+                                value: cat.id,
+                            }))}
+                        value={selectedParentCategory}
+                        onChange={handleParentCategorySelect}
+                        onCreateOption={handleCreateParentCategory} // 새 옵션(카테고리) 생성
                         className={styles.dropdown}
                     />
                 </Form.Group>
-            )}
 
-            {/* 제목 입력 */}
-            <Form.Group>
-                <Form.Control
-                    className={styles.title}
-                    type="text"
-                    placeholder="제목을 입력하세요"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            </Form.Group>
+                {/* 자식 카테고리 + 즉석 생성 */}
+                {selectedParentCategory && (
+                    <Form.Group>
+                        <CreatableSelect
+                            placeholder="자식 카테고리 선택"
+                            options={subCategories}
+                            value={selectedChildCategory}
+                            onChange={handleChildCategorySelect}
+                            onCreateOption={handleCreateChildCategory} // 새 옵션(카테고리) 생성
+                            className={styles.dropdown}
+                        />
+                    </Form.Group>
+                )}
 
-            {/* 내용(ReactQuill) */}
-            <Form.Group>
-                <ReactQuill
-                    ref={quillRef}
-                    theme="snow"
-                    modules={modules}
-                    formats={formats}
-                    className={styles['quill-editor']}
-                    value={content}
-                    onChange={handleChange}
-                />
-            </Form.Group>
+                {/* 제목 입력 */}
+                <Form.Group className={styles.title}>
+                    <Form.Control
+                        type="text"
+                        placeholder="제목을 입력하세요"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+                </Form.Group>
+
+                {/* 내용(ReactQuill) */}
+                <Form.Group>
+                    <ReactQuill
+                        ref={quillRef}
+                        theme="snow"
+                        modules={modules}
+                        formats={formats}
+                        className={styles['quill-editor']}
+                        value={content}
+                        onChange={handleChange}
+                    />
+                </Form.Group>
+            </Form>
 
             {/* 작성 버튼 */}
             <div className={styles['button-group']}>
@@ -264,7 +260,7 @@ const WritePost = () => {
                     게시글 작성
                 </Button>
             </div>
-        </Form>
+        </div>
     );
 };
 
