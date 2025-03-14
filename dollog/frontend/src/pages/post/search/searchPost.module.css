@@ -1,0 +1,55 @@
+.pagination-container {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.item-group {
+    min-height: 87vh;
+    
+}
+
+.postItem {
+    height: 180px;
+}
+
+.author {
+    font-size: 0.9em;
+    margin-right: 7px;
+}
+
+.date {
+    font-size: 0.9em;
+}
+
+.divider {
+    margin-top: 70px;
+    border-bottom: 1px solid #ddd;
+}
+
+.meta-separator {
+    color: #ccc;
+}
+
+.postItem :global(.description) {
+    font-size: 15px !important;
+    color: #9999A1 !important;
+    margin-top: 30px !important;
+}
+
+.postItem :global(.content) {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+.postItem :global(.header:not(.ui)) {
+    cursor: pointer !important;
+    font-size: 30px !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.postItem :global(.meta) {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #9999A1 !important;
+}
