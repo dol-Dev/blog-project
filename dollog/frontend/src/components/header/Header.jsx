@@ -9,7 +9,7 @@ import AVATAR_URL from '../../utils/avatarUrl';
 import axiosInstance from '../../utils/axiosInstance';
 import styles from './header.module.css';
 
-const Header = ({ onBlogSidebarToggle }) => {
+const Header = ({ onBlogSidebarToggle, isLargeScreen }) => {
     const { authInfo } = useAuth();
     const { blogName, setBlogName, setNickname, setProvider } = useBlog();
     const navigate = useNavigate();
@@ -20,7 +20,6 @@ const Header = ({ onBlogSidebarToggle }) => {
     // 검색 관련 상태
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchType, setSearchType] = useState('0');
-    const [showSearch, setShowSearch] = useState(true);
 
     useEffect(() => {
         updateLoginStatus();
@@ -28,7 +27,7 @@ const Header = ({ onBlogSidebarToggle }) => {
 
     const updateLoginStatus = () => {
         if (authInfo) {
-            const { avatarImageName, nickname, blogName, provider } = authInfo;
+            const { avatarImageName, blogName, provider } = authInfo;
             setAvatar(AVATAR_URL + avatarImageName);
             setBlogNameByAuthInfo({ blogName, provider });
         }
@@ -50,7 +49,6 @@ const Header = ({ onBlogSidebarToggle }) => {
     // 검색 요청 처리
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        if (!showSearch) return;
 
         const queryParams = {
             type: searchType,
@@ -76,14 +74,28 @@ const Header = ({ onBlogSidebarToggle }) => {
         location.pathname.startsWith('/posts') ||
         location.pathname.startsWith('/search-post');
 
+    // 사이드바 버튼 노출 여부
+    const showSidebarButton = location.pathname.startsWith('/posts') && isLargeScreen;
+
     return (
         <Navbar bg="transparent" variant="light" className={styles['custom-navbar']}>
             <div className={styles.headerContainer}>
-                {/* 왼쪽 섹션: 메뉴 */}
                 <div className={styles.leftSection}>
                     <Nav>
                         {authInfo ? (
                             <>
+                                {showSidebarButton && (
+                                    <Button
+                                        icon
+                                        className={styles['transparent-button']}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onBlogSidebarToggle();
+                                        }}
+                                    >
+                                        <Icon name="bars" className={styles['icon']} />
+                                    </Button>
+                                )}
                                 {blogName !== '' ? (
                                     <>
                                         <Nav.Link
@@ -131,7 +143,6 @@ const Header = ({ onBlogSidebarToggle }) => {
                     </Nav>
                 </div>
 
-                {/* 가운데 섹션: 검색창 (항상 컨테이너는 렌더링) */}
                 <div className={styles.centerSection}>
                     {shouldShowSearch && (
                         <Nav>
@@ -147,7 +158,11 @@ const Header = ({ onBlogSidebarToggle }) => {
                                     onChange={(e, { value }) => setSearchType(value)}
                                     defaultValue="0"
                                     text={
-                                        searchType === '0' ? '제목' : searchType === '1' ? '내용' : '제목+내용'
+                                        searchType === '0'
+                                            ? '제목'
+                                            : searchType === '1'
+                                                ? '내용'
+                                                : '제목+내용'
                                     }
                                     className={styles.searchDropdown}
                                 />
@@ -171,8 +186,7 @@ const Header = ({ onBlogSidebarToggle }) => {
                         </Nav>
                     )}
                 </div>
-
-                {/* 오른쪽 섹션: 아바타 */}
+                
                 {authInfo ? (
                     <div className={styles.rightSection}>
                         <Dropdown
@@ -182,12 +196,28 @@ const Header = ({ onBlogSidebarToggle }) => {
                             direction="left"
                         >
                             <Dropdown.Menu>
-                                <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
+                                <Dropdown.Item
+                                    text="프로필 정보 수정"
+                                    icon="info"
+                                    onClick={() => navigate('/profile')}
+                                />
                                 {!blogNameByAuthInfo.provider && (
-                                    <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
+                                    <Dropdown.Item
+                                        text="회원 정보 수정"
+                                        icon="user"
+                                        onClick={() => navigate('/user')}
+                                    />
                                 )}
-                                <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage/dashboard')} />
-                                <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
+                                <Dropdown.Item
+                                    text="블로그 관리"
+                                    icon="adn"
+                                    onClick={() => navigate('/manage/dashboard')}
+                                />
+                                <Dropdown.Item
+                                    text="로그아웃"
+                                    icon="power off"
+                                    onClick={handleLogout}
+                                />
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>
