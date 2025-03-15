@@ -16,6 +16,7 @@ const PostHeader = () => {
     const [nickname, setNickname] = useState('');
     const [avatar, setAvatar] = useState('');
     const [blogName, setBlogName] = useState('');
+    const [provider, setProvider] = useState('');
 
     useEffect(() => {
         updateLoginStatus();
@@ -23,10 +24,11 @@ const PostHeader = () => {
 
     const updateLoginStatus = () => {
         if (authInfo) {
-            const { avatarImageName, nickname, blogName } = authInfo;
+            const { avatarImageName, nickname, blogName, provider } = authInfo;
             setAvatar(AVATAR_URL + avatarImageName);
             setNickname(nickname);
             setBlogName(blogName);
+            setProvider(provider);
         }
     };
 
@@ -45,36 +47,39 @@ const PostHeader = () => {
 
     return (
         <Navbar bg="transparent" variant="light" className={styles['custom-navbar']}>
-                <div className={styles.navContainer}>
-                    <div className={styles.leftSection}>
-                        <Nav.Link
-                            as={Link}
-                            to={`/blog/${nickname}`}
-                            state={{ blogName: blogName }}
-                            className={styles['nav-link-blogName']}
-                        >
-                            내블로그
-                        </Nav.Link>
-                    </div>
-                    <div className={styles.centerSection}>
-                        <CustomToolbar />
-                    </div>
-                    <div className={styles.rightSection}>
-                        <Dropdown
-                            direction="left"
-                            trigger={<img src={avatar} alt="Avatar" className={styles['avatar']} />}
-                            pointing="top"
-                            icon={null}
-                        >
-                            <Dropdown.Menu>
-                                <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
-                                <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
-                                <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage')} />
-                                <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
+            <div className={styles.navContainer}>
+                <div className={styles.leftSection}>
+                    <Nav.Link
+                        as={Link}
+                        to={`/blog/${nickname}`}
+                        state={{
+                            blogName: blogName,
+                            provider: provider
+                        }}
+                        className={styles['nav-link-blogName']}
+                    >
+                        내블로그
+                    </Nav.Link>
                 </div>
+                <div className={styles.centerSection}>
+                    <CustomToolbar />
+                </div>
+                <div className={styles.rightSection}>
+                    <Dropdown
+                        direction="left"
+                        trigger={<img src={avatar} alt="Avatar" className={styles['avatar']} />}
+                        pointing="top"
+                        icon={null}
+                    >
+                        <Dropdown.Menu>
+                            <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
+                            <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
+                            <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage')} />
+                            <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            </div>
         </Navbar>
     );
 };
