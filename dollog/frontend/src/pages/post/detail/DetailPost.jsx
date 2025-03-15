@@ -22,14 +22,13 @@ const DetailPost = () => {
     const [userId, setUserId] = useState('');
     const [nickname, setNickname] = useState('');
     const [blogName, setBlogName] = useState('');
+    const [provider, setProvider] = useState('');
 
     useEffect(() => {
-        if (authInfo) {
-            const { nickname, blogName, id } = authInfo;
-            setUserId(id);
-            setNickname(nickname);
-            setBlogName(blogName);
-        }
+            setUserId(authInfo?.id);
+            setNickname(authInfo?.nickname);
+            setBlogName(authInfo?.blogName);
+            setProvider(authInfo?.provider);
         fetchPost();
     }, [authInfo]);
 
@@ -60,7 +59,7 @@ const DetailPost = () => {
         if (result.isConfirmed) {
             try {
                 await axiosInstance.delete(`/api/posts/${id}`);
-                navigate(`/blog/${nickname}`, { state: { blogName } });
+                navigate(`/blog/${nickname}`, { state: { blogName, provider } });
             } catch (error) {
                 toast.error("삭제 실패. 다시 시도해주세요.");
             }
