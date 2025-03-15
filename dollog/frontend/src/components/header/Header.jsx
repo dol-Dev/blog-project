@@ -149,32 +149,23 @@ const Header = ({ onBlogSidebarToggle }) => {
                                     text={
                                         searchType === '0' ? '제목' : searchType === '1' ? '내용' : '제목+내용'
                                     }
-                                    style={{ minWidth: '105px', marginRight: '10px', borderRadius: '5px' }}
+                                    className={styles.searchDropdown}
                                 />
                                 <Input
-                                    className="prompt"
+                                    className={`prompt ${styles.searchInput}`}
                                     type="text"
                                     id="searchKeyword"
                                     placeholder="검색어를 입력하세요"
                                     value={searchKeyword}
                                     onChange={(e) => setSearchKeyword(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    style={{ minWidth: '200px', paddingRight: '4px', textAlign: 'center' }}
                                 />
                                 <Button
                                     type="button"
-                                    color="black"
-                                    style={{
-                                        border: 'none',
-                                        background: 'transparent',
-                                        cursor: 'pointer',
-                                        marginRight: '10px',
-                                    }}
-                                    onClick={(e) => {
-                                        handleSearchSubmit(e);
-                                    }}
+                                    className={styles.searchButton}
+                                    onClick={handleSearchSubmit}
                                 >
-                                    <Icon name="search" style={{ color: 'black' }} />
+                                    <Icon name="search" className={styles.searchIcon} />
                                 </Button>
                             </>
                         </Nav>
@@ -182,23 +173,27 @@ const Header = ({ onBlogSidebarToggle }) => {
                 </div>
 
                 {/* 오른쪽 섹션: 아바타 */}
-                <div className={styles.rightSection}>
-                    <Dropdown
-                        trigger={<img src={avatar} alt="Avatar" className={styles['avatar']} />}
-                        pointing="top"
-                        icon={null}
-                        direction="left"
-                    >
-                        <Dropdown.Menu>
-                            <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
-                            {!blogNameByAuthInfo.provider && (
-                                <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
-                            )}
-                            <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage/dashboard')} />
-                            <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </div>
+                {authInfo ? (
+                    <div className={styles.rightSection}>
+                        <Dropdown
+                            trigger={<img src={avatar} alt="Avatar" className={styles['avatar']} />}
+                            pointing="top"
+                            icon={null}
+                            direction="left"
+                        >
+                            <Dropdown.Menu>
+                                <Dropdown.Item text="프로필 정보 수정" icon="info" onClick={() => navigate('/profile')} />
+                                {!blogNameByAuthInfo.provider && (
+                                    <Dropdown.Item text="회원 정보 수정" icon="user" onClick={() => navigate('/user')} />
+                                )}
+                                <Dropdown.Item text="블로그 관리" icon="adn" onClick={() => navigate('/manage/dashboard')} />
+                                <Dropdown.Item text="로그아웃" icon="power off" onClick={handleLogout} />
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
+                ) : (
+                    <div className={styles.rightPlaceholder} />
+                )}
             </div>
         </Navbar>
     );

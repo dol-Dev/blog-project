@@ -87,7 +87,7 @@ const Layout = ({ children }) => {
                         nickname={layoutInfoByNickname.nickname}
                         visible={blogSidebarVisible}
                         onClose={() => setBlogSidebarVisible(false)} />
-                )};
+                )}
                 <SemanticSidebar.Pusher>
                     {blogName === '' ? (
                         <div className={styles.banner}>
