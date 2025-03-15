@@ -252,14 +252,6 @@ const WritePost = () => {
                     />
                 </Form.Group>
             </Form>
-
-            {/* 작성 버튼 */}
-            <div className={styles['button-group']}>
-                <Button type="button" icon onClick={handleWritePost}>
-                    <Icon name="edit" />
-                    게시글 작성
-                </Button>
-            </div>
         </div>
     );
 };

@@ -5,13 +5,11 @@ import 'react-quill-new/dist/quill.snow.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { toast } from 'react-toastify';
-import { Button, Icon } from 'semantic-ui-react';
-import Swal from 'sweetalert2';
 import { useAuth } from '../../../contexts/AuthContext';
+import { usePostAction } from '../../../contexts/PostActionContext';
 import { useQuill } from '../../../contexts/QuillContext';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './updatePost.module.css';
-import { usePostAction } from '../../../contexts/PostActionContext';
 
 const UpdatePost = () => {
     const { authInfo } = useAuth();
@@ -130,7 +128,7 @@ const UpdatePost = () => {
             });
     };
 
-    // **자식 카테고리 즉석 생성
+    // 자식 카테고리 즉석 생성
     const handleCreateChildCategory = (inputValue) => {
         if (!authInfo) {
             toast.error("로그인 정보가 없습니다.");
@@ -201,28 +199,6 @@ const UpdatePost = () => {
         return () => setOnSubmit(null);
     }, [setOnSubmit, handleUpdatePost]);
 
-    // 게시글 삭제
-    const handleDeletePost = async () => {
-        const result = await Swal.fire({
-            title: '정말 삭제하시겠습니까?',
-            text: '삭제 후에는 복구가 불가능합니다!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: '삭제',
-            cancelButtonText: '취소',
-        });
-        if (result.isConfirmed) {
-            try {
-                const response = await axiosInstance.delete(`/api/posts/${id}`);
-                if (response.status === 200) {
-                    navigate(`/blog/${authInfo?.nickname}`, { state: authInfo?.blogName });
-                }
-            } catch (error) {
-                toast.error('삭제 실패. 다시 시도해주세요.');
-            }
-        }
-    };
-
     return (
         <div>
             <Form className={styles['form-container']}>
@@ -276,17 +252,6 @@ const UpdatePost = () => {
                     />
                 </Form.Group>
             </Form>
-            <div className={styles['button-group']}>
-                <Button icon onClick={() => navigate("/")}>
-                    <Icon name="arrow left" />
-                </Button>
-                <Button icon type="button" onClick={handleUpdatePost}>
-                    <Icon name="cut" />
-                </Button>
-                <Button icon type="button" onClick={handleDeletePost}>
-                    <Icon name="trash alternate" />
-                </Button>
-            </div>
         </div>
     );
 };
