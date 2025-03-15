@@ -240,21 +240,15 @@ const ManagePost = () => {
                                     </span>
                                     <span className={styles.postSeparator}>ㆍ</span>
                                     <span className={styles.postDate}>{new Date(post.createDate).toLocaleString()}</span>
-                                    {/* {post.replyList && post.replyList.length > 0 ? (
-                                        <>
-                                            <span className={styles.postSeparator}>ㆍ</span>
-                                            <span className={styles.postComments}>댓글 {post.replyList.length}</span>
-                                        </>
-                                    ) : (<></>)} */}
                                 </div>
                                 <div className={styles.postTitle}>
                                     <a href={`/detail-post/${post.id}`}>{post.title}</a>
                                 </div>
 
                             </div>
-                            <div className={styles.postActions}>
-                                <Button className={styles.postAction} onClick={() => handleEditPost(post.id)}>수정</Button>
-                                <Button className={styles.postAction} onClick={() => handleDeletePost(post.id)}>삭제</Button>
+                            <div>
+                                <Button onClick={() => handleEditPost(post.id)}>수정</Button>
+                                <Button onClick={() => handleDeletePost(post.id)}>삭제</Button>
                             </div>
                         </div>
                     ))
