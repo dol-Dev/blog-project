@@ -11,8 +11,9 @@ import Sidebar from '../../sidebar/common/Sidebar';
 import styles from './layout.module.css';
 
 const Layout = ({ children }) => {
-    const [blogSidebarVisible, setBlogSidebarVisible] = useState(false);
-    const [chatRoomInfo] = useState({ roomId: null, roomName: "" });
+
+    const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1600);
+    const [blogSidebarVisible, setBlogSidebarVisible] = useState(window.innerWidth >= 1600);
 
     const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '' });
     const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '', nickname: '' });
@@ -69,9 +70,26 @@ const Layout = ({ children }) => {
         }
     }, [blogName]);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1600) {
+                setIsLargeScreen(true);
+                setBlogSidebarVisible(true);
+            } else {
+                setIsLargeScreen(false);
+                setBlogSidebarVisible(false);
+            }
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     const handleBlogSidebarToggle = () => {
-        setBlogSidebarVisible(!blogSidebarVisible);
+        if (isLargeScreen) {
+            setBlogSidebarVisible(prev => !prev);
+        }
     };
 
     const isAdminRoute = location.pathname.startsWith('/manage');
@@ -80,13 +98,15 @@ const Layout = ({ children }) => {
 
     return (
         <div>
-            <Header onBlogSidebarToggle={handleBlogSidebarToggle} />
+            <Header onBlogSidebarToggle={handleBlogSidebarToggle} isLargeScreen={isLargeScreen} />
             <SemanticSidebar.Pushable>
-                {showSidebar && (
+                {isLargeScreen && showSidebar && (
                     <Sidebar
                         nickname={layoutInfoByNickname.nickname}
                         visible={blogSidebarVisible}
-                        onClose={() => setBlogSidebarVisible(false)} />
+                        onClose={() => setBlogSidebarVisible(false)}
+
+                    />
                 )}
                 <SemanticSidebar.Pusher>
                     {blogName === '' ? (
