@@ -1,3 +1,10 @@
+.search-post-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto ;
+    width: 1046px;
+}
+
 .pagination-container {
     text-align: center;
     margin-bottom: 50px;

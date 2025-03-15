@@ -69,7 +69,7 @@ const Index = () => {
     };
 
     return (
-        <Container>
+        <div className={styles.indexContainer}>
             <div className={styles.divider}></div>
             <Item.Group className={styles['item-group']}>
                 {posts.map((post) => {
@@ -115,7 +115,7 @@ const Index = () => {
                     nextItem={{ content: <Icon name="angle right" />, icon: true }}
                 />
             </Container>
-        </Container>
+        </div>
     );
 };
 

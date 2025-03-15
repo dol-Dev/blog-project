@@ -83,7 +83,7 @@ const SearchPost = () => {
     };
 
     return (
-        <Container>
+        <div className={styles['search-post-container']}>
             <div className={styles.divider}></div>
             <Item.Group className={styles['item-group']}>
                 {posts.length > 0 ? (
@@ -141,7 +141,7 @@ const SearchPost = () => {
                     nextItem={{ content: <Icon name="angle right" />, icon: true }}
                 />
             </Container>
-        </Container>
+        </div>
     );
 };
 

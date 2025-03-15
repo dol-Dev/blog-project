@@ -82,7 +82,7 @@ const CategoryPost = () => {
 
 
     return (
-        <Container>
+        <div className={styles['category-post-container']}>
             <div className={styles.divider}></div>
             <Item.Group className={styles['item-group']}>
                 {posts.map(post => {
@@ -128,7 +128,7 @@ const CategoryPost = () => {
                     nextItem={{ content: <Icon name="angle right" />, icon: true }}
                 />
             </Container>
-        </Container>
+        </div>
     );
 };
 
