@@ -6,7 +6,7 @@ import { Icon } from 'semantic-ui-react';
 import axiosInstance from '../../../utils/axiosInstance';
 import styles from './sidebar.module.css';
 
-const Sidebar = ({ nickname, visible, onClose }) => {
+const Sidebar = ({ nickname, visible }) => {
 
     const [categories, setCategories] = useState([]);
     const [totalPostsCount, setTotalPostsCount] = useState(0);
