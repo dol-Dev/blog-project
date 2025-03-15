@@ -8,12 +8,16 @@ const PostFooter = () => {
 
     return (
         <footer className={styles.footer}>
-            <Button type="button" onClick={onSubmit} disabled={!onSubmit}>
-                {onSubmit ? '게시글 작성' : '함수 없음'}
+            <Button
+                color='black'
+                type="button"
+                onClick={onSubmit}
+                disabled={!onSubmit}>
+                {onSubmit && '완료'}
             </Button>
-            <div>
+            {/* <div>
                 <p>© {new Date().getFullYear()} dol_dev. All rights reserved.</p>
-            </div>
+            </div> */}
         </footer>
     );
 };
