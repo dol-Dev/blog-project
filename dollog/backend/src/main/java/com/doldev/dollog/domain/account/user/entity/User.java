@@ -66,6 +66,13 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+    // 탈퇴
+    @Column(name = "withdraw_requested_at")
+    private LocalDateTime withdrawReqAt;
+
+    @Column(name = "withdraw_status")
+    private boolean withdrawStatus;
+
     /* 연관관계 설정 메서드들 */
     public void assignProfile(Profile profile) {
         this.profile = profile;
@@ -88,5 +95,14 @@ public class User {
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    /* 탈퇴 관련 메서드들 */
+    public void setWithdrawReqAt(LocalDateTime withdrawReqAt) {
+        this.withdrawReqAt = withdrawReqAt;
+    }
+
+    public void setWithdrawStatus(boolean withdrawStatus) {
+        this.withdrawStatus = withdrawStatus;
     }
 }

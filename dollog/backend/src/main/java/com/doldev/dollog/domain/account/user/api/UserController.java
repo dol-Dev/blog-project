@@ -5,8 +5,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,18 +52,6 @@ public class UserController {
                 userService.signup(reqDto);
                 return ResponseEntity.ok(ApiResDto.<Void>builder()
                                 .messageCode("SIGNUP_SUCCESS")
-                                .build());
-        }
-
-        @Operation(summary = "회원탈퇴", description = "현재 로그인된 사용자가 회원탈퇴를 진행함.")
-        @DeleteMapping("/withdraw")
-        public ResponseEntity<ApiResDto<Void>> deleteUser(
-                        @AuthenticationPrincipal CustomUserDetails userDetails,
-                        @CookieValue("accessToken") String accessToken,
-                        @CookieValue("refreshToken") String refreshToken) {
-                userService.withdrawUser(userDetails, accessToken, refreshToken);
-                return ResponseEntity.ok(ApiResDto.<Void>builder()
-                                .messageCode("WITHDRAW_SUCCESS")
                                 .build());
         }
 

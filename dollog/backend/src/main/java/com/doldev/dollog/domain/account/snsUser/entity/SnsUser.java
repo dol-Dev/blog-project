@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
 public class SnsUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -46,7 +47,7 @@ public class SnsUser {
     @Column(nullable = false)
     private SnsProvider provider;
 
-    // 각 SNS에서 제공하는 사용자 식별자 ID(User엔티티의 username 역할)
+    // 각 SNS에서 제공하는 사용자 식별자 ID (User 엔티티의 username 역할)
     @Column(nullable = false)
     private String username;
 
@@ -64,10 +65,17 @@ public class SnsUser {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+    // 탈퇴
+    @Column(name = "withdraw_requested_at")
+    private LocalDateTime withdrawReqAt;
+
+    @Column(name = "withdraw_status")
+    private boolean withdrawStatus;
+
     /* 연관관계 설정 메서드들 */
     public void assignProfile(Profile profile) {
         this.profile = profile;
-        if (profile.getSnsUser() != this) { // 중복 호출 방지
+        if (profile.getSnsUser() != this) {
             profile.assignSnsUser(this);
         }
     }
@@ -77,5 +85,14 @@ public class SnsUser {
         if (banner.getSnsUser() != this) {
             banner.assignSnsUser(this);
         }
+    }
+
+    /* 탈퇴 관련 메서드들 */
+    public void setWithdrawReqAt(LocalDateTime withdrawReqAt) {
+        this.withdrawReqAt = withdrawReqAt;
+    }
+
+    public void setWithdrawStatus(boolean withdrawStatus) {
+        this.withdrawStatus = withdrawStatus;
     }
 }

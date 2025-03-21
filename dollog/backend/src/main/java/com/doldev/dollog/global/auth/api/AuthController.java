@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +59,18 @@ public class AuthController {
                                 .body(ApiResDto.<Void>builder()
                                                 .messageCode("LOGOUT_SUCCESS")
                                                 .build());
+        }
+
+        // 회원 탈퇴
+        @DeleteMapping("/withdraw")
+        public ResponseEntity<ApiResDto<Void>> deleteUser(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        HttpServletRequest req,
+                        HttpServletResponse res) {
+                authService.withdrawUser(userDetails, req, res);
+                return ResponseEntity.ok(ApiResDto.<Void>builder()
+                                .messageCode("WITHDRAW_SUCCESS")
+                                .build());
         }
 
         // 인증된 사용자의 여러 정보 조회

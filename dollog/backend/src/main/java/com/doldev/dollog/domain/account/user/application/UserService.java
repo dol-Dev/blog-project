@@ -1,7 +1,5 @@
 package com.doldev.dollog.domain.account.user.application;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,6 @@ public class UserService {
 
     private final BCryptPasswordEncoder encoder;
     private final UserRepository userRepository;
-    private final RedisTemplate<String, String> redisTemplate;
     private final ProfileService profileSerivce;
 
     // 회원 가입
@@ -47,24 +44,7 @@ public class UserService {
 
         userRepository.save(user);
     }
-
-    // 회원탈퇴
-    public void withdrawUser(CustomUserDetails userDetails, String accessToken, String refreshToken) {
-
-        String username = userDetails.getUsername();
-        String refreshKey = "refresh_" + username;
-        String storedRefreshToken = redisTemplate.opsForValue().get(refreshKey);
-
-        // 전달된 refreshToken과 Redis에 저장된 값 비교
-        if (!StringUtils.equals(refreshKey, storedRefreshToken)) {
-            throw new IllegalArgumentException("Invalid refresh token.");
-        }
-
-        redisTemplate.delete(refreshKey);
-
-        userRepository.delete(userDetails.getUser());
-    }
-
+    
     // 일반 회원 이메일 수정
     @Transactional
     public void updateEmail(EmailUpdateReqDto reqDto, CustomUserDetails userDetails) {
