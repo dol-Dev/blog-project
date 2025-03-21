@@ -180,7 +180,7 @@ const DetailPost = () => {
                                 <Dropdown
                                     icon="ellipsis vertical"
                                     className={styles['kebob-dropdown']}
-                                    pointing="left">
+                                    pointing="right">
                                     <Dropdown.Menu>
                                         <>
                                             <Dropdown.Item
