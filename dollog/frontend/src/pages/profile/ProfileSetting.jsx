@@ -123,7 +123,6 @@ const ProfileSetting = () => {
                     <div className={styles.avatarContainer}>
                         <img
                             src={selectedAvatar || avatar}
-                            alt="Profile Avatar"
                             className={styles.avatarImage}
                         />
                         {/* 호버 시 나타나는 오버레이 */}
