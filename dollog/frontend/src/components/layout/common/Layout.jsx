@@ -9,14 +9,15 @@ import Footer from '../../footer/Footer';
 import Header from '../../header/Header';
 import Sidebar from '../../sidebar/common/Sidebar';
 import styles from './layout.module.css';
+import BANNER_URL from '../../../utils/bannerUrl';
 
 const Layout = ({ children }) => {
 
     const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1600);
     const [blogSidebarVisible, setBlogSidebarVisible] = useState(window.innerWidth >= 1600);
 
-    const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '' });
-    const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImageUrl: '', bannerDescription: '', blogName: '', nickname: '' });
+    const [layoutInfoByPrincipal, setLayoutInfoByPrincipal] = useState({ bannerImage: '', bannerDescription: '', blogName: '' });
+    const [layoutInfoByNickname, setLayoutInfoByNickname] = useState({ bannerImage: '', bannerDescription: '', blogName: '', nickname: '' });
     const { blogName, nickname } = useBlog();
 
     const { authInfo } = useAuth();
@@ -28,7 +29,7 @@ const Layout = ({ children }) => {
             const response = await axiosInstance.get(url);
             if (response.status === 200 && response.data.data) {
                 const data = {
-                    bannerImageUrl: response.data.data.bannerImageUrl,
+                    bannerImage: BANNER_URL + response.data.data.bannerImageName,
                     bannerDescription: response.data.data.bannerDescription,
                     blogName: response.data.data.blogName,
                 };
@@ -117,13 +118,13 @@ const Layout = ({ children }) => {
                     ) : layoutInfoByPrincipal.blogName === blogName ? (
                         <div className={styles.banner}>
                             <h1>{blogName} Blog</h1>
-                            <img src={layoutInfoByPrincipal.bannerImageUrl} alt="Banner" className={styles.bannerImage} />
+                            <img src={layoutInfoByPrincipal.bannerImage} alt="Banner" className={styles.bannerImage} />
                             <p>{layoutInfoByPrincipal.bannerDescription}</p>
                         </div>
                     ) : (
                         <div className={styles.banner}>
                             <h1>{blogName} Blog</h1>
-                            <img src={layoutInfoByNickname.bannerImageUrl} alt="Banner" className={styles.bannerImage} />
+                            <img src={layoutInfoByNickname.bannerImage} alt="Banner" className={styles.bannerImage} />
                             <p>{layoutInfoByNickname.bannerDescription}</p>
                         </div>
                     )}
