@@ -120,11 +120,11 @@
     font-size: 18px;
     color: #080808;
     margin-top: 12px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-/* comment의 내용 부분 */
-.commentTitle {
+/* 게시글 제목 부분 */
+.postTitle {
     font-size: 15px;
     color: #7c7c7c;
     margin-top: 12px;

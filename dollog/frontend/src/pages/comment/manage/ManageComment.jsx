@@ -290,7 +290,7 @@ const ManageComment = () => {
                                     )}
                                     {comment.content}
                                 </div>
-                                <div className={styles.commentTitle}>
+                                <div className={styles.postTitle}>
                                 <Icon name="file alternate outline" />
                                 {comment.post.title}
                                 </div>
