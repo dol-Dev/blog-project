@@ -1,5 +1,7 @@
 package com.doldev.dollog.domain.banner.api;
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.doldev.dollog.domain.banner.application.BannerService;
 import com.doldev.dollog.domain.banner.dto.req.BannerReqDto;
@@ -26,14 +30,24 @@ public class BannerController {
 
     private final BannerService bannerService;
 
-    // 배너 생성
-    @PostMapping
-    public ResponseEntity<ApiResDto<?>> createBanner(
+    // 배너 이미지 생성
+    @PostMapping("/image")
+    public ResponseEntity<ApiResDto<?>> createBannerImage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody BannerReqDto bannerRequest) {
-        bannerService.createBanner(userDetails, bannerRequest);
+            @RequestPart(value = "bannerFile") MultipartFile bannerFile) throws IOException {
+        bannerService.createBannerImage(userDetails, bannerFile);
         return ResponseEntity.ok()
-                .body(ApiResDto.builder().messageCode("BANNER_CREATION_SUCCESS").build());
+                .body(ApiResDto.builder().messageCode("BANNER_IMAGE_CREATION_SUCCESS").build());
+    }
+
+    // 배너 설명 생성
+    @PostMapping("/description")
+    public ResponseEntity<ApiResDto<?>> createBannerDescription(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody BannerReqDto reqDto) {
+        bannerService.createBannerDescription(userDetails, reqDto);
+        return ResponseEntity.ok()
+                .body(ApiResDto.builder().messageCode("BANNER_DESCRIPTION_CREATION_SUCCESS").build());
     }
 
     // 인증된 사용자의 배너 조회(로그인o)

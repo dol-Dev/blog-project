@@ -25,7 +25,7 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String bannerImageUrl;
+    private String bannerImageName;
 
     private String bannerDescription;
 
@@ -38,8 +38,8 @@ public class Banner {
     private SnsUser snsUser;
 
     /* 배너 정보 변경 메서드들 */
-    public void changeBannerImageUrl(String bannerImageUrl) {
-        this.bannerImageUrl = bannerImageUrl;
+    public void changeBannerImageName(String bannerImageName) {
+        this.bannerImageName = bannerImageName;
     }
 
     public void changeBannerDescription(String bannerDescription) {

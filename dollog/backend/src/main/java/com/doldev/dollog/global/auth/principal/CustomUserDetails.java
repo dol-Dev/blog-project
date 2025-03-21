@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.doldev.dollog.domain.account.roletype.enums.RoleType;
 import com.doldev.dollog.domain.account.snsUser.entity.SnsUser;
 import com.doldev.dollog.domain.account.user.entity.User;
+import com.doldev.dollog.domain.banner.entity.Banner;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -65,6 +66,10 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     public String getEmail() {
         return isUser() ? user.getEmail() : null;
+    }
+
+    public Banner getBanner() {
+        return isUser() ? user.getBanner() : snsUser.getBanner();
     }
 
     public String getNickname() {

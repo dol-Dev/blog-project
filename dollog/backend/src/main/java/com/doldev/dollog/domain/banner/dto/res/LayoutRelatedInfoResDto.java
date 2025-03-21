@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Getter
 public class LayoutRelatedInfoResDto {
-    private String bannerImageUrl;
+    private String bannerImageName;
     private String bannerDescription;
     private String blogName;
     private String nickname;
@@ -20,7 +20,7 @@ public class LayoutRelatedInfoResDto {
     public static LayoutRelatedInfoResDto fromEntity(User user) {
         Banner banner = user.getBanner();
         return LayoutRelatedInfoResDto.builder()
-                .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
+                .bannerImageName(banner != null ? banner.getBannerImageName() : null)
                 .bannerDescription(banner != null ? banner.getBannerDescription() : null)
                 .blogName(user.getProfile().getBlogName())
                 .nickname(user.getProfile().getNickname())
@@ -30,7 +30,7 @@ public class LayoutRelatedInfoResDto {
     public static LayoutRelatedInfoResDto fromEntity(SnsUser snsUser) {
         Banner banner = snsUser.getBanner();
         return LayoutRelatedInfoResDto.builder()
-                .bannerImageUrl(banner != null ? banner.getBannerImageUrl() : null)
+                .bannerImageName(banner != null ? banner.getBannerImageName() : null)
                 .bannerDescription(banner != null ? banner.getBannerDescription() : null)
                 .blogName(snsUser.getProfile().getBlogName())
                 .nickname(snsUser.getProfile().getNickname())

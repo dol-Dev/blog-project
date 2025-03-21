@@ -5,18 +5,22 @@ import java.io.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SuppressWarnings("null")
+
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
     @Value("${avatar.upload-dir}")
-    private String uploadDir;
+    private String avatarUploadDir;
+
+    @Value("${banner.upload-dir}")
+    private String bannerUploadDir;
 
     @Bean
     CorsFilter corsFilter() {
@@ -25,21 +29,24 @@ public class AppConfig implements WebMvcConfigurer {
 
         configuration.setAllowCredentials(true);
         configuration.addAllowedOrigin("http://localhost:3000"); // local에서 react를 사용할 예정
-        configuration.addAllowedHeader("*"); // 모든 헤더 요청 허용
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-        configuration.setMaxAge(3600L); // 1시간 동안 캐싱
+        configuration.addAllowedHeader("*"); 
+        configuration.addAllowedMethod("*");
+        configuration.setMaxAge(3600L); 
         source.registerCorsConfiguration("/**", configuration);
 
         return new CorsFilter(source);
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // uploads/avatars 디렉토리의 절대 경로 추출
-        String absolutePath = new File(uploadDir).getAbsolutePath() + File.separator;
-
-        // "/uploads/avatars/**" URL 패턴으로 온 요청을 addResourceLocations에 설정한 디렉토리에서 가져와줌
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
+        // 아바타 리소스 핸들러 등록
+        String avatarAbsolutePath = new File(avatarUploadDir).getAbsolutePath() + File.separator;
         registry.addResourceHandler("/uploads/avatars/**")
-                .addResourceLocations("file:" + absolutePath);
+                .addResourceLocations("file:" + avatarAbsolutePath);
+
+        // 배너 리소스 핸들러 등록
+        String bannerAbsolutePath = new File(bannerUploadDir).getAbsolutePath() + File.separator;
+        registry.addResourceHandler("/uploads/banners/**")
+                .addResourceLocations("file:" + bannerAbsolutePath);
     }
 }

@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class BannerReqDto {
-    private String bannerImageUrl;
     private String bannerDescription;
 }
