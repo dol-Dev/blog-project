@@ -84,10 +84,11 @@ const UserSetting = () => {
         <>
             <br /><br />
             <div className={`container ${styles.containerStyle}`}>
+                <h2 className={styles.title}>
+                    <span>회원 정보 수정 </span>
+                </h2>
                 <div className={styles.userContainer}>
-                    {/* 입력 폼 */}
                     <div className={styles.userInput}>
-
                         <div className={styles.inputGroup}>
                             <label>아이디</label>
                             <input
