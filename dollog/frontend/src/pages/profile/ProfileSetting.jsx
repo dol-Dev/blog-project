@@ -116,13 +116,12 @@ const ProfileSetting = () => {
 
     return (
         <>
-            <br /><br />
+            <br />
             <div className={`container ${styles.containerStyle}`}>
                 <h2 className={styles.title}>
                     <span>프로필 편집 </span>
                 </h2>
                 <div className={styles.profileContainer}>
-                    {/* 아바타 이미지 */}
                     <div className={styles.avatarContainer}>
                         <img
                             src={selectedAvatar || avatar}
@@ -145,8 +144,10 @@ const ProfileSetting = () => {
                         {errorState.avatar && <span className={styles.errorMessage}>{errorState.avatar}</span>}
                     </div>
 
-                    {/* 프로필 입력 폼 */}
                     <div className={styles.profileInput}>
+                        <h3 className={styles.title}>
+                            <span>닉네임 재설정 </span>
+                        </h3>
                         <div className={styles.inputGroup}>
                             <label>닉네임</label>
                             <input
@@ -158,7 +159,12 @@ const ProfileSetting = () => {
                             {errorState.nickname && <span className={styles.errorMessage}>{errorState.nickname}</span>}
                             <button type="button" onClick={updateNickname}>수정</button>
                         </div>
-
+                    </div>
+                    <br/>
+                    <div className={styles.profileInput}>
+                    <h3 className={styles.title}>
+                            <span>블로그 이름 재설정 </span>
+                        </h3>
                         <div className={styles.inputGroup}>
                             <label>블로그 이름</label>
                             <input

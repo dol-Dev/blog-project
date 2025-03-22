@@ -82,13 +82,16 @@ const UserSetting = () => {
 
     return (
         <>
-            <br /><br />
+            <br />
             <div className={`container ${styles.containerStyle}`}>
                 <h2 className={styles.title}>
                     <span>회원 정보 수정 </span>
                 </h2>
                 <div className={styles.userContainer}>
                     <div className={styles.userInput}>
+                        <h3 className={styles.title}>
+                            <span>아이디 </span>
+                        </h3>
                         <div className={styles.inputGroup}>
                             <label>아이디</label>
                             <input
@@ -98,7 +101,14 @@ const UserSetting = () => {
                                 readOnly
                             />
                         </div>
-
+                    </div>
+                </div>
+                <br />
+                <div className={styles.userContainer}>
+                    <div className={styles.userInput}>
+                        <h3 className={styles.title}>
+                            <span>이메일 재설정 </span>
+                        </h3>
                         <div className={styles.inputGroup}>
                             <label>이메일</label>
                             <input
@@ -110,7 +120,14 @@ const UserSetting = () => {
                             {errorState.newEmail && <span className={styles.errorMessage}>{errorState.newEmail}</span>}
                             <button type="button" onClick={updateEmail}>수정</button>
                         </div>
-
+                    </div>
+                </div>
+                <br />
+                <div className={styles.userContainer}>
+                    <div className={styles.userInput}>
+                        <h3 className={styles.title}>
+                            <span>비밀번호 재설정 </span>
+                        </h3>
                         <div className={styles.inputGroup}>
                             <label>현재 비밀번호</label>
                             <input
