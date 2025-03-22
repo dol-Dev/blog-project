@@ -118,13 +118,13 @@ const Layout = ({ children }) => {
                     ) : layoutInfoByPrincipal.blogName === blogName ? (
                         <div className={styles.banner}>
                             <h1>{blogName} Blog</h1>
-                            <img src={layoutInfoByPrincipal.bannerImage} alt="Banner" className={styles.bannerImage} />
+                            <img src={layoutInfoByPrincipal.bannerImage} className={styles.bannerImage} />
                             <p>{layoutInfoByPrincipal.bannerDescription}</p>
                         </div>
                     ) : (
                         <div className={styles.banner}>
                             <h1>{blogName} Blog</h1>
-                            <img src={layoutInfoByNickname.bannerImage} alt="Banner" className={styles.bannerImage} />
+                            <img src={layoutInfoByNickname.bannerImage}  className={styles.bannerImage} />
                             <p>{layoutInfoByNickname.bannerDescription}</p>
                         </div>
                     )}
