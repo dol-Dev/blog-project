@@ -30,12 +30,16 @@ import ManagePost from '../pages/post/manage/ManagePost';
 import SearchPost from '../pages/post/search/SearchPost';
 import UserSetting from '../pages/user/info/UserSetting';
 import ProtectedRoute from './auth/ProtectedRoute';
+import Withdraw from '../pages/user/withdraw/Withdraw';
+
 const AppRoutes = () => {
     const location = useLocation();
     const isLoginPage = location.pathname === '/login';
     const isFindPage = location.pathname === '/find';
     const isWriteOrUpdatePage = location.pathname === '/write-post' || location.pathname.startsWith('/update-post/');
     const isManagePage = location.pathname.startsWith('/manage');
+    const isWithdrawPage = location.pathname === '/withdraw';
+    const isProfileOrUserPage = location.pathname === '/user' || location.pathname === '/profile';
 
     if (isLoginPage) {
         return (
@@ -61,6 +65,18 @@ const AppRoutes = () => {
         );
     }
 
+    if (isWithdrawPage) {
+        return (
+            <>
+                <Header />
+                <Routes>
+                    <Route path="/withdraw" element={<Withdraw />} />
+                </Routes>
+                <Footer />
+            </>
+        );
+    }
+
     if (isWriteOrUpdatePage) {
         return (
             <ProtectedRoute>
@@ -75,6 +91,33 @@ const AppRoutes = () => {
                     </PostActionProvider>
                 </QuillProvider>
             </ProtectedRoute>
+        );
+    }
+
+    if (isProfileOrUserPage) {
+        return (
+            <>
+                <Header />
+                <Routes>
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfileSetting />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/user"
+                        element={
+                            <ProtectedRoute>
+                                <UserSetting />
+                            </ProtectedRoute>
+                        }
+                    />
+                </Routes>
+                <Footer />
+            </>
         );
     }
 
@@ -143,22 +186,6 @@ const AppRoutes = () => {
                     <Route path="/blog/:nickname" element={<BlogRedirector />} />
                     <Route path="/detail-post/:id" element={<DetailPost />} />
                     <Route path="/search-post" element={<SearchPost />} />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <ProfileSetting />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/user"
-                        element={
-                            <ProtectedRoute>
-                                <UserSetting />
-                            </ProtectedRoute>
-                        }
-                    />
                     <Route
                         path="/posts/:categoryId?"
                         element={
