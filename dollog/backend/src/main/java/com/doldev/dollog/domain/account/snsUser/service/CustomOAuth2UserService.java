@@ -12,6 +12,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -55,7 +57,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private CustomUserDetails handleExistingUser(SnsUser user, OAuth2User oauth2User) {
-        log.info("Existing {} user: {}", user.getProvider().name(), user.getUsername());
+        if (user.isWithdrawStatus()) {
+            // OAuth2Error 생성
+            OAuth2Error oAuth2Error = new OAuth2Error(
+                    "account_disabled",
+                    "ACCOUNT_DISABLED:" + user.getUsername(),
+                    null);
+            // OAuth2AuthenticationException 던짐
+            throw new OAuth2AuthenticationException(oAuth2Error, "ACCOUNT_DISABLED:" + user.getUsername());
+        }
         return new CustomUserDetails(user, oauth2User.getAttributes());
     }
 

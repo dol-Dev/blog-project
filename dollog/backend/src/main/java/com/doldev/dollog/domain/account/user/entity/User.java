@@ -67,7 +67,7 @@ public class User {
     private LocalDateTime updateDate;
 
     // 탈퇴
-    @Column(name = "withdraw_requested_at")
+    @Column(name = "withdraw_req_at")
     private LocalDateTime withdrawReqAt;
 
     @Column(name = "withdraw_status")

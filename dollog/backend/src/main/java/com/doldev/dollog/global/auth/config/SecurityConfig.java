@@ -12,10 +12,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
+import com.doldev.dollog.domain.account.snsUser.service.CustomOAuth2FailureHandler;
 import com.doldev.dollog.domain.account.snsUser.service.CustomOAuth2UserService;
 import com.doldev.dollog.global.auth.filter.CustomAuthenticationFilter;
-import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.doldev.dollog.global.auth.service.TokenAuthenticationManager;
+import com.doldev.dollog.global.auth.service.TokenCookieService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class SecurityConfig {
     private final CorsFilter corsFilter;
     private final TokenAuthenticationManager tokenAuthenticationManager;
     private final TokenCookieService tokenCookieService;
+    private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,12 +40,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler((req, res, auth) -> res.sendRedirect("http://localhost:3000")));
+                        .successHandler((req, res, auth) -> res.sendRedirect("http://localhost:3000"))
+                        .failureHandler(customOAuth2FailureHandler));
 
         return http.build();
     }

@@ -22,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @Entity
+@Table(name = "sns_user")
 public class SnsUser {
 
     @Id
@@ -66,7 +68,7 @@ public class SnsUser {
     private LocalDateTime updateDate;
 
     // 탈퇴
-    @Column(name = "withdraw_requested_at")
+    @Column(name = "withdraw_req_at")
     private LocalDateTime withdrawReqAt;
 
     @Column(name = "withdraw_status")

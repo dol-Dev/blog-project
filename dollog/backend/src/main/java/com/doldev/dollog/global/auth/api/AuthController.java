@@ -1,5 +1,7 @@
 package com.doldev.dollog.global.auth.api;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -45,20 +47,21 @@ public class AuthController {
                         throw new BindException(bindingResult);
                 }
                 authService.login(reqDto, res);
-                return ResponseEntity.ok(
-                                ApiResDto.<Void>builder().messageCode("SUCCESS_LOGIN").build());
+                return ResponseEntity.ok(ApiResDto.<Void>builder()
+                                .messageCode("SUCCESS_LOGIN")
+                                .build());
         }
 
         // 로그아웃
         @PostMapping("/logout")
-        public ResponseEntity<ApiResDto<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
+        public ResponseEntity<ApiResDto<Void>> logout(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
                         HttpServletRequest req,
                         HttpServletResponse res) {
                 authService.logout(userDetails, req, res);
-                return ResponseEntity.ok()
-                                .body(ApiResDto.<Void>builder()
-                                                .messageCode("LOGOUT_SUCCESS")
-                                                .build());
+                return ResponseEntity.ok(ApiResDto.<Void>builder()
+                                .messageCode("LOGOUT_SUCCESS")
+                                .build());
         }
 
         // 회원 탈퇴
@@ -73,16 +76,30 @@ public class AuthController {
                                 .build());
         }
 
+        // 비활성화 해제
+        @PostMapping("/unlock")
+        public ResponseEntity<ApiResDto<Void>> unlock(@RequestBody Map<String, String> payload) {
+                String username = payload.get("username");
+                if (username == null || username.trim().isEmpty()) {
+                        throw new IllegalArgumentException("Username must be provided.");
+                }
+
+                authService.unlockAccount(username);
+
+                return ResponseEntity.ok(ApiResDto.<Void>builder()
+                                .messageCode("ACCOUNT_UNLOCKED")
+                                .build());
+        }
+
         // 인증된 사용자의 여러 정보 조회
         @GetMapping("/info")
         public ResponseEntity<ApiResDto<AuthenticatedUserResDto>> getUserInfo(
                         @AuthenticationPrincipal CustomUserDetails userDetails) {
                 AuthenticatedUserResDto userInfo = authService.getUserInfo(userDetails);
-                return ResponseEntity.ok()
-                                .body(ApiResDto.<AuthenticatedUserResDto>builder()
-                                                .messageCode("USER_INFO_FETCH_SUCCESS")
-                                                .data(userInfo)
-                                                .build());
+                return ResponseEntity.ok(ApiResDto.<AuthenticatedUserResDto>builder()
+                                .messageCode("USER_INFO_FETCH_SUCCESS")
+                                .data(userInfo)
+                                .build());
         }
 
         @ExceptionHandler(AuthenticationException.class)

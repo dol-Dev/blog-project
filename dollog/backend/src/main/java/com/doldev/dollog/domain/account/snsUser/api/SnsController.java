@@ -21,16 +21,28 @@ public class SnsController {
     private final SnsService snsService;
 
     @GetMapping("/kakao/callback")
-    public String kakaoLogin(@RequestParam("code") String code, HttpServletRequest req, HttpServletResponse res)
-            throws JsonProcessingException {
-        snsService.process(SnsType.KAKAO, code, req, res);
-        return "redirect:http://localhost:3000";
+    public String kakaoLogin(@RequestParam("code") String code, HttpServletRequest req, HttpServletResponse res) {
+        String result = snsService.process(SnsType.KAKAO, code, req, res);
+
+        if (result.startsWith("ACCOUNT_DISABLED:")) {
+            String blockedUsername = result.substring("ACCOUNT_DISABLED:".length());
+            return "redirect:http://localhost:3000/login?error=ACCOUNT_DISABLED&username=" + blockedUsername;
+        } else {
+            return "redirect:http://localhost:3000";
+        }
     }
 
     @GetMapping("/naver/callback")
     public String naverLogin(@RequestParam("code") String code, HttpServletRequest req, HttpServletResponse res)
             throws JsonProcessingException {
-        snsService.process(SnsType.NAVER, code, req, res);
-        return "redirect:http://localhost:3000";
+        String result = snsService.process(SnsType.NAVER, code, req, res);
+
+        if (result.startsWith("ACCOUNT_DISABLED:")) {
+            String blockedUsername = result.substring("ACCOUNT_DISABLED:".length());
+            return "redirect:http://localhost:3000/login?error=ACCOUNT_DISABLED&username=" + blockedUsername;
+        } else {
+            return "redirect:http://localhost:3000";
+        }
     }
+    
 }

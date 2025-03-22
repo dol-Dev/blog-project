@@ -45,14 +45,15 @@ public class SnsService {
     @Value("${naver.client.secret}")
     private String naverClientSecret;
 
-    public void process(SnsType snsType, String code, HttpServletRequest req, HttpServletResponse res) {
+    public String process(SnsType snsType, String code, HttpServletRequest req, HttpServletResponse res) {
         try {
             String accessToken = getAccessToken(snsType, code);
-
             String username = snsUtils.gerUsername(accessToken, snsType);
 
-            signupOrLogin(username, snsType, req, res);
+            return signupOrLogin(username, snsType, req, res);
 
+        } catch (IllegalStateException ex) {
+            throw ex;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -71,21 +72,24 @@ public class SnsService {
         };
     }
 
-    private void signupOrLogin(String username, SnsType snsType, HttpServletRequest req, HttpServletResponse res) {
+    private String signupOrLogin(String username, SnsType snsType, HttpServletRequest req, HttpServletResponse res) {
 
         SnsProvider provider = SnsProvider.valueOf(snsType.getProvider());
-
-        // 기존 사용자 조회 및 신규 사용자 등록
         SnsUser snsUser = snsUserRepository.findByUsernameAndProvider(username, provider)
-                .orElseGet(() -> {
-                    // 신규 사용자 등록 후 반환
-                    return snsUserRegistrationService.registerNewUser(username, provider);
-                });
+                .orElseGet(() -> snsUserRegistrationService.registerNewUser(username, provider));
 
-        // 인증 처리
+        // 탈퇴 상태인 경우
+        if (snsUser.isWithdrawStatus()) {
+            // 커스텀 예외 대신 “ACCOUNT_DISABLED:…” 형태의 문자열 반환
+            return "ACCOUNT_DISABLED:" + username;
+        }
+
+        // 정상 처리
         setAuthenticationSnsUser(snsUser);
         Map<String, String> tokens = tokenService.generateNewTokens(username);
         tokenCookieService.setTokens(res, tokens);
+
+        return username;
     }
 
     public void setAuthenticationSnsUser(SnsUser snsUser) {
