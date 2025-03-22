@@ -56,40 +56,42 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .orElseGet(() -> handleNewUser(username, provider, oauth2User));
     }
 
-    private CustomUserDetails handleExistingUser(SnsUser user, OAuth2User oauth2User) {
-        if (user.isWithdrawStatus()) {
-            // OAuth2Error 생성
+    // 기존 사용자 
+    private CustomUserDetails handleExistingUser(SnsUser snsUser, OAuth2User oauth2User) {
+        if (snsUser.isWithdrawStatus()) {
             OAuth2Error oAuth2Error = new OAuth2Error(
                     "account_disabled",
-                    "ACCOUNT_DISABLED:" + user.getUsername(),
+                    "ACCOUNT_DISABLED:" + snsUser.getUsername(),
                     null);
-            // OAuth2AuthenticationException 던짐
-            throw new OAuth2AuthenticationException(oAuth2Error, "ACCOUNT_DISABLED:" + user.getUsername());
+            throw new OAuth2AuthenticationException(oAuth2Error, "ACCOUNT_DISABLED:" + snsUser.getUsername());
         }
-        return new CustomUserDetails(user, oauth2User.getAttributes());
+        applyTokens(snsUser);
+        return new CustomUserDetails(snsUser, oauth2User.getAttributes());
     }
 
+    // 신규 사용자 
     private CustomUserDetails handleNewUser(String snsId, SnsProvider provider, OAuth2User oauth2User) {
         SnsUser newUser = registerAndAuthenticateUser(
                 () -> snsUserRegistrationService.registerNewUser(snsId, provider));
         return new CustomUserDetails(newUser, oauth2User.getAttributes());
     }
 
-    // 등록 및 SNS 사용자 인증 실행
     private SnsUser registerAndAuthenticateUser(Supplier<SnsUser> registrationStrategy) {
         SnsUser newUser = registrationStrategy.get();
-
         setAuthenticationGoogleUser(newUser);
+        applyTokens(newUser);
+        return newUser;
+    }
 
-        Map<String, String> tokens = tokenService.generateNewTokens(newUser.getUsername());
-
+    // 토큰 생성 및 쿠키 설정
+    private void applyTokens(SnsUser user) {
+        Map<String, String> tokens = tokenService.generateNewTokens(user.getUsername());
         HttpServletResponse res = getCurrentResponse();
         if (res != null) {
             tokenCookieService.setTokens(res, tokens);
         } else {
             log.warn("HttpServletResponse is not available in the current context.");
         }
-        return newUser;
     }
 
     private HttpServletResponse getCurrentResponse() {
