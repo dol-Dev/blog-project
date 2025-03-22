@@ -7,47 +7,66 @@ import styles from './findAccount.module.css';
 
 const FindAccount = () => {
     const [isRightPanelActive, setIsRightPanelActive] = useState(false);
-    const [emailForId, setEmailForId] = useState('');
-    const [codeForId, setCodeForId] = useState('');
-    const [emailForPassword, setEmailForPassword] = useState('');
-    const [codeForPassword, setCodeForPassword] = useState('');
-    const [emailSentForId, setEmailSentForId] = useState(false);
-    const [emailSentForPassword, setEmailSentForPassword] = useState(false);
-    const [codeVerifiedForId, setCodeVerifiedForId] = useState(false);
-    const [codeVerifiedForPassword, setCodeVerifiedForPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [code, setCode] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
+    const [codeVerified, setCodeVerified] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // 아이디 찾기
-    const handleSendCodeForId = async (email) => {
+    const [errorState, setErrorState] = useState({
+        email: '',
+        code: '',
+    });
+
+    // 코드 전송
+    const handleSendCode = async (email) => {
+        setErrorState({ ...errorState, email: '' });
         setLoading(true);
         try {
-            await axiosInstance.post('/api/accounts/recovery/code', null, {
-                params: { email }
+            await axiosInstance.post('/api/codes', {
+                email: email,
             });
             toast.success('인증 코드가 전송되었습니다. 이메일을 확인하고 인증해주세요.');
-            setEmailSentForId(true);
+            setEmailSent(true);
         } catch (error) {
+            if (error.response) {
+                const errors = error.response.data.errors || {};
+                setErrorState((prevState) => ({
+                    ...prevState,
+                    email: errors.email || ''
+                }));
+            }
             toast.error('인증 코드 전송 실패. 다시 시도해주세요.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleVerifyCodeForId = async (code) => {
+    // 코드 검증
+    const handleVerifyCode = async (verificationCode) => {
+        setErrorState({ ...errorState, code: '' });
         setLoading(true);
         try {
-            await axiosInstance.post('/api/accounts/recovery/code/verify', null, {
-                params: { code }
+            await axiosInstance.post('/api/codes/verify', {
+                code: verificationCode,
             });
             toast.success('인증이 완료되었습니다. 아래 링크를 클릭하여 아이디를 확인하세요.');
-            setCodeVerifiedForId(true);
+            setCodeVerified(true);
         } catch (error) {
+            if (error.response) {
+                const errors = error.response.data.errors || {};
+                setErrorState((prevState) => ({
+                    ...prevState,
+                    code: errors.code || ''
+                }));
+            }
             toast.error('인증 실패. 다시 시도해주세요.');
         } finally {
             setLoading(false);
         }
     };
 
+    // 아이디 찾기
     const handleSendUsername = async (email) => {
         setLoading(true);
         try {
@@ -63,36 +82,6 @@ const FindAccount = () => {
     };
 
     // 비밀번호 찾기 
-    const handleSendCodeForPassword = async (email) => {
-        setLoading(true);
-        try {
-            await axiosInstance.post('/api/accounts/recovery/code', null, {
-                params: { email }
-            });
-            toast.success('인증 코드가 전송되었습니다. 이메일을 확인하고 인증해주세요.');
-            setEmailSentForPassword(true);
-        } catch (error) {
-            toast.error('인증 코드 전송 실패. 다시 시도해주세요.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyCodeForPassword = async (code) => {
-        setLoading(true);
-        try {
-            await axiosInstance.post('/api/accounts/recovery/code/verify', null, {
-                params: { code }
-            });
-            toast.success('인증이 완료되었습니다. 아래 링크를 클릭하여 비밀번호를 재설정하세요.');
-            setCodeVerifiedForPassword(true);
-        } catch (error) {
-            toast.error('인증 실패. 다시 시도해주세요.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSendTempPassword = async (email) => {
         setLoading(true);
         try {
@@ -118,47 +107,51 @@ const FindAccount = () => {
                             <input
                                 type="email"
                                 placeholder="이메일을 입력하여 인증 코드를 받으세요."
-                                value={emailForId}
-                                onChange={(e) => setEmailForId(e.target.value)}
-                                disabled={emailSentForId}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={emailSent}
                             />
                             <Button icon
                                 circular
-                                onClick={() => handleSendCodeForId(emailForId)}
-                                disabled={emailSentForId || loading}
+                                onClick={() => handleSendCode(email)}
+                                disabled={emailSent || loading}
                                 color='black'
                                 className={styles['button-margin']}>
                                 <Icon name='send' />
                             </Button>
+                            <br/>
+                            {errorState.email && <span className={styles.errorMessage}>{errorState.email}</span>}
                         </div>
                         {loading && <Loader active inline='centered' />}
-                        {emailSentForId && (
+                        {emailSent && (
                             <div className={styles['form-group']}>
                                 <input
                                     type="text"
                                     placeholder="8자리 인증 코드를 입력하세요."
-                                    value={codeForId}
-                                    onChange={(e) => setCodeForId(e.target.value)}
-                                    disabled={codeVerifiedForId}
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    disabled={codeVerified}
                                 />
                                 <Button icon
                                     circular
-                                    onClick={() => handleVerifyCodeForId(codeForId)}
-                                    disabled={codeVerifiedForId || loading}
+                                    onClick={() => handleVerifyCode(code)}
+                                    disabled={codeVerified || loading}
                                     color='black'
                                     className={styles['button-margin']}>
                                     <Icon name='check' />
                                 </Button>
+                                <br/>
+                                {errorState.code && <span className={styles.errorMessage}>{errorState.code}</span>}
                             </div>
                         )}
-                        {codeVerifiedForId && (
+                        {codeVerified && (
                             <div className={styles['message info']}>
                                 <p>
                                     인증이 완료되었습니다. {' '}
-                                    <span onClick={() => handleSendUsername(emailForId)} className={styles['link']}>
+                                    <span onClick={() => handleSendUsername(email)} className={styles['link']}>
                                         여기
                                     </span>
-                                    를 클릭하여 이메일로 아이디를 받으세요.
+                                    를 클릭하여 이메일로 아이디를 확인하세요.
                                 </p>
                             </div>
                         )}
@@ -172,44 +165,48 @@ const FindAccount = () => {
                             <input
                                 type="email"
                                 placeholder="이메일을 입력하여 인증 코드를 받으세요."
-                                value={emailForPassword}
-                                onChange={(e) => setEmailForPassword(e.target.value)}
-                                disabled={emailSentForPassword}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={emailSent}
                             />
                             <Button icon
                                 circular
-                                onClick={() => handleSendCodeForPassword(emailForPassword)}
-                                disabled={emailSentForPassword || loading}
+                                onClick={() => handleSendCode(email)}
+                                disabled={emailSent || loading}
                                 color='black'
                                 className={styles['button-margin']}>
                                 <Icon name='send' />
                             </Button>
+                            <br/>
+                            {errorState.email && <span className={styles.errorMessage}>{errorState.email}</span>}
                         </div>
                         {loading && <Loader active inline='centered' />}
-                        {emailSentForPassword && (
+                        {emailSent && (
                             <div className={styles['form-group']}>
                                 <input
                                     type="text"
                                     placeholder="8자리 인증 코드를 입력하세요."
-                                    value={codeForPassword}
-                                    onChange={(e) => setCodeForPassword(e.target.value)}
-                                    disabled={codeVerifiedForPassword}
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    disabled={codeVerified}
                                 />
                                 <Button icon
                                     circular
-                                    onClick={() => handleVerifyCodeForPassword(codeForPassword)}
-                                    disabled={codeVerifiedForPassword || loading}
+                                    onClick={() => handleVerifyCode(code)}
+                                    disabled={codeVerified || loading}
                                     color='black'
                                     className={styles['button-margin']}>
                                     <Icon name='check' />
                                 </Button>
+                                <br/>
+                                {errorState.code && <span className={styles.errorMessage}>{errorState.code}</span>}
                             </div>
                         )}
-                        {codeVerifiedForPassword && (
+                        {codeVerified && (
                             <div className={styles['message info']}>
                                 <p>
                                     인증이 완료되었습니다. {' '}
-                                    <span onClick={() => handleSendTempPassword(emailForPassword)} className={styles['link']}>
+                                    <span onClick={() => handleSendTempPassword(email)} className={styles['link']}>
                                         여기
                                     </span>
                                     를 클릭하여 이메일로 임시 비밀번호를 받으세요.
@@ -225,9 +222,14 @@ const FindAccount = () => {
                             <p>이메일을 입력하여 아이디를 찾으세요.</p>
                             <button
                                 className={styles['ghost']}
-                                onClick={() => setIsRightPanelActive(false)}
-                                id="findId"
-                            >
+                                onClick={() => {
+                                    setIsRightPanelActive(false);
+                                    setEmail('');
+                                    setCode('');
+                                    setEmailSent(false);
+                                    setCodeVerified(false);
+                                }}
+                                id="findId">
                                 아이디 찾기
                             </button>
                         </div>
@@ -236,9 +238,14 @@ const FindAccount = () => {
                             <p>이메일을 입력하여 비밀번호를 재설정하세요.</p>
                             <button
                                 className={styles['ghost']}
-                                onClick={() => setIsRightPanelActive(true)}
-                                id="findPassword"
-                            >
+                                onClick={() => {
+                                    setIsRightPanelActive(true);
+                                    setEmail('');
+                                    setCode('');
+                                    setEmailSent(false);
+                                    setCodeVerified(false);
+                                }}
+                                id="findPassword">
                                 비밀번호 재설정
                             </button>
                         </div>

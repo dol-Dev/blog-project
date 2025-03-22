@@ -232,16 +232,9 @@
     text-decoration: underline;
 }
 
-@keyframes show {
-    0%,
-    49.99% {
-        opacity: 0;
-        z-index: 1;
-    }
-
-    50%,
-    100% {
-        opacity: 1;
-        z-index: 5;
-    }
+/* 에러 메시지 */
+.errorMessage {
+    color: #d9534f;
+    font-size: 13px;
+    margin-top: -3px;
 }
