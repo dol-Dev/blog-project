@@ -74,23 +74,6 @@ public class FindService {
         }
     }
 
-    public String sendCodeMail(String email) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        String authNum = createCode();
-
-        try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email); // 메일 수신자
-            mimeMessageHelper.setSubject("인증을 위한 코드 발송"); // 메일 제목
-            mimeMessageHelper.setText("인증코드는 " + authNum + "입니다.");
-            javaMailSender.send(mimeMessage);
-            return authNum;
-
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // 인증번호 및 임시 비밀번호 생성 메서드
     public String createCode() {
         Random random = new Random();
