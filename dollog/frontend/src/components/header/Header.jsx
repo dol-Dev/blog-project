@@ -186,7 +186,7 @@ const Header = ({ onBlogSidebarToggle, isLargeScreen }) => {
                         </Nav>
                     )}
                 </div>
-                
+
                 {authInfo ? (
                     <div className={styles.rightSection}>
                         <Dropdown
@@ -217,6 +217,11 @@ const Header = ({ onBlogSidebarToggle, isLargeScreen }) => {
                                     text="로그아웃"
                                     icon="power off"
                                     onClick={handleLogout}
+                                />
+                                <Dropdown.Item
+                                    text="계정 탈퇴"
+                                    icon="remove circle"
+                                    onClick={() => navigate('/withdraw')}
                                 />
                             </Dropdown.Menu>
                         </Dropdown>
