@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import styles from './loginAndSignUp.module.css';
 
 const LoginAndSignUp = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const { fetchUserInfo } = useAuth();
 
@@ -32,32 +33,130 @@ const LoginAndSignUp = () => {
         password: ''
     });
 
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const error = params.get('error');
+        const blockedUsername = params.get('username');
+
+        if (error === 'ACCOUNT_DISABLED' && blockedUsername) {
+            Swal.fire({
+                title: '비활성화 상태 해제',
+                html: `<p>현재 계정이 탈퇴 요청으로 인해 비활성화 상태입니다.<br>
+                   비활성화 상태를 해제하시려면 아래에 "해제"를 입력해주세요.</p>
+                   <input id="swal-input" class="swal2-input" placeholder="해제를 입력하세요">`,
+                showCancelButton: true,
+                confirmButtonText: '해제합니다',
+                cancelButtonText: '취소',
+                focusConfirm: false,
+                didOpen: () => {
+                    const confirmButton = Swal.getConfirmButton();
+                    confirmButton.disabled = true;
+                    const input = document.getElementById('swal-input');
+                    input.addEventListener('input', () => {
+                        confirmButton.disabled = input.value !== '해제';
+                    });
+                },
+                preConfirm: () => {
+                    return document.getElementById('swal-input').value;
+                },
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await axiosInstance.post('/api/auth/unlock', { username: blockedUsername });
+                        Swal.fire({
+                            title: '해제 완료',
+                            text: '계정 비활성화가 해제되었습니다. 다시 로그인하여 이용해 주세요.',
+                            icon: 'success',
+                            confirmButtonText: '확인',
+                        }).then((res) => {
+                            if (res.isConfirmed) {
+                                navigate('/login');
+                                fetchUserInfo();
+                            }
+                        });
+                    } catch (unlockError) {
+                        toast.error('계정 해제 실패. 다시 시도해주세요.');
+                    }
+                }
+            });
+        }
+    }, [location]);
+
     const handleLogin = async () => {
         // 로그인 요청 전 에러 상태 초기화
         setLoginErrorState({ username: '', password: '' });
         try {
             await axiosInstance.post('/api/auth/login', {
                 username: username,
-                password: password
+                password: password,
             });
 
-            await Swal.fire({
+            // 로그인 성공 시 Alert
+            Swal.fire({
                 icon: 'success',
-                text: '환영합니다!'
-            }).then(() => {
-                navigate('/');
-                fetchUserInfo();
+                text: '환영합니다!',
+                confirmButtonText: '확인',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/');
+                    fetchUserInfo();
+                }
             });
         } catch (error) {
             if (error.response) {
-                const errors = error.response.data.errors;
-                if (errors) {
-                    setLoginErrorState({
-                        username: errors.username || '',
-                        password: errors.password || ''
+                if (error.response.data.message === 'ACCOUNT_DISABLED') {
+                    Swal.fire({
+                        title: '비활성화 상태 해제',
+                        html: `<p>현재 계정이 탈퇴 요청으로 인해 비활성화 상태입니다.<br>
+                       비활성화 상태를 해제하시려면 아래에 "해제"를 입력해주세요.</p>
+                       <input id="swal-input" class="swal2-input" placeholder="해제를 입력하세요">`,
+                        showCancelButton: true,
+                        confirmButtonText: '해제합니다',
+                        cancelButtonText: '취소',
+                        focusConfirm: false,
+                        didOpen: () => {
+                            const confirmButton = Swal.getConfirmButton();
+                            confirmButton.disabled = true;
+                            const input = document.getElementById('swal-input');
+                            input.addEventListener('input', () => {
+                                confirmButton.disabled = input.value !== '해제';
+                            });
+                        },
+                        preConfirm: () => {
+                            return document.getElementById('swal-input').value;
+                        },
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                await axiosInstance.post('/api/auth/unlock', { username });
+                                // 해제 완료 Alert
+                                Swal.fire({
+                                    title: '해제 완료',
+                                    text: '계정 비활성화가 해제되었습니다. 다시 로그인하여 이용해 주세요.',
+                                    icon: 'success',
+                                    confirmButtonText: '확인',
+                                }).then((res) => {
+                                    if (res.isConfirmed) {
+                                        navigate('/login');
+                                        fetchUserInfo();
+                                    }
+                                });
+                            } catch (unlockError) {
+                                toast.error('계정 해제 실패. 다시 시도해주세요.');
+                            }
+                        }
                     });
+                } else {
+                    // 일반 로그인 에러 처리
+                    const errors = error.response.data.errors;
+                    if (errors) {
+                        setLoginErrorState({
+                            username: errors.username || '',
+                            password: errors.password || '',
+                        });
+                    }
+                    toast.error('로그인 실패. 다시 시도해주세요.');
                 }
-                toast.error('로그인 실패. 다시 시도해주세요.');
             }
         }
     };
