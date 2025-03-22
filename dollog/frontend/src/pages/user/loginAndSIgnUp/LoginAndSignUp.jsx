@@ -10,7 +10,6 @@ import styles from './loginAndSignUp.module.css';
 const LoginAndSignUp = () => {
     const navigate = useNavigate();
     const location = useLocation();
-
     const { fetchUserInfo } = useAuth();
 
     const [isRightPanelActive, setIsRightPanelActive] = useState(false);
@@ -20,70 +19,85 @@ const LoginAndSignUp = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    // 로그인 & 회원가입 에러 상태 관리
-    const [LoginErrorState, setLoginErrorState] = useState({
+    const [loginErrorState, setLoginErrorState] = useState({
         username: '',
         password: '',
     });
-
-    const [SignUpErrorState, setSignUpErrorState] = useState({
+    const [signUpErrorState, setSignUpErrorState] = useState({
         nickname: '',
         email: '',
         username: '',
         password: ''
     });
 
+    // 계정 해제 모달 
+    const showUnlockModal = async (usernameParam) => {
+        const result = await Swal.fire({
+            title: '<strong>비활성화 상태 해제</strong>',
+            html: `
+        <div style="font-size:16px; color:#555; line-height:1.5;">
+          <p>현재 계정이 탈퇴 요청으로 인해 비활성화 상태입니다.</p>
+          <p>해제를 원하시면 아래에 <strong>"해제"</strong>를 입력해주세요.</p>
+          <input id="swal-input" class="swal2-input" placeholder="해제를 입력하세요" style="font-size:16px; padding:8px;">
+        </div>
+      `,
+            showCancelButton: true,
+            confirmButtonText: '해제합니다',
+            cancelButtonText: '취소',
+            focusConfirm: false,
+            background: '#fff',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#aaa',
+            customClass: {
+                popup: 'my-swal-popup',
+                confirmButton: 'my-swal-confirm',
+                cancelButton: 'my-swal-cancel'
+            },
+            didOpen: () => {
+                const confirmButton = Swal.getConfirmButton();
+                confirmButton.disabled = true;
+                const input = document.getElementById('swal-input');
+                input.addEventListener('input', () => {
+                    confirmButton.disabled = input.value !== '해제';
+                });
+            },
+            preConfirm: () => {
+                return document.getElementById('swal-input').value;
+            },
+        });
+        if (result.isConfirmed) {
+            try {
+                await axiosInstance.post('/api/auth/unlock', { username: usernameParam });
+                await Swal.fire({
+                    title: '<strong>해제 완료</strong>',
+                    html: '계정 비활성화가 해제되었습니다.<br>다시 로그인하여 이용해 주세요.',
+                    icon: 'success',
+                    confirmButtonText: '확인',
+                    background: '#fff',
+                    confirmButtonColor: '#3085d6',
+                    customClass: {
+                        popup: 'my-swal-popup',
+                        confirmButton: 'my-swal-confirm'
+                    },
+                });
+                navigate('/login');
+                fetchUserInfo();
+            } catch (unlockError) {
+                toast.error('계정 해제 실패. 다시 시도해주세요.');
+            }
+        }
+    };
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const error = params.get('error');
         const blockedUsername = params.get('username');
-
         if (error === 'ACCOUNT_DISABLED' && blockedUsername) {
-            Swal.fire({
-                title: '비활성화 상태 해제',
-                html: `<p>현재 계정이 탈퇴 요청으로 인해 비활성화 상태입니다.<br>
-                   비활성화 상태를 해제하시려면 아래에 "해제"를 입력해주세요.</p>
-                   <input id="swal-input" class="swal2-input" placeholder="해제를 입력하세요">`,
-                showCancelButton: true,
-                confirmButtonText: '해제합니다',
-                cancelButtonText: '취소',
-                focusConfirm: false,
-                didOpen: () => {
-                    const confirmButton = Swal.getConfirmButton();
-                    confirmButton.disabled = true;
-                    const input = document.getElementById('swal-input');
-                    input.addEventListener('input', () => {
-                        confirmButton.disabled = input.value !== '해제';
-                    });
-                },
-                preConfirm: () => {
-                    return document.getElementById('swal-input').value;
-                },
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        await axiosInstance.post('/api/auth/unlock', { username: blockedUsername });
-                        Swal.fire({
-                            title: '해제 완료',
-                            text: '계정 비활성화가 해제되었습니다. 다시 로그인하여 이용해 주세요.',
-                            icon: 'success',
-                            confirmButtonText: '확인',
-                        }).then((res) => {
-                            if (res.isConfirmed) {
-                                navigate('/login');
-                                fetchUserInfo();
-                            }
-                        });
-                    } catch (unlockError) {
-                        toast.error('계정 해제 실패. 다시 시도해주세요.');
-                    }
-                }
-            });
+            showUnlockModal(blockedUsername);
         }
     }, [location]);
 
     const handleLogin = async () => {
-        // 로그인 요청 전 에러 상태 초기화
         setLoginErrorState({ username: '', password: '' });
         try {
             await axiosInstance.post('/api/auth/login', {
@@ -91,11 +105,17 @@ const LoginAndSignUp = () => {
                 password: password,
             });
 
-            // 로그인 성공 시 Alert
             Swal.fire({
                 icon: 'success',
-                text: '환영합니다!',
+                title: '<strong>환영합니다!</strong>',
+                text: '로그인에 성공하였습니다.',
                 confirmButtonText: '확인',
+                background: '#fff',
+                confirmButtonColor: '#3085d6',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm'
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
                     navigate('/');
@@ -105,49 +125,8 @@ const LoginAndSignUp = () => {
         } catch (error) {
             if (error.response) {
                 if (error.response.data.message === 'ACCOUNT_DISABLED') {
-                    Swal.fire({
-                        title: '비활성화 상태 해제',
-                        html: `<p>현재 계정이 탈퇴 요청으로 인해 비활성화 상태입니다.<br>
-                       비활성화 상태를 해제하시려면 아래에 "해제"를 입력해주세요.</p>
-                       <input id="swal-input" class="swal2-input" placeholder="해제를 입력하세요">`,
-                        showCancelButton: true,
-                        confirmButtonText: '해제합니다',
-                        cancelButtonText: '취소',
-                        focusConfirm: false,
-                        didOpen: () => {
-                            const confirmButton = Swal.getConfirmButton();
-                            confirmButton.disabled = true;
-                            const input = document.getElementById('swal-input');
-                            input.addEventListener('input', () => {
-                                confirmButton.disabled = input.value !== '해제';
-                            });
-                        },
-                        preConfirm: () => {
-                            return document.getElementById('swal-input').value;
-                        },
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                await axiosInstance.post('/api/auth/unlock', { username });
-                                // 해제 완료 Alert
-                                Swal.fire({
-                                    title: '해제 완료',
-                                    text: '계정 비활성화가 해제되었습니다. 다시 로그인하여 이용해 주세요.',
-                                    icon: 'success',
-                                    confirmButtonText: '확인',
-                                }).then((res) => {
-                                    if (res.isConfirmed) {
-                                        navigate('/login');
-                                        fetchUserInfo();
-                                    }
-                                });
-                            } catch (unlockError) {
-                                toast.error('계정 해제 실패. 다시 시도해주세요.');
-                            }
-                        }
-                    });
+                    showUnlockModal(username);
                 } else {
-                    // 일반 로그인 에러 처리
                     const errors = error.response.data.errors;
                     if (errors) {
                         setLoginErrorState({
@@ -162,7 +141,6 @@ const LoginAndSignUp = () => {
     };
 
     const handleSignup = async () => {
-        // 회원가입 요청 전 에러 상태 초기화
         setSignUpErrorState({ nickname: '', email: '', username: '', password: '' });
         try {
             await axiosInstance.post('/api/users/signup', {
@@ -181,7 +159,6 @@ const LoginAndSignUp = () => {
         } catch (error) {
             if (error.response) {
                 const errors = error.response.data.errors;
-                console.log(error.response.data);
                 if (errors) {
                     setSignUpErrorState({
                         nickname: errors.nickname || '',
@@ -204,16 +181,16 @@ const LoginAndSignUp = () => {
                         <h1>계정 생성</h1>
                         <br />
                         <input type="text" placeholder="닉네임" value={nickname} onChange={(e) => setNickname(e.target.value)} />
-                        {SignUpErrorState.nickname && <span className={styles['login-signup-error']}>{SignUpErrorState.nickname}</span>}
+                        {signUpErrorState.nickname && <span className={styles['login-signup-error']}>{signUpErrorState.nickname}</span>}
 
                         <input type="email" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        {SignUpErrorState.email && <span className={styles['login-signup-error']}>{SignUpErrorState.email}</span>}
+                        {signUpErrorState.email && <span className={styles['login-signup-error']}>{signUpErrorState.email}</span>}
 
                         <input type="text" placeholder="아이디" value={username} onChange={(e) => setUsername(e.target.value)} />
-                        {SignUpErrorState.username && <span className={styles['login-signup-error']}>{SignUpErrorState.username}</span>}
+                        {signUpErrorState.username && <span className={styles['login-signup-error']}>{signUpErrorState.username}</span>}
 
                         <input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} />
-                        {SignUpErrorState.password && <span className={styles['login-signup-error']}>{SignUpErrorState.password}</span>}
+                        {signUpErrorState.password && <span className={styles['login-signup-error']}>{signUpErrorState.password}</span>}
 
                         <br /><br />
                         <button type="button" onClick={handleSignup}>회원가입</button>
@@ -225,12 +202,14 @@ const LoginAndSignUp = () => {
                     <form action="#">
                         <h1>로그인</h1>
                         <input type="text" placeholder="아이디" value={username} onChange={(e) => setUsername(e.target.value)} />
-                        {LoginErrorState.username && <span className={styles['login-signup-error']}>{LoginErrorState.username}</span>}
+                        {loginErrorState.username && <span className={styles['login-signup-error']}>{loginErrorState.username}</span>}
 
                         <input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} />
-                        {LoginErrorState.password && <span className={styles['login-signup-error']}>{LoginErrorState.password}</span>}
+                        {loginErrorState.password && <span className={styles['login-signup-error']}>{loginErrorState.password}</span>}
 
-                        <Link as={Link} to="/find" onClick={() => setShowFindModal(true)} style={{ margin: '30px 0 30px 0' }}>아이디/비밀번호를 잊으셨나요?</Link>
+                        <Link to="/find" onClick={() => setShowFindModal(true)} style={{ margin: '30px 0' }}>
+                            아이디/비밀번호를 잊으셨나요?
+                        </Link>
                         <button type="button" onClick={handleLogin}>로그인</button>
 
                         <div className={styles['login-signup-separator']}>
@@ -244,7 +223,7 @@ const LoginAndSignUp = () => {
                             <a href="https://nid.naver.com/oauth2.0/authorize?&response_type=code&client_id=INlvRIKGwlO9MzaRzyrE&redirect_uri=http://localhost:8080/api/oauth2/naver/callback">
                                 <img src="/images/naver_login_button.png" className={styles['login-signup-social-button']} alt="네이버 로그인" />
                             </a>
-                            <a href={`http://localhost:8080/oauth2/authorization/google`}>
+                            <a href="http://localhost:8080/oauth2/authorization/google">
                                 <div className={styles['login-signup-google-login-wrapper']}>
                                     <img src="/images/google_login_button.png" className={`${styles['login-signup-social-button']} ${styles['login-signup-google-login-button']}`} alt="구글 로그인" />
                                 </div>
@@ -258,12 +237,24 @@ const LoginAndSignUp = () => {
                         <div className={`${styles['overlay-panel']} ${styles['overlay-left']}`}>
                             <h1>안농</h1>
                             <p>로그인 해조.</p>
-                            <button className={styles['ghost']} onClick={() => setIsRightPanelActive(false)}>로그인</button>
+                            <button className={styles['ghost']} onClick={() => {
+                                setIsRightPanelActive(false);
+                                setNickname('');
+                                setEmail('');
+                                setUsername('');
+                                setPassword('');
+                            }}>로그인</button>
                         </div>
                         <div className={`${styles['overlay-panel']} ${styles['overlay-right']}`}>
                             <h1>처음보넹 ㅎㅇ</h1>
                             <p>회원가입 ㄱ</p>
-                            <button className={styles['ghost']} onClick={() => setIsRightPanelActive(true)}>회원가입</button>
+                            <button className={styles['ghost']} onClick={() => {
+                                setIsRightPanelActive(true)
+                                setNickname('');
+                                setEmail('');
+                                setUsername('');
+                                setPassword('');
+                            }}>회원가입</button>
                         </div>
                     </div>
                 </div>

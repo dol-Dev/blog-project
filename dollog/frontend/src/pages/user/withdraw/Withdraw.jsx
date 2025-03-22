@@ -31,7 +31,7 @@ const Withdraw = () => {
     // 일반 계정용: 이메일로 탈퇴용 인증 코드 발송
     const handleSendCode = async () => {
         setErrorState({ ...errorState, email: '' });
-        if(authInfo && !(authInfo.email === email)) {
+        if (authInfo && !(authInfo.email === email)) {
             setErrorState({ ...errorState, email: '해당 사용자의 이메일과 일치하지 않습니다.' });
         }
         setLoading(true);
@@ -81,24 +81,33 @@ const Withdraw = () => {
 
     const handleWithdraw = async () => {
         Swal.fire({
-            title: '회원 탈퇴 진행',
-            html: `<p>회원 탈퇴 유예기간 7일 동안 비활성화 상태가 되며,<br> 7일이 지나면 영구적으로 회원 탈퇴가 진행됩니다.<br>
-                 진행하시려면 아래에 "회원탈퇴"를 입력해주세요.</p>
-                 <input id="swal-input" class="swal2-input" placeholder="회원탈퇴를 입력하세요">`,
+            title: '<strong>회원 탈퇴 진행</strong>',
+            html: `
+            <div style="font-size:16px; color:#555; line-height:1.5;">
+              <p>회원 탈퇴 유예기간 7일 동안 계정이 비활성화되며,</p>
+              <p>7일이 지나면 영구적으로 탈퇴가 진행됩니다.</p>
+              <p>진행하시려면 아래에 <strong>"회원탈퇴"</strong>를 입력해주세요.</p>
+              <input id="swal-input" class="swal2-input" placeholder="회원탈퇴" style="font-size:16px; padding:8px;">
+            </div>
+          `,
             showCancelButton: true,
             confirmButtonText: '네, 진행합니다',
             cancelButtonText: '취소',
             focusConfirm: false,
+            background: '#fff',
+            confirmButtonColor: '#3085d6', 
+            cancelButtonColor: '#aaa',
+            customClass: {
+                popup: 'my-swal-popup',
+                confirmButton: 'my-swal-confirm',
+                cancelButton: 'my-swal-cancel'
+            },
             didOpen: () => {
                 const confirmButton = Swal.getConfirmButton();
                 confirmButton.disabled = true;
                 const input = document.getElementById('swal-input');
                 input.addEventListener('input', () => {
-                    if (input.value === '회원탈퇴') {
-                        confirmButton.disabled = false;
-                    } else {
-                        confirmButton.disabled = true;
-                    }
+                    confirmButton.disabled = input.value !== '회원탈퇴';
                 });
             },
             preConfirm: () => {
@@ -110,10 +119,16 @@ const Withdraw = () => {
                 try {
                     await axiosInstance.delete('/api/auth/withdraw');
                     Swal.fire({
-                        title: '탈퇴 완료',
-                        text: '회원 탈퇴 요청이 접수되었습니다. 7일 이후 탈퇴가 진행됩니다.',
+                        title: '<strong>탈퇴 완료</strong>',
+                        html: '회원 탈퇴 요청이 접수되었습니다.<br>7일 이후 탈퇴가 진행됩니다.',
                         icon: 'success',
-                        confirmButtonText: '확인'
+                        confirmButtonText: '확인',
+                        background: '#fff',
+                        customClass: {
+                            popup: 'my-swal-popup',
+                            confirmButton: 'my-swal-confirm'
+                        },
+                        confirmButtonColor: '#3085d6'
                     }).then((res) => {
                         if (res.isConfirmed) {
                             window.location.href = '/';
@@ -127,6 +142,7 @@ const Withdraw = () => {
             }
         });
     };
+
 
     // SNS 계정
     if (provider) {
