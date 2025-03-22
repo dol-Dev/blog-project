@@ -118,6 +118,9 @@ const ProfileSetting = () => {
         <>
             <br /><br />
             <div className={`container ${styles.containerStyle}`}>
+                <h2 className={styles.title}>
+                    <span>프로필 편집 </span>
+                </h2>
                 <div className={styles.profileContainer}>
                     {/* 아바타 이미지 */}
                     <div className={styles.avatarContainer}>
